@@ -1,0 +1,31 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-next-desktop-settings
+pkgver=1
+pkgrel=1
+pkgdesc="Antergos NeXT desktop settings and color scheme"
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-pkgs"
+license=('GPL3')
+source=(
+  "AntergosNeXT.colors"
+  "plasma-override"
+)
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+  # Color scheme
+  install -dm755 "${pkgdir}/usr/share/color-schemes"
+  install -m644 "${srcdir}/AntergosNeXT.colors" "${pkgdir}/usr/share/color-schemes/"
+
+  # Plasma theme default override
+  install -dm755 "${pkgdir}/etc/xdg/plasma-workspace/env"
+  install -m644 "${srcdir}/plasma-override" "${pkgdir}/etc/xdg/plasma-workspace/env/"
+
+  # Set as default for new users via /etc/skel
+  install -dm755 "${pkgdir}/etc/skel/.config"
+  cat > "${pkgdir}/etc/skel/.config/kdeglobals" << 'EOF'
+[General]
+ColorScheme=Antergos NeXT
+EOF
+}

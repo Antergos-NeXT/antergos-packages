@@ -4,4 +4,5 @@ packages:
   - downgrade
   - antergos-next-keyring
   - antergos-next-mirrorlist
+  - antergos-next-desktop-settings
   - cnchi
