@@ -3,7 +3,7 @@
 
 pkgname=cnchi
 pkgver=0.16.52
-pkgrel=1
+pkgrel=2
 pkgdesc="Antergos NeXT graphical installer"
 arch=('any')
 url="https://github.com/Antergos-NeXT/Cnchi"

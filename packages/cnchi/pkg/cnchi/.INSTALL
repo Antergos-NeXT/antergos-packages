@@ -1,0 +1,4 @@
+post_install() {
+    # Register Cnchi as a potential live session installer
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
+}
