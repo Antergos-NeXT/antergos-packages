@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>antergos-pkgs</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #0e0e18; color: #e4e4f0; }
+    h1 { color: #e08a3c; }
+    a { color: #7a8cff; text-decoration: none; }
+    a:hover { color: #e08a3c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #1e1e30; }
+    th { color: #6a6a8a; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.1em; }
+    tr:hover { background: #141420; }
+    .usage { background: #141420; border: 1px solid #1e1e30; border-radius: 8px; padding: 16px; margin: 20px 0; }
+    code { background: #08080e; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    pre { background: #08080e; border: 1px solid #1e1e30; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e1e30; color: #4a4a66; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <h1>antergos-pkgs</h1>
+  <p>AUR package repository for Antergos NeXT</p>
+
+  <div class="usage">
+    <strong>Add to /etc/pacman.conf</strong>
+    <pre>[antergos-pkgs]
+SigLevel = Optional TrustAll
+Server = https://Antergos-NeXT.github.io/antergos-pkgs/$repo/os/$arch
+Server = https://Antergos-NeXT.github.io/antergos-pkgs</pre>
+  </div>
+
+  <table>
+    <tr><th>Package</th><th>Size</th></tr>
+          <tr>
+            <td><a href="antergos-next-keyring-1-1-any.pkg.tar.zst">antergos-next-keyring-1-1-any.pkg.tar.zst</a></td>
+            <td>0.0 MB</td>
+          </tr>
+          <tr>
+            <td><a href="antergos-next-mirrorlist-1-1-any.pkg.tar.zst">antergos-next-mirrorlist-1-1-any.pkg.tar.zst</a></td>
+            <td>0.0 MB</td>
+          </tr>
+          <tr>
+            <td><a href="antergos-wallpapers-0.7-4-any.pkg.tar.zst">antergos-wallpapers-0.7-4-any.pkg.tar.zst</a></td>
+            <td>5.5 MB</td>
+          </tr>
+          <tr>
+            <td><a href="cnchi-0.16.52-2-any.pkg.tar.zst">cnchi-0.16.52-2-any.pkg.tar.zst</a></td>
+            <td>5.9 MB</td>
+          </tr>
+          <tr>
+            <td><a href="downgrade-12.0.2-1-any.pkg.tar.zst">downgrade-12.0.2-1-any.pkg.tar.zst</a></td>
+            <td>0.0 MB</td>
+          </tr>
+          <tr>
+            <td><a href="yay-12.6.0-1-x86_64.pkg.tar.zst">yay-12.6.0-1-x86_64.pkg.tar.zst</a></td>
+            <td>4.1 MB</td>
+          </tr>
+  </table>
+
+  <footer>Antergos NeXT &mdash; <a href="https://github.com/Antergos-NeXT">github.com/Antergos-NeXT</a></footer>
+</body>
+</html>
