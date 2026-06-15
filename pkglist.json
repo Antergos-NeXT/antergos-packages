@@ -1,15 +1,15 @@
 [
   {
     "name": "antergos-next-keyring-1-1-any.pkg.tar.zst",
-    "size": 4546
+    "size": 4542
   },
   {
     "name": "antergos-next-mirrorlist-1-1-any.pkg.tar.zst",
-    "size": 2934
+    "size": 2937
   },
   {
     "name": "antergos-wallpapers-0.7-4-any.pkg.tar.zst",
-    "size": 5780869
+    "size": 252097
   },
   {
     "name": "cnchi-0.16.52-2-any.pkg.tar.zst",
@@ -17,10 +17,10 @@
   },
   {
     "name": "downgrade-12.0.2-1-any.pkg.tar.zst",
-    "size": 30915
+    "size": 30889
   },
   {
     "name": "yay-12.6.0-1-x86_64.pkg.tar.zst",
-    "size": 4294925
+    "size": 4294931
   }
 ]
