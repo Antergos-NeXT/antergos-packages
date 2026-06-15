@@ -1,0 +1,18 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-wallpapers
+pkgver=0.7
+pkgrel=4
+pkgdesc="Antergos NeXT wallpapers"
+arch=('any')
+url="https://github.com/Antergos/wallpapers"
+license=('GPL3')
+source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wallpapers/master/antergos-wallpaper.png")
+sha256sums=('SKIP')
+
+package() {
+  install -dm755 "${pkgdir}/usr/share/backgrounds/antergos"
+  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/backgrounds/antergos/"
+  install -dm755 "${pkgdir}/usr/share/antergos/backgrounds"
+  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/antergos/backgrounds/"
+}
