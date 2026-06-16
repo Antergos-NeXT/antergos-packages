@@ -32,10 +32,9 @@ depends=(
   'gocryptfs'
   'iso-codes'
   'webkitgtk-6.0'
+  'python-libnacl'
 )
-optdepends=(
-  'python-libnacl: Lembrame Gnome extensions installer support (pip install)'
-)
+optdepends=()
 makedepends=('git')
 install=cnchi.install
 source=("${pkgname}::git+https://github.com/Antergos-NeXT/cnchi-next.git#branch=cnchi-dev")
