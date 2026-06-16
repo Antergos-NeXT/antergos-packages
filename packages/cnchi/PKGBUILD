@@ -32,7 +32,7 @@ depends=(
   'gocryptfs'
   'iso-codes'
   'webkitgtk-6.0'
-  'python-libnacl'
+  'python-pynacl'
 )
 optdepends=()
 makedepends=('git')
