@@ -4,15 +4,18 @@ Custom package repository for Antergos NeXT ISO builds.
 
 ## Packages
 
-| Package | Description | Source Branch |
-|---------|-------------|---------------|
-| `cnchi` | Antergos NeXT graphical installer | `0.16.x` (stable), `cnchi-dev` (development) |
-| `antergos-next-keyring` | GPG keyring for the repo |
-| `antergos-next-mirrorlist` | Mirror list for `[antergos-pkgs]` |
-| `antergos-next-desktop-settings` | Custom GTK/Plasma theme, dconf defaults |
-| `antergos-wallpapers` | Antergos desktop wallpapers |
-| `yay` | AUR helper |
-| `downgrade` | Pacman package downgrade tool |
+| Package | Description | Source |
+|---------|-------------|--------|
+| `cnchi` | Antergos NeXT graphical installer | `Antergos-NeXT/Cnchi` (`0.16.x` or `cnchi-dev`) |
+| `calamares` | Universal installer framework (experimental) | [`calamares` on AUR](https://aur.archlinux.org/packages/calamares) |
+| `calamares-branding-antergos-next` | Minimal Calamares branding (QSS + QML) | local |
+| `antergos-next-keyring` | GPG keyring for the repo | local |
+| `antergos-next-mirrorlist` | Mirror list for `[antergos-pkgs]` | local |
+| `antergos-next-desktop-settings` | Custom GTK/Plasma theme, dconf defaults | local |
+| `antergos-next-memes` | Audio files for Cnchi easter eggs (channel 666) | local |
+| `antergos-wallpapers` | Antergos desktop wallpapers | local |
+| `yay` | AUR helper | AUR |
+| `downgrade` | Pacman package downgrade tool | AUR |
 
 ## Usage
 
