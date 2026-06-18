@@ -8,10 +8,13 @@ arch=('any')
 url="https://github.com/Antergos-NeXT"
 license=('custom:fairuse')
 depends=()
-source=("i-feel-fantastic.opus")
-sha256sums=('SKIP')
+source=("i-feel-fantastic.opus"
+        "still-alive.opus")
+sha256sums=('SKIP'
+            'SKIP')
 
 package() {
   install -dm755 "${pkgdir}/usr/share/cnchi-memes"
   cp "i-feel-fantastic.opus" "${pkgdir}/usr/share/cnchi-memes/"
+  cp "still-alive.opus" "${pkgdir}/usr/share/cnchi-memes/"
 }
