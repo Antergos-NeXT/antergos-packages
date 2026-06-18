@@ -1,0 +1,71 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=calamares-branding-antergos-next
+pkgver=1.0
+pkgrel=1
+pkgdesc="Minimal Calamares branding for Antergos NeXT"
+arch=('any')
+url="https://github.com/Antergos-NeXT"
+license=('GPL3')
+depends=('calamares')
+source=("branding.desc"
+        "stylesheet.qss"
+        "show.qml")
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP')
+
+package() {
+  local _brand="/usr/share/calamares/branding/antergos-next"
+  install -dm755 "${pkgdir}${_brand}"
+
+  cp "branding.desc" "${pkgdir}${_brand}/"
+  cp "stylesheet.qss" "${pkgdir}${_brand}/"
+  cp "show.qml" "${pkgdir}${_brand}/"
+
+  # Symlink Antergos logo from cnchi or wallpapers
+  # Use antergos-icon from system if available
+  install -dm755 "${pkgdir}/etc/calamares"
+  cat > "${pkgdir}/etc/calamares/settings.conf" << 'CONF'
+---
+instances:
+- id:       antergos-next
+  file:     "/usr/share/calamares/branding/antergos-next/branding.desc"
+
+sequence:
+- showq:
+    - welcome
+    - locale
+    - keyboard
+    - partition
+    - users
+    - summary
+- exec:
+    - partition
+    - mount
+    - unpackfs
+    - machineid
+    - fstab
+    - locale
+    - keyboard
+    - localecfg
+    - luksopenswaphookcfg
+    - luksbootkeyfile
+    - plymouthcfg
+    - grubcfg
+    - bootloader
+    - services-systemd
+    - packages
+    - networkcfg
+    - hwclock
+    - users
+    - displaymanager
+    - mkinicpio
+    - initramfscfg
+    - initramfs
+    - removeuser
+    - umountq
+
+branding: antergos-next
+CONF
+}

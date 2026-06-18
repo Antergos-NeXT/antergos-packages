@@ -6,4 +6,6 @@ packages:
   - antergos-next-mirrorlist
   - antergos-next-desktop-settings
   - cnchi
+  - calamares
+  - calamares-branding-antergos-next
   - antergos-next-memes

@@ -1,0 +1,22 @@
+---
+componentName:  antergos-next
+
+welcomeStyleCalamares:   false
+welcomeExpandingLogo:   true
+
+productName:  Antergos NeXT
+shortProductName:  Antergos NeXT
+version:  rolling
+shortVersion:  rolling
+versionedName:  Antergos NeXT rolling
+
+bootloaderEntryName:  Antergos NeXT
+
+productUrl:  https://github.com/Antergos-NeXT
+supportUrl:  https://github.com/Antergos-NeXT
+knownIssuesUrl:  https://github.com/Antergos-NeXT/antergos-iso/issues
+releaseNotesUrl:  https://github.com/Antergos-NeXT
+
+image:  "squid.png"
+imageSize:  0
+...
