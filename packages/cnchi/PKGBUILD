@@ -32,9 +32,8 @@ depends=(
   'gocryptfs'
   'iso-codes'
   'webkitgtk-6.0'
-  'python-pynacl'
 )
-optdepends=()
+optdepends=('python-libnacl: Lembrame settings sync feature')
 makedepends=('git')
 install=cnchi.install
 source=("${pkgname}::git+https://github.com/Antergos-NeXT/cnchi-next.git#branch=cnchi-dev")
