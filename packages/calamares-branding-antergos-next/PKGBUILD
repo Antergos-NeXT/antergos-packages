@@ -48,10 +48,6 @@ sequence:
     - fstab
     - locale
     - keyboard
-    - localecfg
-    - luksopenswaphookcfg
-    - luksbootkeyfile
-    - plymouthcfg
     - grubcfg
     - bootloader
     - services-systemd
@@ -60,9 +56,6 @@ sequence:
     - hwclock
     - users
     - displaymanager
-    - mkinicpio
-    - initramfscfg
-    - initramfs
     - removeuser
     - umountq
 
