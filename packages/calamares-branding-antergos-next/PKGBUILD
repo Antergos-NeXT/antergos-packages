@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Minimal Calamares branding for Antergos NeXT"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
