@@ -14,10 +14,10 @@ depends=(
   'noto-fonts'
 )
 source=(
-  "AntergosNeXT/gtk-3.0/gtk.css"
-  "AntergosNeXT/gtk-4.0/gtk.css"
-  "AntergosNeXT/gtk-2.0/gtkrc"
-  "AntergosNeXT/index.theme"
+  "antergos-next-gtk3.css"
+  "antergos-next-gtk4.css"
+  "antergos-next-gtkrc"
+  "antergos-next-index.theme"
   "AntergosNeXT.colors"
   "gtk-settings.ini"
   "xsettings.xml"
@@ -30,10 +30,10 @@ package() {
   install -dm755 "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-3.0"
   install -dm755 "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-4.0"
   install -dm755 "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-2.0"
-  install -m644 "${srcdir}/AntergosNeXT/gtk-3.0/gtk.css" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-3.0/"
-  install -m644 "${srcdir}/AntergosNeXT/gtk-4.0/gtk.css" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-4.0/"
-  install -m644 "${srcdir}/AntergosNeXT/gtk-2.0/gtkrc" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-2.0/"
-  install -m644 "${srcdir}/AntergosNeXT/index.theme" "${pkgdir}/usr/share/themes/AntergosNeXT/"
+  install -m644 "${srcdir}/antergos-next-gtk3.css" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-3.0/gtk.css"
+  install -m644 "${srcdir}/antergos-next-gtk4.css" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-4.0/gtk.css"
+  install -m644 "${srcdir}/antergos-next-gtkrc" "${pkgdir}/usr/share/themes/AntergosNeXT/gtk-2.0/gtkrc"
+  install -m644 "${srcdir}/antergos-next-index.theme" "${pkgdir}/usr/share/themes/AntergosNeXT/index.theme"
 
   # KDE Color scheme
   install -dm755 "${pkgdir}/usr/share/color-schemes"
