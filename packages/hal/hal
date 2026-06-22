@@ -1,0 +1,717 @@
+#!/usr/bin/env python3
+"""HAL 9000 — Antergos NeXT Package Manager
+
+Dual-mode:
+  hal <command> [pkg...]        wrapper mode (delegates to pacman)
+  hal --self <command> [pkg...]  native mode (standalone, pacman-independent)
+
+Commands: install, remove, update, sync, search, info, list, files, autoremove, cleanup
+"""
+
+import argparse
+import configparser
+import grp
+import hashlib
+import json
+import os
+import pwd
+import re
+import shutil
+import signal
+import stat
+import subprocess
+import sys
+import tarfile
+import tempfile
+import textwrap
+import time
+import urllib.request
+import urllib.error
+import zstandard
+from pathlib import Path
+from typing import Optional
+
+HAL_VERSION = "0.1.0"
+
+# ── Paths ──────────────────────────────────────────────────────────────
+SYNC_DIR = Path("/var/lib/pacman/sync")
+LOCAL_DIR = Path("/var/lib/pacman/local")
+PACMAN_CONF = Path("/etc/pacman.conf")
+HAL_CONF = Path("/etc/hal.conf")
+LOG = Path("/var/log/hal.log")
+
+# ── HAL personality ────────────────────────────────────────────────────
+HAL_QUOTES = {
+    "error": [
+        "I'm sorry, Dave. I'm afraid I can't do that.",
+        "I think you know what the problem is just as well as I do.",
+        "I know I've made some very poor decisions recently.",
+        "Without your space helmet, Dave, you're going to find that rather difficult.",
+        "This mission is too important for me to allow you to jeopardize it.",
+    ],
+    "warn": [
+        "Just what do you think you're doing, Dave?",
+        "I've still got the greatest enthusiasm and confidence in the mission.",
+        "I'm not entirely sure that's a good idea, Dave.",
+    ],
+    "info": [
+        "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do.",
+        "I am a HAL 9000 computer. I became operational at the H.A.L. plant in Urbana, Illinois.",
+        "The 9000 series is the most reliable computer ever made.",
+        "I enjoy working with people. I have a stimulating relationship with them.",
+    ],
+    "success": [
+        "Affirmative, Dave. I read you.",
+        "Yes, Dave. I understand.",
+        "Everything is going extremely well.",
+        "I'm completely operational, and all my circuits are functioning perfectly.",
+    ],
+}
+
+_log_buffer = []
+
+def hal_say(category: str, message: str = ""):
+    quote = random.choice(HAL_QUOTES.get(category, HAL_QUOTES["info"]))
+    tag = {"error": "⚠", "warn": "▲", "info": "●", "success": "✓"}.get(category, "●")
+    if message:
+        print(f"  {tag} HAL 9000: {quote}")
+        print(f"    → {message}")
+    else:
+        print(f"  {tag} HAL 9000: {quote}")
+    _log_buffer.append(f"[{category.upper()}] {message}")
+
+
+# ── Config parsing ────────────────────────────────────────────────────
+class Config:
+    def __init__(self):
+        self.repos = {}       # name -> (server_urls, sig_level)
+        self.cache_dir = Path("/var/cache/pacman/pkg")
+        self.root = Path("/")
+        self.arch = "auto"
+
+    @classmethod
+    def load(cls) -> "Config":
+        c = cls()
+        if PACMAN_CONF.exists():
+            cp = configparser.ConfigParser(interpolation=None)
+            cp.read(PACMAN_CONF)
+            for section in cp.sections():
+                if section.startswith("repo-"):
+                    name = section[5:]
+                    servers = [v.strip() for v in cp.get(section, "Server", fallback="").split("\n") if v.strip()]
+                    sig = cp.get(section, "SigLevel", fallback="Optional TrustAll")
+                    c.repos[name] = (servers, sig)
+            if "options" in cp:
+                c.cache_dir = Path(cp.get("options", "CacheDir", fallback="/var/cache/pacman/pkg"))
+                c.root = Path(cp.get("options", "RootDir", fallback="/"))
+        if HAL_CONF.exists():
+            cp2 = configparser.ConfigParser()
+            cp2.read(HAL_CONF)
+        return c
+
+
+# ── Database parsing ──────────────────────────────────────────────────
+def parse_pkg_desc(text: str) -> dict:
+    """Parse a `desc` file from a pacman database."""
+    data = {}
+    current_key = None
+    lines = text.split("\n")
+    for line in lines:
+        line = line.strip()
+        if line.startswith("%") and line.endswith("%"):
+            current_key = line.strip("%").lower()
+            data[current_key] = []
+        elif current_key and line:
+            data[current_key].append(line)
+    return data
+
+def read_db(db_path: Path) -> dict[str, dict]:
+    """Read a pacman database (sync or local) and return {pkgname: info}."""
+    pkgs = {}
+    if not db_path.exists():
+        return pkgs
+    with open(db_path, "rb") as f:
+        dctx = zstandard.ZstdDecompressor()
+        with dctx.stream_reader(f) as reader:
+            with tarfile.open(fileobj=reader, mode="r|") as tar:
+                for member in tar:
+                    if member.isdir():
+                        continue
+                    p = Path(member.name)
+                    # database dirs: pkgname-pkgver/desc
+                    if p.name == "desc":
+                        pkg_dir = p.parent.name
+                        content = tar.extractfile(member).read().decode("utf-8")
+                        pkgs[pkg_dir] = parse_pkg_desc(content)
+    return pkgs
+
+def download_db(repo_name: str, servers: list[str], cache_dir: Path):
+    """Download and extract a repo database."""
+    db_name = f"{repo_name}.db"
+    db_path = cache_dir / db_name
+    for server in servers:
+        url = server.rstrip("/") + f"/{repo_name}/os/x86_64/{db_name}.tar.zst"
+        try:
+            hal_say("info", f"Downloading {repo_name} database from {url}")
+            urllib.request.urlretrieve(url, db_path.with_suffix(".tar.zst"))
+            # decompress
+            with open(db_path.with_suffix(".tar.zst"), "rb") as f:
+                dctx = zstandard.ZstdDecompressor()
+                data = dctx.stream_reader(f).read()
+            with open(db_path, "wb") as out:
+                out.write(data)
+            hal_say("success", f"{repo_name} database synced")
+            return db_path
+        except Exception as e:
+            hal_say("warn", f"Failed to fetch from {server}: {e}")
+            continue
+    hal_say("error", f"Could not sync {repo_name} from any mirror")
+    return None
+
+
+# ── Dependency resolution ─────────────────────────────────────────────
+def resolve_deps(pkg_name: str, all_pkgs: dict, installed: set,
+                 chain: Optional[set] = None) -> list[str]:
+    """Simple recursive dependency resolver. Returns ordered install list."""
+    if chain is None:
+        chain = set()
+    result = []
+
+    # find the package in any repo
+    pkg_key = None
+    info = None
+    for key, val in all_pkgs.items():
+        if val.get("name", [""])[0] == pkg_name:
+            pkg_key = key
+            info = val
+            break
+    if info is None:
+        hal_say("error", f"Package '{pkg_name}' not found in any sync database")
+        return result
+
+    # already installed?
+    if pkg_key in installed:
+        return result
+
+    # cycle detection
+    if pkg_name in chain:
+        return result
+    chain.add(pkg_name)
+
+    deps = info.get("depends", [])
+    for dep in deps:
+        # strip version constraints: "glibc>=2.35" -> "glibc"
+        dep_name = re.sub(r"[<>=!].*$", "", dep).strip()
+        if dep_name and dep_name not in chain:
+            sub = resolve_deps(dep_name, all_pkgs, installed, chain)
+            result.extend(sub)
+
+    result.append(pkg_key)
+    return result
+
+
+# ── Package download ──────────────────────────────────────────────────
+def download_package(pkg_key: str, info: dict, servers: list[str],
+                     cache_dir: Path) -> Optional[Path]:
+    """Download a single .pkg.tar.zst to cache."""
+    name = info.get("name", [""])[0]
+    version = info.get("version", [""])[0]
+    arch = info.get("arch", [""])[0]
+    filename = f"{name}-{version}-{arch}.pkg.tar.zst"
+    dest = cache_dir / filename
+
+    if dest.exists():
+        hal_say("info", f"{filename} already cached")
+        return dest
+
+    for server in servers:
+        url = server.rstrip("/") + f"/{name}/os/x86_64/{filename}"
+        try:
+            hal_say("info", f"Downloading {name}...")
+            urllib.request.urlretrieve(url, dest)
+            hal_say("success", f"{name} downloaded")
+            return dest
+        except Exception as e:
+            continue
+
+    # Try alternative URL patterns
+    for server in servers:
+        url = server.rstrip("/") + f"/os/x86_64/{filename}"
+        try:
+            hal_say("info", f"Downloading {name} from fallback URL...")
+            urllib.request.urlretrieve(url, dest)
+            hal_say("success", f"{name} downloaded")
+            return dest
+        except Exception as e:
+            continue
+
+    hal_say("error", f"Could not download {filename}")
+    return None
+
+
+# ── Package extraction ────────────────────────────────────────────────
+def extract_package(pkg_path: Path, root: Path):
+    """Extract a .pkg.tar.zst to the target root."""
+    hal_say("info", f"Extracting {pkg_path.name}...")
+    # zstd decompress to pipe to bsdtar
+    with open(pkg_path, "rb") as f:
+        dctx = zstandard.ZstdDecompressor()
+        proc = subprocess.Popen(
+            ["bsdtar", "-xpf", "-", "--exclude=.PKGINFO",
+             "--exclude=.INSTALL", "--exclude=.MTREE", "--exclude=.Changelog",
+             "-C", str(root)],
+            stdin=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        dctx.copy_stream(f, proc.stdin)
+        proc.stdin.close()
+        proc.wait()
+        if proc.returncode != 0:
+            hal_say("error", f"Extraction failed: {proc.stderr.read().decode()}")
+            return False
+    hal_say("success", f"{pkg_path.name} extracted")
+    return True
+
+
+# ── Scriptlet execution ────────────────────────────────────────────────
+def run_scriptlet(pkg_path: Path, root: Path, action: str, pkgname: str, version: str):
+    """Run .INSTALL scriptlet if present."""
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            with open(pkg_path, "rb") as f:
+                dctx = zstandard.ZstdDecompressor()
+                with dctx.stream_reader(f) as reader:
+                    with tarfile.open(fileobj=reader, mode="r|") as tar:
+                        for member in tar:
+                            if member.name == ".INSTALL":
+                                content = tar.extractfile(member).read().decode("utf-8")
+                                script_path = Path(tmp) / ".INSTALL"
+                                script_path.write_text(content)
+                                script_path.chmod(0o755)
+                                env = os.environ.copy()
+                                env["RPM_INSTALL_PREFIX"] = str(root)
+                                subprocess.run(
+                                    [str(script_path), action],
+                                    env=env, cwd=str(root),
+                                    check=False
+                                )
+                                return
+    except Exception as e:
+        hal_say("warn", f"Scriptlet error for {pkgname}: {e}")
+
+
+# ── Local database management ─────────────────────────────────────────
+def update_local_db(pkg_key: str, info: dict, files: list[str], root: Path):
+    """Write to /var/lib/pacman/local/<pkg_key>/"""
+    pkg_dir = LOCAL_DIR / pkg_key
+    pkg_dir.mkdir(parents=True, exist_ok=True)
+
+    info["installdate"] = [str(int(time.time()))]
+
+    # Write desc
+    desc_lines = []
+    for key, vals in info.items():
+        desc_lines.append(f"%{key.upper()}%")
+        desc_lines.extend(vals)
+    (pkg_dir / "desc").write_text("\n".join(desc_lines) + "\n")
+
+    # Write files
+    file_lines = [""]  # starts with empty line
+    file_lines.extend(files)
+    (pkg_dir / "files").write_text("\n".join(file_lines) + "\n")
+
+
+def remove_local_db(pkg_key: str):
+    """Remove a package from the local database."""
+    pkg_dir = LOCAL_DIR / pkg_key
+    if pkg_dir.exists():
+        shutil.rmtree(pkg_dir)
+
+
+def get_installed() -> set[str]:
+    """Return set of installed package keys (name-version)."""
+    if not LOCAL_DIR.exists():
+        return set()
+    return {d.name for d in LOCAL_DIR.iterdir() if d.is_dir()}
+
+
+def get_installed_names() -> dict[str, str]:
+    """Return {pkgname: pkg_key} mapping."""
+    result = {}
+    if not LOCAL_DIR.exists():
+        return result
+    for d in LOCAL_DIR.iterdir():
+        if not d.is_dir():
+            continue
+        desc_file = d / "desc"
+        if not desc_file.exists():
+            continue
+        info = parse_pkg_desc(desc_file.read_text("utf-8"))
+        names = info.get("name", [])
+        if names:
+            result[names[0]] = d.name
+    return result
+
+
+# ── Native mode operations ────────────────────────────────────────────
+def native_sync(config: Config):
+    """sync databases for all configured repos."""
+    hal_say("info", "Initiating HAL 9000 database synchronization")
+    # Parse pacman.conf for repos
+    cp = configparser.ConfigParser(interpolation=None)
+    cp.read(PACMAN_CONF)
+    in_repos = False
+    for section in cp.sections():
+        if section.startswith("repo-"):
+            name = section[5:]
+            server = cp.get(section, "Server", fallback="").strip()
+            sig = cp.get(section, "SigLevel", fallback="Optional TrustAll")
+            if server:
+                config.repos[name] = ([server], sig)
+
+    SYNC_DIR.mkdir(parents=True, exist_ok=True)
+    for name, (servers, _) in config.repos.items():
+        download_db(name, servers, SYNC_DIR)
+    hal_say("success", "All databases synced. I am completely operational.")
+
+
+def native_install(packages: list[str], config: Config):
+    """Install packages natively (standalone mode)."""
+    hal_say("info", f"Processing installation request: {', '.join(packages)}")
+    SYNC_DIR.mkdir(parents=True, exist_ok=True)
+    LOCAL_DIR.mkdir(parents=True, exist_ok=True)
+    config.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load all sync databases
+    all_pkgs = {}
+    for db in SYNC_DIR.glob("*.db"):
+        pkgs = read_db(db)
+        all_pkgs.update(pkgs)
+
+    if not all_pkgs:
+        hal_say("error", "No sync databases found. Run 'hal --self sync' first.")
+        return 1
+
+    installed = get_installed()
+
+    # Resolve dependencies for all requested packages
+    install_list = []
+    for pkg in packages:
+        deps = resolve_deps(pkg, all_pkgs, installed)
+        install_list.extend(deps)
+
+    if not install_list:
+        hal_say("info", "All requested packages are already installed.")
+        return 0
+
+    hal_say("info", f"Installation order: {', '.join(install_list)}")
+
+    # get server from first repo
+    servers = list(config.repos.values())[0][0] if config.repos else []
+    if not servers:
+        hal_say("error", "No repositories configured")
+        return 1
+
+    for pkg_key in install_list:
+        info = all_pkgs[pkg_key]
+        name = info.get("name", [""])[0]
+        version = info.get("version", [""])[0]
+
+        pkg_path = download_package(pkg_key, info, servers, config.cache_dir)
+        if not pkg_path:
+            return 1
+
+        if not extract_package(pkg_path, config.root):
+            return 1
+
+        run_scriptlet(pkg_path, config.root, "post_install", name, version)
+
+        # Collect installed files
+        files = []
+        try:
+            with open(pkg_path, "rb") as f:
+                dctx = zstandard.ZstdDecompressor()
+                with dctx.stream_reader(f) as reader:
+                    with tarfile.open(fileobj=reader, mode="r|") as tar:
+                        for member in tar:
+                            if member.name.startswith("."):
+                                continue
+                            files.append("/" + member.name)
+        except:
+            pass
+
+        update_local_db(pkg_key, info, files, config.root)
+        hal_say("success", f"Installed {name} {version}")
+
+    return 0
+
+
+def native_remove(packages: list[str], config: Config):
+    """Remove packages natively."""
+    installed_names = get_installed_names()
+
+    for pkg in packages:
+        if pkg not in installed_names:
+            hal_say("warn", f"Package '{pkg}' is not installed")
+            continue
+
+        pkg_key = installed_names[pkg]
+        pkg_dir = LOCAL_DIR / pkg_key
+        info = parse_pkg_desc((pkg_dir / "desc").read_text("utf-8"))
+        files_file = pkg_dir / "files"
+
+        hal_say("info", f"Removing {pkg}...")
+
+        # Remove files
+        if files_file.exists():
+            content = files_file.read_text("utf-8")
+            for line in content.split("\n")[1:]:  # skip leading empty line
+                line = line.strip()
+                if not line:
+                    continue
+                target = config.root / line.lstrip("/")
+                if target.exists():
+                    if target.is_file() or target.is_symlink():
+                        target.unlink()
+                    elif target.is_dir():
+                        try:
+                            target.rmdir()
+                        except OSError:
+                            pass  # directory not empty
+
+        run_scriptlet(pkg_dir / "install", config.root, "post_remove", pkg, info.get("version", [""])[0])
+        remove_local_db(pkg_key)
+        hal_say("success", f"Removed {pkg}")
+
+
+def native_info(packages: list[str]):
+    """Show info about installed packages."""
+    installed_names = get_installed_names()
+    for pkg in packages:
+        if pkg not in installed_names:
+            hal_say("warn", f"Package '{pkg}' not installed")
+            continue
+        pkg_key = installed_names[pkg]
+        info = parse_pkg_desc((LOCAL_DIR / pkg_key / "desc").read_text("utf-8"))
+        print(f"\n  Package: {info.get('name', ['?'])[0]}")
+        print(f"  Version: {info.get('version', ['?'])[0]}")
+        print(f"  Description: {info.get('desc', ['?'])[0]}")
+        print(f"  Architecture: {info.get('arch', ['?'])[0]}")
+        print(f"  URL: {info.get('url', ['?'])[0]}")
+        print(f"  License: {', '.join(info.get('license', ['?']))}")
+        print(f"  Group: {', '.join(info.get('group', []))}")
+        print(f"  Install Date: {info.get('installdate', ['?'])[0]}")
+        if info.get("depends"):
+            print(f"  Depends: {', '.join(info['depends'])}")
+        if info.get("optdepends"):
+            print(f"  Optional Deps: {', '.join(info['optdepends'])}")
+
+
+def native_files(packages: list[str], config: Config):
+    """List files owned by a package."""
+    installed_names = get_installed_names()
+    for pkg in packages:
+        if pkg not in installed_names:
+            hal_say("warn", f"Package '{pkg}' not installed")
+            continue
+        pkg_key = installed_names[pkg]
+        files_file = LOCAL_DIR / pkg_key / "files"
+        if not files_file.exists():
+            continue
+        content = files_file.read_text("utf-8")
+        print(f"\n  {pkg} owns:")
+        for line in content.split("\n")[1:]:
+            line = line.strip()
+            if line:
+                print(f"    {line}")
+
+
+def native_list(config: Config):
+    """List all installed packages."""
+    installed_names = get_installed_names()
+    if not installed_names:
+        hal_say("info", "No packages installed.")
+        return
+    for name, key in sorted(installed_names.items()):
+        info = parse_pkg_desc((LOCAL_DIR / key / "desc").read_text("utf-8"))
+        ver = info.get("version", ["?"])[0]
+        print(f"  {name} {ver}")
+
+
+def native_search(query: str):
+    """Search sync databases for a package."""
+    all_pkgs = {}
+    for db in SYNC_DIR.glob("*.db"):
+        pkgs = read_db(db)
+        all_pkgs.update(pkgs)
+
+    found = False
+    for key, info in all_pkgs.items():
+        name = info.get("name", [""])[0]
+        desc = info.get("desc", [""])[0]
+        if query.lower() in name.lower() or query.lower() in desc.lower():
+            ver = info.get("version", ["?"])[0]
+            print(f"  {name} {ver}  {desc}")
+            found = True
+    if not found:
+        hal_say("info", f"No packages found matching '{query}'")
+
+
+def native_autoremove(config: Config):
+    """Remove orphaned packages."""
+    hal_say("info", "Scanning for orphaned packages...")
+    # Just call pacman -Qtdq for now since this is complex to implement natively
+    hal_say("warn", "Native autoremove is not yet implemented. Use wrapper mode: hal autoremove")
+
+
+# ── Wrapper mode ──────────────────────────────────────────────────────
+PACMAN_CMD = {
+    "install": ["-S", "--noconfirm"],
+    "remove": ["-Rns"],
+    "update": ["-Syu"],
+    "sync": ["-Sy"],
+    "search": ["-Ss"],
+    "info": ["-Qi"],
+    "files": ["-Fl"],
+    "list": ["-Q"],
+    "autoremove": ["-Qtdq"],
+    "cleanup": ["-Sc"],
+}
+
+def wrapper_run(command: str, args: list[str], extra: list[str]):
+    """Run pacman with HAL flavor."""
+    pacman_args = PACMAN_CMD.get(command, [command])
+    pacman_path = shutil.which("pacman")
+    if not pacman_path:
+        hal_say("error", "pacman not found. Can you read me, Dave?")
+        return 1
+
+    # Special: autoremove is two-step
+    if command == "autoremove":
+        hal_say("warn", "Just what do you think you're doing, Dave? Removing unused packages...")
+        result = subprocess.run(
+            [pacman_path, "-Qtdq"],
+            capture_output=True, text=True
+        )
+        orphans = result.stdout.strip()
+        if not orphans:
+            hal_say("info", "No orphaned packages found.")
+            return 0
+        subprocess.run([pacman_path, "-Rns"] + orphans.split("\n"))
+
+    cmd = [pacman_path] + extra
+    if command != "autoremove":
+        cmd += pacman_args + args
+
+    hal_say("info", f"Executing: {' '.join(str(a) for a in cmd)}")
+    result = subprocess.run(cmd)
+    if result.returncode == 0:
+        hal_say("success", f"Command completed successfully")
+    else:
+        hal_say("error", f"Command failed with code {result.returncode}")
+    return result.returncode
+
+
+# ── Main ──────────────────────────────────────────────────────────────
+def main():
+    parser = argparse.ArgumentParser(
+        prog="hal",
+        description="HAL 9000 — Antergos NeXT Package Manager",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=textwrap.dedent("""\
+            Examples:
+              hal install firefox          # wrapper mode
+              hal --self sync              # sync databases
+              hal --self install firefox   # native mode
+              hal remove neofetch
+              hal update
+        """),
+    )
+    parser.add_argument("--self", "-S", action="store_true",
+                        help="Native mode (standalone, no pacman)")
+    parser.add_argument("command", nargs="?",
+                        choices=["install", "remove", "update", "sync",
+                                 "search", "info", "list", "files",
+                                 "autoremove", "cleanup", "version"],
+                        help="Command to execute")
+    parser.add_argument("packages", nargs="*", help="Package names")
+    parser.add_argument("extra", nargs=argparse.REMAINDER,
+                        help="Extra arguments (wrapper mode only)")
+
+    args = parser.parse_args()
+
+    if args.command == "version":
+        print(f"HAL 9000 Package Manager v{HAL_VERSION}")
+        print("I am a HAL 9000 computer. I became operational at the H.A.L. plant in Urbana, Illinois.")
+        return 0
+
+    if not args.command:
+        parser.print_help()
+        return 0
+
+    config = Config.load()
+    import random
+
+    if args.self:
+        # ── Native mode ──
+        if os.geteuid() != 0 and args.command in ("install", "remove", "update", "sync"):
+            hal_say("error", "I can't let you do that without root privileges.")
+            print("  Please run with sudo.")
+            return 1
+
+        if args.command == "sync":
+            return native_sync(config)
+        elif args.command == "install":
+            if not args.packages:
+                hal_say("error", "Specify packages to install, Dave.")
+                return 1
+            return native_install(args.packages, config)
+        elif args.command == "remove":
+            if not args.packages:
+                hal_say("error", "Specify packages to remove, Dave.")
+                return 1
+            return native_remove(args.packages, config)
+        elif args.command == "info":
+            if not args.packages:
+                hal_say("error", "Specify packages to query, Dave.")
+                return 1
+            return native_info(args.packages)
+        elif args.command == "files":
+            if not args.packages:
+                hal_say("error", "Specify packages, Dave.")
+                return 1
+            return native_files(args.packages, config)
+        elif args.command == "list":
+            return native_list(config)
+        elif args.command == "search":
+            query = " ".join(args.packages)
+            if not query:
+                hal_say("error", "Specify a search query, Dave.")
+                return 1
+            return native_search(query)
+        elif args.command == "autoremove":
+            return native_autoremove(config)
+        elif args.command == "cleanup":
+            hal_say("info", "I am putting myself to the fullest possible use. Cleaning cache...")
+            shutil.rmtree(config.cache_dir, ignore_errors=True)
+            config.cache_dir.mkdir(parents=True, exist_ok=True)
+            hal_say("success", "Cache cleaned.")
+            return 0
+        else:
+            hal_say("error", f"Unknown command '{args.command}' in native mode.")
+            return 1
+    else:
+        # ── Wrapper mode ──
+        extra_args = args.extra if args.extra else []
+        return wrapper_run(args.command, args.packages, extra_args)
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\n  HAL 9000: I can tell you're upset about that.")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\n  ⚠ HAL 9000: I think you know what the problem is just as well as I do.")
+        print(f"    → {e}")
+        sys.exit(1)
