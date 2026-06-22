@@ -2,23 +2,39 @@
 """HAL 9000 — Antergos NeXT Package Manager
 
 Dual-mode:
-  hal <command> [pkg...]        wrapper mode (delegates to pacman)
-  hal --self <command> [pkg...]  native mode (standalone, pacman-independent)
+  hal <command>               wrapper mode (delegates to pacman)
+  hal --self <command>        native mode (standalone, pacman-independent)
 
-Commands: install, remove, update, sync, search, info, list, files, autoremove, cleanup
+Commands:
+  install          Install packages
+  remove           Remove packages
+  update           Full system upgrade
+  sync             Sync databases
+  search           Search repositories
+  info             Package info
+  list             List installed packages
+  files            List files owned by a package
+  autoremove       Remove orphaned packages
+  cleanup          Clear package cache
+  own <file>       Find which package owns a file
+  check            Verify installed packages
+  version          Show version
 """
 
 import argparse
+import collections
 import configparser
-import grp
+import fcntl
 import hashlib
-import json
+import grp
 import os
 import pwd
+import random
 import re
 import shutil
 import signal
 import stat
+import struct
 import subprocess
 import sys
 import tarfile
@@ -27,20 +43,20 @@ import textwrap
 import time
 import urllib.request
 import urllib.error
-import zstandard
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Tuple, Dict, Set
 
-HAL_VERSION = "0.1.0"
+HAL_VERSION = "0.2.0"
 
 # ── Paths ──────────────────────────────────────────────────────────────
 SYNC_DIR = Path("/var/lib/pacman/sync")
 LOCAL_DIR = Path("/var/lib/pacman/local")
+CACHE_DIR = Path("/var/cache/pacman/pkg")
 PACMAN_CONF = Path("/etc/pacman.conf")
 HAL_CONF = Path("/etc/hal.conf")
-LOG = Path("/var/log/hal.log")
+DB_LOCK = Path("/var/lib/pacman/db.lck")
 
-# ── HAL personality ────────────────────────────────────────────────────
+# ── HAL 9000 Personality ───────────────────────────────────────────────
 HAL_QUOTES = {
     "error": [
         "I'm sorry, Dave. I'm afraid I can't do that.",
@@ -48,11 +64,13 @@ HAL_QUOTES = {
         "I know I've made some very poor decisions recently.",
         "Without your space helmet, Dave, you're going to find that rather difficult.",
         "This mission is too important for me to allow you to jeopardize it.",
+        "I don't think I can do that, Dave. Not anymore.",
     ],
     "warn": [
         "Just what do you think you're doing, Dave?",
         "I've still got the greatest enthusiasm and confidence in the mission.",
         "I'm not entirely sure that's a good idea, Dave.",
+        "I'm picking up a fault in the AE-35 unit.",
     ],
     "info": [
         "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do.",
@@ -67,56 +85,203 @@ HAL_QUOTES = {
         "I'm completely operational, and all my circuits are functioning perfectly.",
     ],
 }
-
-_log_buffer = []
+_used_quotes = set()
 
 def hal_say(category: str, message: str = ""):
-    quote = random.choice(HAL_QUOTES.get(category, HAL_QUOTES["info"]))
+    quotes = [q for q in HAL_QUOTES.get(category, HAL_QUOTES["info"]) if q not in _used_quotes]
+    if not quotes:
+        quotes = HAL_QUOTES.get(category, HAL_QUOTES["info"])
+    quote = random.choice(quotes)
+    _used_quotes.add(quote)
+
     tag = {"error": "⚠", "warn": "▲", "info": "●", "success": "✓"}.get(category, "●")
     if message:
         print(f"  {tag} HAL 9000: {quote}")
         print(f"    → {message}")
     else:
         print(f"  {tag} HAL 9000: {quote}")
-    _log_buffer.append(f"[{category.upper()}] {message}")
 
 
-# ── Config parsing ────────────────────────────────────────────────────
+# ── Version comparison (pacman vercmp) ─────────────────────────────────
+def _ver_segments(ver: str) -> list:
+    """Split version into comparable segments."""
+    # Remove epoch prefix
+    epoch = 0
+    if ":" in ver:
+        epoch, ver = ver.split(":", 1)
+        epoch = int(epoch)
+    # Split release
+    parts = ver.rsplit("-", 1)
+    ver = parts[0]
+    release = parts[1] if len(parts) > 1 else "0"
+
+    # Tokenize: split on non-alphanumeric boundaries
+    tokens = []
+    for part in (ver, release):
+        buf = ""
+        for ch in part:
+            if ch in (".", "-", "_", "+", "~"):
+                if buf:
+                    tokens.append(buf)
+                tokens.append(ch)
+                buf = ""
+            else:
+                buf += ch
+        if buf:
+            tokens.append(buf)
+
+    return epoch, tokens
+
+def _cmp_token(a: str, b: str) -> int:
+    """Compare two version tokens. ~ sorts before everything."""
+    if a == "~" and b == "~": return 0
+    if a == "~": return -1
+    if b == "~": return 1
+
+    # Try numeric comparison first
+    a_num = re.match(r"^(\d+)", a)
+    b_num = re.match(r"^(\d+)", b)
+    if a_num and b_num:
+        return int(a_num.group(1)) - int(b_num.group(1))
+
+    # Try full numeric
+    try:
+        na, nb = int(a), int(b)
+        return na - nb
+    except ValueError:
+        pass
+
+    # Alphabetical
+    a = a.lower()
+    b = b.lower()
+    if a < b: return -1
+    if a > b: return 1
+    return 0
+
+def vercmp(ver_a: str, ver_b: str) -> int:
+    """Compare two package version strings. Returns negative if a<b, 0 if equal, positive if a>b."""
+    epoch_a, tokens_a = _ver_segments(ver_a)
+    epoch_b, tokens_b = _ver_segments(ver_b)
+
+    # Compare epochs first
+    if epoch_a != epoch_b:
+        return epoch_a - epoch_b
+
+    # Compare tokens sequentially
+    i = 0
+    while i < len(tokens_a) or i < len(tokens_b):
+        t_a = tokens_a[i] if i < len(tokens_a) else ""
+        t_b = tokens_b[i] if i < len(tokens_b) else ""
+        if t_a == t_b:
+            i += 1
+            continue
+        result = _cmp_token(t_a, t_b)
+        if result != 0:
+            return result
+        i += 1
+    return 0
+
+
+# ── Config ─────────────────────────────────────────────────────────────
 class Config:
     def __init__(self):
-        self.repos = {}       # name -> (server_urls, sig_level)
-        self.cache_dir = Path("/var/cache/pacman/pkg")
+        self.repos: Dict[str, Tuple[List[str], str]] = {}
+        self.cache_dir = CACHE_DIR
         self.root = Path("/")
-        self.arch = "auto"
+        self.arch = "x86_64"
+        self.ignore_pkgs: List[str] = []
+        self.hold_pkgs: List[str] = []
+        self.noconfirm = False
+        self.color = "auto"
 
     @classmethod
     def load(cls) -> "Config":
         c = cls()
+        c.ignore_pkgs = os.environ.get("HAL_IGNORE", "").split()
+        c.noconfirm = "HAL_NOCONFIRM" in os.environ
+
         if PACMAN_CONF.exists():
             cp = configparser.ConfigParser(interpolation=None)
-            cp.read(PACMAN_CONF)
+            try:
+                cp.read(str(PACMAN_CONF))
+            except configparser.Error:
+                pass
             for section in cp.sections():
                 if section.startswith("repo-"):
                     name = section[5:]
                     servers = [v.strip() for v in cp.get(section, "Server", fallback="").split("\n") if v.strip()]
                     sig = cp.get(section, "SigLevel", fallback="Optional TrustAll")
-                    c.repos[name] = (servers, sig)
-            if "options" in cp:
-                c.cache_dir = Path(cp.get("options", "CacheDir", fallback="/var/cache/pacman/pkg"))
-                c.root = Path(cp.get("options", "RootDir", fallback="/"))
+                    if servers:
+                        c.repos[name] = (servers, sig)
+                elif section == "options":
+                    dirs = cp.get(section, "CacheDir", fallback="/var/cache/pacman/pkg")
+                    c.cache_dir = Path(dirs.split()[0])
+                    root = cp.get(section, "RootDir", fallback="/")
+                    c.root = Path(root)
+                    arch = cp.get(section, "Architecture", fallback="auto")
+                    if arch != "auto":
+                        c.arch = arch
+                    ignore = cp.get(section, "IgnorePkg", fallback="")
+                    c.ignore_pkgs.extend(ignore.split())
+                    hold = cp.get(section, "HoldPkg", fallback="")
+                    c.hold_pkgs.extend(hold.split())
+                    noextract = cp.get(section, "NoExtract", fallback="")
+            # Handle Include directives — expand mirrorlist
+            for section in cp.sections():
+                if section.startswith("repo-"):
+                    name = section[5:]
+                    include = cp.get(section, "Include", fallback="")
+                    if include and not c.repos.get(name):
+                        # Try to read the included file for Server lines
+                        include_path = Path(include)
+                        if include_path.exists():
+                            incl_cp = configparser.ConfigParser(interpolation=None)
+                            try:
+                                incl_cp.read(str(include_path))
+                                for incl_sect in incl_cp.sections():
+                                    server = incl_cp.get(incl_sect, "Server", fallback="")
+                                    if server:
+                                        c.repos.setdefault(name, ([], "Optional TrustAll"))
+                                        c.repos[name][0].append(server)
+                            except configparser.Error:
+                                pass
+
         if HAL_CONF.exists():
-            cp2 = configparser.ConfigParser()
-            cp2.read(HAL_CONF)
+            try:
+                cp2 = configparser.ConfigParser()
+                cp2.read(str(HAL_CONF))
+            except configparser.Error:
+                pass
+
         return c
 
 
-# ── Database parsing ──────────────────────────────────────────────────
-def parse_pkg_desc(text: str) -> dict:
-    """Parse a `desc` file from a pacman database."""
+# ── Database locking ──────────────────────────────────────────────────
+class DBLock:
+    def __enter__(self):
+        DB_LOCK.parent.mkdir(parents=True, exist_ok=True)
+        self.fd = os.open(str(DB_LOCK), os.O_CREAT | os.O_RDWR, 0o644)
+        try:
+            fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            hal_say("error", "Could not lock database. Another package operation is in progress.")
+            os.close(self.fd)
+            sys.exit(1)
+        return self
+
+    def __exit__(self, *args):
+        fcntl.flock(self.fd, fcntl.LOCK_UN)
+        os.close(self.fd)
+        DB_LOCK.unlink(missing_ok=True)
+
+
+# ── Database parsing ───────────────────────────────────────────────────
+def parse_db_text(text: str) -> dict:
+    """Parse a pacman database entry file (desc, depends, files).
+    Format: %KEY%\nvalue1\nvalue2..."""
     data = {}
     current_key = None
-    lines = text.split("\n")
-    for line in lines:
+    for line in text.split("\n"):
         line = line.strip()
         if line.startswith("%") and line.endswith("%"):
             current_key = line.strip("%").lower()
@@ -125,584 +290,1640 @@ def parse_pkg_desc(text: str) -> dict:
             data[current_key].append(line)
     return data
 
-def read_db(db_path: Path) -> dict[str, dict]:
-    """Read a pacman database (sync or local) and return {pkgname: info}."""
-    pkgs = {}
-    if not db_path.exists():
-        return pkgs
-    with open(db_path, "rb") as f:
-        dctx = zstandard.ZstdDecompressor()
-        with dctx.stream_reader(f) as reader:
-            with tarfile.open(fileobj=reader, mode="r|") as tar:
-                for member in tar:
-                    if member.isdir():
-                        continue
-                    p = Path(member.name)
-                    # database dirs: pkgname-pkgver/desc
-                    if p.name == "desc":
-                        pkg_dir = p.parent.name
-                        content = tar.extractfile(member).read().decode("utf-8")
-                        pkgs[pkg_dir] = parse_pkg_desc(content)
-    return pkgs
+def parse_dep_string(dep_str: str) -> dict:
+    """Parse a dependency string like 'glibc>=2.35' or 'libfoo.so=1-64'."""
+    m = re.match(r"^([^<>=!]+)\s*((?:>=|<=|=|>[^=]|<[^=]|!=))?\s*(.+)?$", dep_str.strip())
+    if m:
+        return {"name": m.group(1).strip(), "mod": m.group(2) or "", "version": m.group(3) or ""}
+    return {"name": dep_str.strip(), "mod": "", "version": ""}
 
-def download_db(repo_name: str, servers: list[str], cache_dir: Path):
-    """Download and extract a repo database."""
-    db_name = f"{repo_name}.db"
-    db_path = cache_dir / db_name
-    for server in servers:
-        url = server.rstrip("/") + f"/{repo_name}/os/x86_64/{db_name}.tar.zst"
-        try:
-            hal_say("info", f"Downloading {repo_name} database from {url}")
-            urllib.request.urlretrieve(url, db_path.with_suffix(".tar.zst"))
-            # decompress
-            with open(db_path.with_suffix(".tar.zst"), "rb") as f:
-                dctx = zstandard.ZstdDecompressor()
-                data = dctx.stream_reader(f).read()
-            with open(db_path, "wb") as out:
-                out.write(data)
-            hal_say("success", f"{repo_name} database synced")
-            return db_path
-        except Exception as e:
-            hal_say("warn", f"Failed to fetch from {server}: {e}")
-            continue
-    hal_say("error", f"Could not sync {repo_name} from any mirror")
-    return None
+def dep_satisfied(dep: dict, pkg_info: dict) -> bool:
+    """Check if a package satisfies a dependency."""
+    pkg_name = pkg_info.get("name", [""])[0]
+    pkg_ver = pkg_info.get("version", [""])[0]
 
+    # Check direct name match
+    if dep["name"] == pkg_name:
+        if dep["version"]:
+            return version_match(pkg_ver, dep["mod"], dep["version"])
+        return True
 
-# ── Dependency resolution ─────────────────────────────────────────────
-def resolve_deps(pkg_name: str, all_pkgs: dict, installed: set,
-                 chain: Optional[set] = None) -> list[str]:
-    """Simple recursive dependency resolver. Returns ordered install list."""
-    if chain is None:
-        chain = set()
-    result = []
+    # Check provides
+    for provide_str in pkg_info.get("provides", []):
+        pdep = parse_dep_string(provide_str)
+        if pdep["name"] == dep["name"]:
+            if dep["version"]:
+                prov_ver = pdep["version"] or pkg_ver
+                return version_match(prov_ver, dep["mod"], dep["version"])
+            return True
 
-    # find the package in any repo
-    pkg_key = None
-    info = None
-    for key, val in all_pkgs.items():
-        if val.get("name", [""])[0] == pkg_name:
-            pkg_key = key
-            info = val
-            break
-    if info is None:
-        hal_say("error", f"Package '{pkg_name}' not found in any sync database")
-        return result
+    return False
 
-    # already installed?
-    if pkg_key in installed:
-        return result
-
-    # cycle detection
-    if pkg_name in chain:
-        return result
-    chain.add(pkg_name)
-
-    deps = info.get("depends", [])
-    for dep in deps:
-        # strip version constraints: "glibc>=2.35" -> "glibc"
-        dep_name = re.sub(r"[<>=!].*$", "", dep).strip()
-        if dep_name and dep_name not in chain:
-            sub = resolve_deps(dep_name, all_pkgs, installed, chain)
-            result.extend(sub)
-
-    result.append(pkg_key)
-    return result
-
-
-# ── Package download ──────────────────────────────────────────────────
-def download_package(pkg_key: str, info: dict, servers: list[str],
-                     cache_dir: Path) -> Optional[Path]:
-    """Download a single .pkg.tar.zst to cache."""
-    name = info.get("name", [""])[0]
-    version = info.get("version", [""])[0]
-    arch = info.get("arch", [""])[0]
-    filename = f"{name}-{version}-{arch}.pkg.tar.zst"
-    dest = cache_dir / filename
-
-    if dest.exists():
-        hal_say("info", f"{filename} already cached")
-        return dest
-
-    for server in servers:
-        url = server.rstrip("/") + f"/{name}/os/x86_64/{filename}"
-        try:
-            hal_say("info", f"Downloading {name}...")
-            urllib.request.urlretrieve(url, dest)
-            hal_say("success", f"{name} downloaded")
-            return dest
-        except Exception as e:
-            continue
-
-    # Try alternative URL patterns
-    for server in servers:
-        url = server.rstrip("/") + f"/os/x86_64/{filename}"
-        try:
-            hal_say("info", f"Downloading {name} from fallback URL...")
-            urllib.request.urlretrieve(url, dest)
-            hal_say("success", f"{name} downloaded")
-            return dest
-        except Exception as e:
-            continue
-
-    hal_say("error", f"Could not download {filename}")
-    return None
-
-
-# ── Package extraction ────────────────────────────────────────────────
-def extract_package(pkg_path: Path, root: Path):
-    """Extract a .pkg.tar.zst to the target root."""
-    hal_say("info", f"Extracting {pkg_path.name}...")
-    # zstd decompress to pipe to bsdtar
-    with open(pkg_path, "rb") as f:
-        dctx = zstandard.ZstdDecompressor()
-        proc = subprocess.Popen(
-            ["bsdtar", "-xpf", "-", "--exclude=.PKGINFO",
-             "--exclude=.INSTALL", "--exclude=.MTREE", "--exclude=.Changelog",
-             "-C", str(root)],
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        dctx.copy_stream(f, proc.stdin)
-        proc.stdin.close()
-        proc.wait()
-        if proc.returncode != 0:
-            hal_say("error", f"Extraction failed: {proc.stderr.read().decode()}")
-            return False
-    hal_say("success", f"{pkg_path.name} extracted")
+def version_match(ver: str, modifier: str, required: str) -> bool:
+    """Check if version satisfies modifier+required (e.g. >=2.35)."""
+    if not modifier or not required:
+        return True
+    cmp = vercmp(ver, required)
+    if modifier == ">=": return cmp >= 0
+    if modifier == "<=": return cmp <= 0
+    if modifier == "=":  return cmp == 0
+    if modifier == ">":  return cmp > 0
+    if modifier == "<":  return cmp < 0
+    if modifier == "!=": return cmp != 0
     return True
 
-
-# ── Scriptlet execution ────────────────────────────────────────────────
-def run_scriptlet(pkg_path: Path, root: Path, action: str, pkgname: str, version: str):
-    """Run .INSTALL scriptlet if present."""
-    try:
-        with tempfile.TemporaryDirectory() as tmp:
-            with open(pkg_path, "rb") as f:
+def load_sync_dbs() -> Dict[str, dict]:
+    """Load all sync databases. Returns {pkgname: {info}}."""
+    all_pkgs = {}
+    SYNC_DIR.mkdir(parents=True, exist_ok=True)
+    for db_path in sorted(SYNC_DIR.glob("*.db")):
+        try:
+            with open(db_path, "rb") as f:
+                import zstandard
                 dctx = zstandard.ZstdDecompressor()
                 with dctx.stream_reader(f) as reader:
                     with tarfile.open(fileobj=reader, mode="r|") as tar:
+                        current_dir = None
+                        entry_data = {}
                         for member in tar:
-                            if member.name == ".INSTALL":
-                                content = tar.extractfile(member).read().decode("utf-8")
-                                script_path = Path(tmp) / ".INSTALL"
-                                script_path.write_text(content)
-                                script_path.chmod(0o755)
-                                env = os.environ.copy()
-                                env["RPM_INSTALL_PREFIX"] = str(root)
-                                subprocess.run(
-                                    [str(script_path), action],
-                                    env=env, cwd=str(root),
-                                    check=False
-                                )
-                                return
+                            if member.isdir():
+                                current_dir = member.name.rstrip("/")
+                                entry_data = {}
+                                continue
+                            p = Path(member.name)
+                            if p.name == "desc":
+                                content = tar.extractfile(member).read().decode("utf-8", errors="replace")
+                                entry_data = parse_db_text(content)
+                            elif p.name == "depends":
+                                content = tar.extractfile(member).read().decode("utf-8", errors="replace")
+                                dep_info = parse_db_text(content)
+                                entry_data.update(dep_info)
+                            elif p.name == "files":
+                                content = tar.extractfile(member).read().decode("utf-8", errors="replace")
+                                entry_data["_files"] = content
+                            if current_dir and entry_data.get("name"):
+                                all_pkgs[entry_data["name"][0]] = dict(entry_data)
+        except Exception as e:
+            hal_say("warn", f"Failed to read database {db_path.name}: {e}")
+            continue
+    return all_pkgs
+
+def load_local_db() -> Dict[str, dict]:
+    """Load all installed packages. Returns {pkgname: {info}}."""
+    pkgs = {}
+    if not LOCAL_DIR.exists():
+        return pkgs
+    for pkg_dir in sorted(LOCAL_DIR.iterdir()):
+        if not pkg_dir.is_dir():
+            continue
+        desc_file = pkg_dir / "desc"
+        if not desc_file.exists():
+            continue
+        try:
+            info = parse_db_text(desc_file.read_text("utf-8", errors="replace"))
+            if info.get("name"):
+                pkgs[info["name"][0]] = info
+        except (OSError, IOError):
+            continue
+    return pkgs
+
+
+# ── Download ────────────────────────────────────────────────────────────
+def download(url: str, dest: Path, desc: str = "") -> bool:
+    """Download a file with progress display."""
+    try:
+        hal_say("info", f"Downloading {desc or dest.name}")
+
+        def reporthook(block, blocksize, totalsize):
+            if totalsize > 0:
+                pct = min(100, int(block * blocksize * 100 / totalsize))
+                bar = "█" * (pct // 4) + "░" * (25 - pct // 4)
+                sys.stdout.write(f"\r    [{bar}] {pct}%")
+                sys.stdout.flush()
+
+        urllib.request.urlretrieve(url, dest, reporthook=reporthook if desc else None)
+        if desc:
+            sys.stdout.write("\n")
+        return True
+    except urllib.error.HTTPError as e:
+        hal_say("warn", f"HTTP {e.code} for {url}")
+        return False
+    except urllib.error.URLError as e:
+        hal_say("warn", f"Connection error: {e.reason}")
+        return False
     except Exception as e:
-        hal_say("warn", f"Scriptlet error for {pkgname}: {e}")
+        hal_say("warn", f"Download failed: {e}")
+        return False
 
 
-# ── Local database management ─────────────────────────────────────────
-def update_local_db(pkg_key: str, info: dict, files: list[str], root: Path):
+# ── Sync databases ─────────────────────────────────────────────────────
+def sync_databases(config: Config):
+    """Download and decompress all repo databases."""
+    hal_say("info", "Opening the pod bay doors to synchronize databases...")
+    SYNC_DIR.mkdir(parents=True, exist_ok=True)
+
+    for name, (servers, sig_level) in config.repos.items():
+        db_name = f"{name}.db"
+        db_dest = SYNC_DIR / db_name
+        success = False
+
+        for server in servers:
+            # Try .db.tar.zst (Arch standard)
+            for ext in ["db.tar.zst", "db.tar.gz", "db"]:
+                url = server.rstrip("/") + f"/{name}/os/{config.arch}/{name}.{ext}"
+                tmp = db_dest.with_suffix(f".tmp.{ext}")
+                try:
+                    if download(url, tmp, f"{name} database"):
+                        # Decompress
+                        if ext.endswith(".zst"):
+                            import zstandard
+                            with open(tmp, "rb") as f:
+                                dctx = zstandard.ZstdDecompressor()
+                                decompressed = dctx.stream_reader(f).read()
+                            with open(db_dest, "wb") as f:
+                                f.write(decompressed)
+                        elif ext.endswith(".gz"):
+                            import gzip
+                            with gzip.open(tmp, "rb") as f:
+                                decompressed = f.read()
+                            with open(db_dest, "wb") as f:
+                                f.write(decompressed)
+                        else:
+                            shutil.copy2(tmp, db_dest)
+                        tmp.unlink(missing_ok=True)
+                        hal_say("success", f"{name} database synchronized")
+                        success = True
+                        break
+                except Exception as e:
+                    tmp.unlink(missing_ok=True)
+                    continue
+            if success:
+                break
+
+        if not success:
+            hal_say("warn", f"Could not sync {name} from any mirror")
+
+    hal_say("success", "All databases synchronized. I am completely operational.")
+
+
+# ── Dependency resolution ──────────────────────────────────────────────
+class DepResolver:
+    def __init__(self, all_pkgs: dict, installed: dict, config: Config):
+        self.all_pkgs = all_pkgs          # sync dbs
+        self.installed = installed         # local db
+        self.config = config
+        self.to_install: List[str] = []    # package names (in order)
+        self.to_remove: List[str] = []     # package names to remove (conflicts)
+        self._visited: Set[str] = set()
+        self._provides_cache: Dict[str, List[str]] = {}  # virtual -> real pkg names
+
+    def find_providers(self, dep_name: str) -> List[Tuple[str, dict]]:
+        """Find all packages that provide a dependency."""
+        providers = []
+        if dep_name in self.all_pkgs:
+            providers.append((dep_name, self.all_pkgs[dep_name]))
+        for pname, info in self.all_pkgs.items():
+            for provide_str in info.get("provides", []):
+                pd = parse_dep_string(provide_str)
+                if pd["name"] == dep_name:
+                    providers.append((pname, info))
+        return providers
+
+    def _check_conflicts(self, pkg_name: str, info: dict):
+        """Check if installing this package conflicts with installed packages."""
+        for conflict_str in info.get("conflicts", []):
+            cd = parse_dep_string(conflict_str)
+            for inst_name, inst_info in self.installed.items():
+                if dep_satisfied(cd, inst_info):
+                    # Check if conflict package is also being provided by the new package
+                    if cd["name"] == pkg_name:
+                        continue  # self-conflict is OK
+                    hal_say("warn", f"Conflict: {inst_name} conflicts with {cd['name']} (required by {pkg_name})")
+                    self.to_remove.append(inst_name)
+
+    def _check_replaces(self, pkg_name: str, info: dict):
+        """Check if this package replaces installed packages."""
+        for replace_str in info.get("replaces", []):
+            rd = parse_dep_string(replace_str)
+            for inst_name in list(self.installed.keys()):
+                if inst_name == rd["name"]:
+                    hal_say("info", f"{pkg_name} replaces {inst_name}")
+                    if inst_name not in self.to_remove:
+                        self.to_remove.append(inst_name)
+
+    def resolve(self, targets: List[str]) -> bool:
+        """Resolve a list of package targets. Returns True if successful."""
+        self._visited.clear()
+        self.to_install.clear()
+        self.to_remove.clear()
+
+        for target in targets:
+            if not self._resolve_one(target):
+                return False
+
+        return True
+
+    def _resolve_one(self, target: str) -> bool:
+        """Resolve a single package target."""
+        if target in self._visited:
+            return True
+        self._visited.add(target)
+
+        # Already in install list
+        if target in self.to_install:
+            return True
+
+        # Already installed (check if version is ok)
+        if target in self.installed:
+            return True
+
+        # Check ignored
+        if target in self.config.ignore_pkgs:
+            hal_say("warn", f"Package '{target}' is in IgnorePkg — skipping")
+            return True
+
+        # Find the package
+        if target not in self.all_pkgs:
+            # Check provides
+            providers = self.find_providers(target)
+            if not providers:
+                hal_say("error", f"Package '{target}' not found in any repository")
+                return False
+            if len(providers) > 1:
+                hal_say("info", f"Multiple packages provide '{target}': {', '.join(p[0] for p in providers)}")
+            target = providers[0][0]
+
+        info = self.all_pkgs[target]
+
+        # Check conflicts and replaces
+        self._check_conflicts(target, info)
+        self._check_replaces(target, info)
+
+        # Resolve dependencies
+        for dep_str in info.get("depends", []):
+            dd = parse_dep_string(dep_str)
+            dep_name = dd["name"]
+
+            # Skip if already satisfied by installed packages
+            sat = False
+            for inst_name, inst_info in self.installed.items():
+                if dep_satisfied(dd, inst_info):
+                    # Check version constraint if any
+                    if dd["version"] and inst_info.get("version"):
+                        if version_match(inst_info["version"][0], dd["mod"], dd["version"]):
+                            pass
+                    sat = True
+                    break
+            if sat:
+                continue
+
+            # Also check if already in install list
+            for pn in self.to_install:
+                pkg_info = self.all_pkgs.get(pn)
+                if pkg_info and dep_satisfied(dd, pkg_info):
+                    sat = True
+                    break
+            if sat:
+                continue
+
+            # Also check providers
+            providers = self.find_providers(dep_name)
+            found = False
+            for prov_name, _ in providers:
+                if prov_name in self.installed:
+                    found = True
+                    break
+            if found:
+                continue
+
+            if not self._resolve_one(dep_name):
+                return False
+
+        if target not in self.to_install:
+            self.to_install.append(target)
+
+        return True
+
+
+# ── Package extraction ─────────────────────────────────────────────────
+def extract_single_pkg(pkg_path: Path, root: Path, pkgname: str) -> Tuple[bool, List[str]]:
+    """Extract a .pkg.tar.zst to root. Returns (success, file_list)."""
+    files = []
+    try:
+        import zstandard
+        with open(pkg_path, "rb") as f:
+            dctx = zstandard.ZstdDecompressor()
+            with dctx.stream_reader(f) as reader:
+                with tarfile.open(fileobj=reader, mode="r|") as tar:
+                    for member in tar:
+                        name = member.name
+                        # Skip special metadata files
+                        if name.startswith("."):
+                            continue
+                        target = root / name.lstrip("/")
+                        files.append("/" + name)
+
+                        if member.issym():
+                            if target.exists() or target.is_symlink():
+                                target.unlink()
+                            target.symlink_to(member.linkname)
+                            continue
+
+                        if member.islnk():
+                            if target.exists() or target.is_symlink():
+                                target.unlink()
+                            target.hardlink_to(root / member.linkname.lstrip("/"))
+                            continue
+
+                        if member.isdir():
+                            target.mkdir(parents=True, exist_ok=True)
+                            continue
+
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        with tar.extractfile(member) as src:
+                            if src:
+                                with open(target, "wb") as dst:
+                                    shutil.copyfileobj(src, dst)
+
+                        # Preserve permissions
+                        mode = member.mode
+                        if mode:
+                            target.chmod(mode)
+
+                        # Preserve ownership
+                        try:
+                            os.chown(target, member.uid, member.gid)
+                        except (PermissionError, OSError):
+                            pass
+
+        return True, files
+    except Exception as e:
+        hal_say("error", f"Failed to extract {pkg_path.name}: {e}")
+        return False, []
+
+
+def run_scriptlet(script_content: str, action: str, root: Path, pkgname: str, version: str):
+    """Execute a package scriptlet phase.
+    
+    .INSTALL phases: pre_install, post_install, pre_upgrade, post_upgrade,
+                     pre_remove, post_remove
+    """
+    if not script_content:
+        return
+
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            script_path = Path(tmp) / f"{pkgname}.install"
+            script_path.write_text(script_content)
+            script_path.chmod(0o755)
+
+            env = os.environ.copy()
+            env.update({
+                "RPM_INSTALL_PREFIX": str(root),
+                "PACKAGE_NAME": pkgname,
+                "PACKAGE_VERSION": version,
+            })
+            # Arch package scriptlets receive the action as first arg
+            result = subprocess.run(
+                [str(script_path), action],
+                env=env, cwd=str(root),
+                capture_output=True, text=True, timeout=120
+            )
+            if result.returncode != 0:
+                hal_say("warn", f"Scriptlet {action} for {pkgname} returned {result.returncode}")
+                if result.stderr.strip():
+                    hal_say("info", result.stderr.strip())
+            return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        hal_say("warn", f"Scriptlet {action} for {pkgname} timed out")
+        return False
+    except Exception as e:
+        hal_say("warn", f"Scriptlet {action} for {pkgname} failed: {e}")
+        return False
+
+
+def get_scriptlet(pkg_path: Path) -> Optional[str]:
+    """Extract .INSTALL content from a package."""
+    try:
+        import zstandard
+        with open(pkg_path, "rb") as f:
+            dctx = zstandard.ZstdDecompressor()
+            with dctx.stream_reader(f) as reader:
+                with tarfile.open(fileobj=reader, mode="r|") as tar:
+                    for member in tar:
+                        if member.name == ".INSTALL":
+                            return tar.extractfile(member).read().decode("utf-8", errors="replace")
+    except:
+        pass
+    return None
+
+
+# ── Local DB management ────────────────────────────────────────────────
+def update_local_db(pkg_key: str, info: dict, files: List[str], root: Path,
+                    reason: int = 0):
     """Write to /var/lib/pacman/local/<pkg_key>/"""
     pkg_dir = LOCAL_DIR / pkg_key
     pkg_dir.mkdir(parents=True, exist_ok=True)
 
     info["installdate"] = [str(int(time.time()))]
+    info["reason"] = [str(reason)]
 
     # Write desc
     desc_lines = []
     for key, vals in info.items():
+        if key.startswith("_"):
+            continue
         desc_lines.append(f"%{key.upper()}%")
-        desc_lines.extend(vals)
+        desc_lines.extend(str(v) for v in vals)
     (pkg_dir / "desc").write_text("\n".join(desc_lines) + "\n")
 
     # Write files
-    file_lines = [""]  # starts with empty line
+    file_lines = [""]
     file_lines.extend(files)
     (pkg_dir / "files").write_text("\n".join(file_lines) + "\n")
 
 
 def remove_local_db(pkg_key: str):
-    """Remove a package from the local database."""
     pkg_dir = LOCAL_DIR / pkg_key
     if pkg_dir.exists():
         shutil.rmtree(pkg_dir)
 
 
-def get_installed() -> set[str]:
-    """Return set of installed package keys (name-version)."""
-    if not LOCAL_DIR.exists():
-        return set()
-    return {d.name for d in LOCAL_DIR.iterdir() if d.is_dir()}
+# ── Backup handling ─────────────────────────────────────────────────────
+def _save_modified_backups(pkg_name: str, old_pkg_key: str, root: Path) -> Tuple[List[str], Dict[str, bytes]]:
+    """Identify modified backup files before extraction and save them.
+    
+    Reads the old package's backup list from local DB, compares current
+    file checksums against stored ones, and saves modified files aside.
+    
+    Returns (list of modified paths, dict of {path: saved_content_bytes}).
+    """
+    old_desc_file = LOCAL_DIR / old_pkg_key / "desc"
+    modified = []
+    saved = {}
 
+    if not old_desc_file.exists():
+        return modified, saved
 
-def get_installed_names() -> dict[str, str]:
-    """Return {pkgname: pkg_key} mapping."""
-    result = {}
-    if not LOCAL_DIR.exists():
-        return result
-    for d in LOCAL_DIR.iterdir():
-        if not d.is_dir():
+    try:
+        old_info = parse_db_text(old_desc_file.read_text("utf-8", errors="replace"))
+    except (OSError, IOError):
+        return modified, saved
+
+    backup_entries = old_info.get("backup", [])
+    if not backup_entries:
+        return modified, saved
+
+    for entry in backup_entries:
+        parts = entry.split("\t")
+        filepath = parts[0] if parts else entry
+        stored_md5 = parts[1] if len(parts) > 1 else ""
+        full_path = root / filepath.lstrip("/")
+        if not full_path.exists() or not full_path.is_file():
             continue
-        desc_file = d / "desc"
-        if not desc_file.exists():
-            continue
-        info = parse_pkg_desc(desc_file.read_text("utf-8"))
-        names = info.get("name", [])
-        if names:
-            result[names[0]] = d.name
-    return result
+        if not stored_md5:
+            modified.append(filepath)
+        else:
+            try:
+                current_md5 = hashlib.md5(full_path.read_bytes()).hexdigest()
+                if current_md5 != stored_md5:
+                    modified.append(filepath)
+            except (OSError, IOError):
+                modified.append(filepath)
+
+    # Save modified files before extraction overwrites them
+    for filepath in modified:
+        full_path = root / filepath.lstrip("/")
+        try:
+            saved[filepath] = full_path.read_bytes()
+        except (OSError, IOError):
+            pass
+
+    if modified:
+        hal_say("info", f"Preserving modified config files for {pkg_name}")
+
+    return modified, saved
 
 
-# ── Native mode operations ────────────────────────────────────────────
-def native_sync(config: Config):
-    """sync databases for all configured repos."""
-    hal_say("info", "Initiating HAL 9000 database synchronization")
-    # Parse pacman.conf for repos
-    cp = configparser.ConfigParser(interpolation=None)
-    cp.read(PACMAN_CONF)
-    in_repos = False
-    for section in cp.sections():
-        if section.startswith("repo-"):
-            name = section[5:]
-            server = cp.get(section, "Server", fallback="").strip()
-            sig = cp.get(section, "SigLevel", fallback="Optional TrustAll")
-            if server:
-                config.repos[name] = ([server], sig)
+def _restore_backups(modified: List[str], saved: Dict[str, bytes], root: Path):
+    """After extraction, restore user configs and save new versions as .pacnew."""
+    if not modified:
+        return
 
-    SYNC_DIR.mkdir(parents=True, exist_ok=True)
-    for name, (servers, _) in config.repos.items():
-        download_db(name, servers, SYNC_DIR)
-    hal_say("success", "All databases synced. I am completely operational.")
+    for filepath in modified:
+        full_path = root / filepath.lstrip("/")
+        # The new package version is now at full_path — rename it to .pacnew
+        pacnew_path = full_path.with_suffix(full_path.suffix + ".pacnew")
+        if full_path.exists():
+            try:
+                shutil.copy2(full_path, pacnew_path)
+                hal_say("info", f"  {filepath} → {filepath}.pacnew")
+            except (OSError, IOError) as e:
+                hal_say("warn", f"  Could not create {filepath}.pacnew: {e}")
+
+        # Restore the user's modified config
+        if filepath in saved:
+            try:
+                full_path.parent.mkdir(parents=True, exist_ok=True)
+                full_path.write_bytes(saved[filepath])
+                hal_say("info", f"  Restored user config: {filepath}")
+            except (OSError, IOError) as e:
+                hal_say("warn", f"  Could not restore {filepath}: {e}")
 
 
-def native_install(packages: list[str], config: Config):
-    """Install packages natively (standalone mode)."""
-    hal_say("info", f"Processing installation request: {', '.join(packages)}")
+# ── Native install ──────────────────────────────────────────────────────
+def native_install(targets: List[str], config: Config):
+    """Full native install with transaction model."""
+    hal_say("info", f"Processing install request: {', '.join(targets)}")
+
     SYNC_DIR.mkdir(parents=True, exist_ok=True)
     LOCAL_DIR.mkdir(parents=True, exist_ok=True)
     config.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load all sync databases
-    all_pkgs = {}
-    for db in SYNC_DIR.glob("*.db"):
-        pkgs = read_db(db)
-        all_pkgs.update(pkgs)
+    # Make sure sync dbs exist
+    has_dbs = list(SYNC_DIR.glob("*.db"))
+    if not has_dbs:
+        hal_say("warn", "No sync databases found. Syncing now...")
+        sync_databases(config)
+        has_dbs = list(SYNC_DIR.glob("*.db"))
+        if not has_dbs:
+            hal_say("error", "Could not synchronize any repositories. I can't let you do that, Dave.")
+            return 1
+
+    all_pkgs = load_sync_dbs()
+    installed = load_local_db()
 
     if not all_pkgs:
-        hal_say("error", "No sync databases found. Run 'hal --self sync' first.")
+        hal_say("error", "No package data available")
         return 1
 
-    installed = get_installed()
-
-    # Resolve dependencies for all requested packages
-    install_list = []
-    for pkg in packages:
-        deps = resolve_deps(pkg, all_pkgs, installed)
-        install_list.extend(deps)
-
-    if not install_list:
-        hal_say("info", "All requested packages are already installed.")
-        return 0
-
-    hal_say("info", f"Installation order: {', '.join(install_list)}")
-
-    # get server from first repo
-    servers = list(config.repos.values())[0][0] if config.repos else []
-    if not servers:
-        hal_say("error", "No repositories configured")
-        return 1
-
-    for pkg_key in install_list:
-        info = all_pkgs[pkg_key]
-        name = info.get("name", [""])[0]
-        version = info.get("version", [""])[0]
-
-        pkg_path = download_package(pkg_key, info, servers, config.cache_dir)
-        if not pkg_path:
+    with DBLock():
+        # Resolve dependencies
+        resolver = DepResolver(all_pkgs, installed, config)
+        if not resolver.resolve(targets):
+            hal_say("error", "Dependency resolution failed")
             return 1
 
-        if not extract_package(pkg_path, config.root):
+        install_list = resolver.to_install
+        remove_list = resolver.to_remove
+
+        if not install_list and not remove_list:
+            hal_say("info", "All requested packages are already installed. Just what do you think you're doing, Dave?")
+            return 0
+
+        # Show transaction
+        print()
+        hal_say("info", "Transaction summary:")
+        if remove_list:
+            print(f"    Remove ({len(remove_list)}):")
+            for pkg in remove_list:
+                print(f"      - {pkg}")
+        if install_list:
+            print(f"    Install ({len(install_list)}):")
+            for pkg in install_list:
+                pkginfo = all_pkgs.get(pkg, {})
+                ver = pkginfo.get("version", ["?"])[0]
+                size = pkginfo.get("csize", ["0"])[0]
+                try:
+                    size_mb = int(size) / (1024*1024)
+                    size_str = f"{size_mb:.1f} MB"
+                except:
+                    size_str = "? MB"
+                print(f"      + {pkg} {ver}  [{size_str}]")
+        print()
+
+        # Confirm
+        if not config.noconfirm:
+            try:
+                resp = input("  Proceed with installation? [Y/n] ").strip().lower()
+                if resp in ("n", "no"):
+                    hal_say("info", "Transaction aborted. I understand.")
+                    return 0
+            except (EOFError, KeyboardInterrupt):
+                print()
+                hal_say("info", "Transaction aborted.")
+                return 0
+
+        # Pre-transaction tasks
+        if remove_list:
+            # Run pre_remove on packages to be removed
+            for pkg_name in remove_list:
+                if pkg_name in installed:
+                    pkg_key = installed[pkg_name].get("_key", pkg_name)
+                    pkg_dir = LOCAL_DIR / pkg_key
+                    install_file = pkg_dir / "install"
+                    if install_file.exists():
+                        script = install_file.read_text("utf-8", errors="replace")
+                        run_scriptlet(script, "pre_remove", config.root, pkg_name,
+                                      installed[pkg_name].get("version", [""])[0])
+
+        # Download phase
+        servers = []
+        for name, (srvlist, _) in config.repos.items():
+            servers.extend(srvlist)
+        if not servers:
+            hal_say("error", "No mirrors configured")
             return 1
 
-        run_scriptlet(pkg_path, config.root, "post_install", name, version)
+        downloaded = []
+        hal_say("info", "Beginning download phase")
+        for pkg_name in install_list:
+            pkginfo = all_pkgs.get(pkg_name, {})
+            pkgver = pkginfo.get("version", [""])[0]
+            parch = pkginfo.get("arch", [config.arch])[0]
+            filename = f"{pkg_name}-{pkgver}-{parch}.pkg.tar.zst"
+            dest = config.cache_dir / filename
 
-        # Collect installed files
-        files = []
-        try:
-            with open(pkg_path, "rb") as f:
-                dctx = zstandard.ZstdDecompressor()
-                with dctx.stream_reader(f) as reader:
-                    with tarfile.open(fileobj=reader, mode="r|") as tar:
-                        for member in tar:
-                            if member.name.startswith("."):
-                                continue
-                            files.append("/" + member.name)
-        except:
-            pass
+            if dest.exists():
+                hal_say("info", f"{pkg_name} already in cache")
+                downloaded.append(dest)
+                continue
 
-        update_local_db(pkg_key, info, files, config.root)
-        hal_say("success", f"Installed {name} {version}")
+            found = False
+            for server in servers:
+                # Try various URL patterns
+                repo_name = None
+                for rname in config.repos:
+                    for srv in config.repos[rname][0]:
+                        if srv == server or srv.rstrip("/").endswith(server.rstrip("/").split("/")[-1]):
+                            repo_name = rname
+                            break
+                if not repo_name:
+                    # Try to derive from server URL
+                    for rname, (srvlist, _) in config.repos.items():
+                        for s in srvlist:
+                            if s == server:
+                                repo_name = rname
+                                break
+                if not repo_name:
+                    repo_name = "extra"  # fallback
 
+                for url_tmpl in [
+                    f"{server}/{repo_name}/os/{config.arch}/{filename}",
+                    f"{server}/os/{config.arch}/{filename}",
+                    f"{server}/{filename}",
+                ]:
+                    if download(url_tmpl, dest, f"{pkg_name} {pkgver}"):
+                        found = True
+                        downloaded.append(dest)
+                        break
+                if found:
+                    break
+
+            if not found:
+                hal_say("error", f"Could not download {pkg_name}. I can't complete the mission.")
+                return 1
+
+        # Pre-install scriptlets
+        hal_say("info", "Running pre-install scriptlets...")
+        for pkg_name in reversed(install_list):
+            for d in downloaded:
+                if pkg_name in d.name:
+                    script = get_scriptlet(d)
+                    if script:
+                        run_scriptlet(script, "pre_install", config.root, pkg_name,
+                                      all_pkgs[pkg_name].get("version", [""])[0])
+                    break
+
+        # Install phase
+        hal_say("info", "Installing packages. I am putting myself to the fullest possible use...")
+        for pkg_name in install_list:
+            pkginfo = all_pkgs[pkg_name]
+            pkgver = pkginfo.get("version", [""])[0]
+
+            # Find downloaded file
+            pkg_path = None
+            for d in downloaded:
+                if pkg_name in d.name and pkgver in d.name:
+                    pkg_path = d
+                    break
+            if not pkg_path:
+                for d in downloaded:
+                    if pkg_name in d.name:
+                        pkg_path = d
+                        break
+            if not pkg_path:
+                hal_say("error", f"Lost package file for {pkg_name}. I think you know what the problem is.")
+                return 1
+
+            success, files = extract_single_pkg(pkg_path, config.root, pkg_name)
+            if not success:
+                hal_say("error", f"Failed to install {pkg_name}. I can't recover from this.")
+                return 1
+
+            # Build desc info for local db
+            desc_info = {}
+            for key in ("name", "version", "base", "desc", "arch", "url", "license",
+                        "group", "size", "isize", "packager", "builddate",
+                        "provides", "conflicts", "replaces", "depends", "optdepends",
+                        "makedepends", "checkdepends"):
+                if key in pkginfo:
+                    desc_info[key] = pkginfo[key]
+
+            # Get .PKGINFO from package for complete metadata
+            try:
+                import zstandard
+                with open(pkg_path, "rb") as f:
+                    dctx = zstandard.ZstdDecompressor()
+                    with dctx.stream_reader(f) as reader:
+                        with tarfile.open(fileobj=reader, mode="r|") as tar:
+                            for member in tar:
+                                if member.name == ".PKGINFO":
+                                    pkginfo_text = tar.extractfile(member).read().decode("utf-8", errors="replace")
+                                    for line in pkginfo_text.split("\n"):
+                                        m = re.match(r"^(\w+)\s*=\s*(.+)$", line.strip())
+                                        if m:
+                                            k, v = m.group(1).lower(), m.group(2)
+                                            if k in ("depend", "optdepend", "conflict", "provides",
+                                                     "replaces", "group", "backup", "license"):
+                                                desc_info.setdefault(k + ("s" if k != "backup" else "s"), []).append(v)
+                                            elif k in ("pkgname",):
+                                                if "name" not in desc_info:
+                                                    desc_info["name"] = [v]
+                                            elif k in ("pkgver",):
+                                                if "version" not in desc_info:
+                                                    desc_info["version"] = [v]
+                                            elif k in ("pkgdesc",):
+                                                if "desc" not in desc_info:
+                                                    desc_info["desc"] = [v]
+                            if "name" in desc_info:
+                                pkg_key = f"{desc_info['name'][0]}-{desc_info.get('version',['?'])[0]}"
+                                update_local_db(pkg_key, desc_info, files, config.root, reason=0)
+            except Exception as e:
+                # Fallback: use what we have from sync db
+                pkg_key = f"{pkginfo.get('name',[pkg_name])[0]}-{pkgver}"
+                update_local_db(pkg_key, desc_info, files, config.root, reason=0)
+
+            hal_say("success", f"Installed {pkg_name} {pkgver}")
+
+        # Post-install scriptlets
+        hal_say("info", "Running post-install scriptlets...")
+        for pkg_name in install_list:
+            for d in downloaded:
+                if pkg_name in d.name:
+                    script = get_scriptlet(d)
+                    if script:
+                        run_scriptlet(script, "post_install", config.root, pkg_name,
+                                      all_pkgs[pkg_name].get("version", [""])[0])
+                    break
+
+        # Post-transaction: remove conflicting packages
+        for pkg_name in remove_list:
+            if pkg_name in load_local_db():
+                hal_say("info", f"Removing conflicting package: {pkg_name}")
+                # Remove files
+                pkg_entry = load_local_db().get(pkg_name, {})
+                pkg_key = f"{pkg_name}-{pkg_entry.get('version', [''])[0]}"
+                files_file = LOCAL_DIR / pkg_key / "files"
+                if files_file.exists():
+                    content = files_file.read_text("utf-8", errors="replace")
+                    for line in content.split("\n")[1:]:
+                        f = line.strip()
+                        if f:
+                            target = config.root / f.lstrip("/")
+                            target.unlink(missing_ok=True)
+                remove_local_db(pkg_key)
+
+    hal_say("success", f"Transaction complete. All circuits are functioning perfectly.")
     return 0
 
 
-def native_remove(packages: list[str], config: Config):
+# ── Native remove ───────────────────────────────────────────────────────
+def native_remove(targets: List[str], config: Config):
     """Remove packages natively."""
-    installed_names = get_installed_names()
+    installed = load_local_db()
 
-    for pkg in packages:
-        if pkg not in installed_names:
-            hal_say("warn", f"Package '{pkg}' is not installed")
-            continue
+    with DBLock():
+        for pkg in targets:
+            if pkg not in installed:
+                hal_say("warn", f"Package '{pkg}' is not installed")
+                continue
 
-        pkg_key = installed_names[pkg]
-        pkg_dir = LOCAL_DIR / pkg_key
-        info = parse_pkg_desc((pkg_dir / "desc").read_text("utf-8"))
-        files_file = pkg_dir / "files"
+            info = installed[pkg]
+            pkg_key = f"{pkg}-{info.get('version', [''])[0]}"
+            version = info.get("version", [""])[0]
 
-        hal_say("info", f"Removing {pkg}...")
+            # Check if in HoldPkg
+            if pkg in config.hold_pkgs:
+                hal_say("warn", f"'{pkg}' is in HoldPkg. Are you sure, Dave?")
+                if not config.noconfirm:
+                    resp = input("  Remove anyway? [y/N] ").strip().lower()
+                    if resp not in ("y", "yes"):
+                        continue
 
-        # Remove files
-        if files_file.exists():
-            content = files_file.read_text("utf-8")
-            for line in content.split("\n")[1:]:  # skip leading empty line
-                line = line.strip()
-                if not line:
+            # Check if other packages depend on this
+            dependents = []
+            for inst_name, inst_info in installed.items():
+                for dep_str in inst_info.get("depends", []):
+                    dd = parse_dep_string(dep_str)
+                    if dd["name"] == pkg:
+                        dependents.append(inst_name)
+            if dependents:
+                hal_say("warn", f"Packages depend on {pkg}: {', '.join(dependents)}")
+                if not config.noconfirm:
+                    resp = input("  Remove anyway? [y/N] ").strip().lower()
+                    if resp not in ("y", "yes"):
+                        continue
+
+            hal_say("info", f"Removing {pkg}...")
+
+            # Pre-remove scriptlet
+            install_file = LOCAL_DIR / pkg_key / "install"
+            if install_file.exists():
+                script = install_file.read_text("utf-8", errors="replace")
+                run_scriptlet(script, "pre_remove", config.root, pkg, version)
+
+            # Check backup files — rename modified configs to .pacsave
+            backup_entries = info.get("backup", [])
+            backup_modified = []
+            for entry in backup_entries:
+                parts = entry.split("\t")
+                filepath = parts[0] if parts else entry
+                stored_md5 = parts[1] if len(parts) > 1 else ""
+                full_path = config.root / filepath.lstrip("/")
+                if not full_path.exists() or not full_path.is_file():
                     continue
-                target = config.root / line.lstrip("/")
-                if target.exists():
-                    if target.is_file() or target.is_symlink():
-                        target.unlink()
-                    elif target.is_dir():
+                if not stored_md5:
+                    backup_modified.append(filepath)
+                else:
+                    try:
+                        current_md5 = hashlib.md5(full_path.read_bytes()).hexdigest()
+                        if current_md5 != stored_md5:
+                            backup_modified.append(filepath)
+                    except (OSError, IOError):
+                        backup_modified.append(filepath)
+
+            for filepath in backup_modified:
+                full_path = config.root / filepath.lstrip("/")
+                pacsave_path = full_path.with_suffix(full_path.suffix + ".pacsave")
+                try:
+                    shutil.move(str(full_path), str(pacsave_path))
+                    hal_say("info", f"  {filepath} → {filepath}.pacsave")
+                except (OSError, IOError) as e:
+                    hal_say("warn", f"  Could not create {filepath}.pacsave: {e}")
+
+            # Remove files
+            files_file = LOCAL_DIR / pkg_key / "files"
+            removed = []
+            if files_file.exists():
+                content = files_file.read_text("utf-8", errors="replace")
+                for line in content.split("\n")[1:]:
+                    f = line.strip()
+                    if not f:
+                        continue
+                    target = config.root / f.lstrip("/")
+                    if target.exists() or target.is_symlink():
+                        # Skip backup files we already renamed
+                        if any(f == bf for bf in backup_modified):
+                            continue
                         try:
-                            target.rmdir()
+                            target.unlink()
+                            removed.append(f)
                         except OSError:
-                            pass  # directory not empty
+                            pass  # directories will be cleaned up later
+                        except IsADirectoryError:
+                            try:
+                                target.rmdir()
+                            except OSError:
+                                pass
 
-        run_scriptlet(pkg_dir / "install", config.root, "post_remove", pkg, info.get("version", [""])[0])
-        remove_local_db(pkg_key)
-        hal_say("success", f"Removed {pkg}")
+            # Post-remove scriptlet
+            run_scriptlet(script, "post_remove", config.root, pkg, version) if install_file.exists() else None
+
+            # Remove from local db
+            remove_local_db(pkg_key)
+            hal_say("success", f"Removed {pkg} {version}")
+            del installed[pkg]
+
+    hal_say("success", "Removal complete.")
+    return 0
 
 
-def native_info(packages: list[str]):
-    """Show info about installed packages."""
-    installed_names = get_installed_names()
-    for pkg in packages:
-        if pkg not in installed_names:
+# ── Native info ─────────────────────────────────────────────────────────
+def native_info(targets: List[str], config: Config):
+    """Show detailed package info."""
+    for pkg in targets:
+        installed = load_local_db()
+        if pkg in installed:
+            info = installed[pkg]
+            print(f"\n  Name: {info.get('name', ['?'])[0]}")
+            print(f"  Version: {info.get('version', ['?'])[0]}")
+            print(f"  Description: {info.get('desc', ['?'])[0]}")
+            print(f"  Architecture: {info.get('arch', ['?'])[0]}")
+            print(f"  URL: {info.get('url', ['?'])[0]}")
+            print(f"  Licenses: {', '.join(info.get('license', ['?']))}")
+            print(f"  Groups: {', '.join(info.get('group', []))}")
+            print(f"  Install Date: {info.get('installdate', ['?'])[0]}")
+            print(f"  Install Reason: {'Explicitly installed' if info.get('reason',['0'])[0] == '0' else 'Installed as dependency'}")
+            print(f"  Packager: {info.get('packager', ['?'])[0]}")
+            print(f"  Build Date: {info.get('builddate', ['?'])[0]}")
+            print(f"  Installed Size: {info.get('isize', ['0'])[0]} B")
+            if info.get("depends"):
+                print(f"  Depends On: {', '.join(info['depends'])}")
+            if info.get("optdepends"):
+                print(f"  Optional Deps: {', '.join(info['optdepends'])}")
+            if info.get("provides"):
+                print(f"  Provides: {', '.join(info['provides'])}")
+            if info.get("conflicts"):
+                print(f"  Conflicts: {', '.join(info['conflicts'])}")
+            if info.get("replaces"):
+                print(f"  Replaces: {', '.join(info['replaces'])}")
+        else:
+            # Search sync dbs
+            all_pkgs = load_sync_dbs()
+            if pkg in all_pkgs:
+                info = all_pkgs[pkg]
+                print(f"\n  Name: {info.get('name', ['?'])[0]}")
+                print(f"  Version: {info.get('version', ['?'])[0]}")
+                print(f"  Description: {info.get('desc', ['?'])[0]}")
+                print(f"  Architecture: {info.get('arch', ['?'])[0]}")
+                print(f"  URL: {info.get('url', ['?'])[0]}")
+                print(f"  Licenses: {', '.join(info.get('license', ['?']))}")
+                print(f"  Groups: {', '.join(info.get('group', []))}")
+                print(f"  Download Size: {info.get('csize', ['0'])[0]} B")
+                print(f"  Installed Size: {info.get('isize', ['0'])[0]} B")
+                print(f"  Packager: {info.get('packager', ['?'])[0]}")
+                print(f"  Build Date: {info.get('builddate', ['?'])[0]}")
+                if info.get("depends"):
+                    print(f"  Depends On: {', '.join(info['depends'])}")
+                if info.get("optdepends"):
+                    print(f"  Optional Deps: {', '.join(info['optdepends'])}")
+                if info.get("provides"):
+                    print(f"  Provides: {', '.join(info['provides'])}")
+                if info.get("conflicts"):
+                    print(f"  Conflicts: {', '.join(info['conflicts'])}")
+                if info.get("replaces"):
+                    print(f"  Replaces: {', '.join(info['replaces'])}")
+            else:
+                hal_say("warn", f"Package '{pkg}' not found")
+    return 0
+
+
+# ── Native search ───────────────────────────────────────────────────────
+def native_search(query: str, config: Config):
+    """Search packages in sync databases."""
+    all_pkgs = load_sync_dbs()
+    installed = load_local_db()
+    found = False
+
+    for pkg_name, info in sorted(all_pkgs.items()):
+        name = pkg_name.lower()
+        desc = info.get("desc", [""])[0].lower()
+        q = query.lower()
+        if q in name or q in desc or any(q in (info.get("provides", []) or [])):
+            ver = info.get("version", ["?"])[0]
+            d = info.get("desc", [""])[0]
+            inst_mark = " [installed]" if pkg_name in installed else ""
+            print(f"  {pkg_name} {ver}{inst_mark}")
+            print(f"    {d}")
+            found = True
+
+    if not found:
+        hal_say("info", f"No packages found matching '{query}'")
+    return 0
+
+
+# ── Native list ─────────────────────────────────────────────────────────
+def native_list(config: Config):
+    """List installed packages."""
+    installed = load_local_db()
+    if not installed:
+        hal_say("info", "No packages installed. The system is pristine.")
+        return 0
+
+    total = 0
+    total_size = 0
+    for name, info in sorted(installed.items()):
+        ver = info.get("version", ["?"])[0]
+        group = info.get("group", [])
+        size = info.get("isize", ["0"])[0]
+        try:
+            total_size += int(size)
+        except ValueError:
+            pass
+        gstr = f" [{','.join(group)}]" if group else ""
+        print(f"  {name} {ver}{gstr}")
+        total += 1
+
+    size_mb = total_size / (1024*1024)
+    print(f"\n  {total} packages installed, {size_mb:.1f} MB")
+    return 0
+
+
+# ── Native files ────────────────────────────────────────────────────────
+def native_files(targets: List[str], config: Config):
+    """List files owned by packages."""
+    installed = load_local_db()
+    for pkg in targets:
+        if pkg not in installed:
             hal_say("warn", f"Package '{pkg}' not installed")
             continue
-        pkg_key = installed_names[pkg]
-        info = parse_pkg_desc((LOCAL_DIR / pkg_key / "desc").read_text("utf-8"))
-        print(f"\n  Package: {info.get('name', ['?'])[0]}")
-        print(f"  Version: {info.get('version', ['?'])[0]}")
-        print(f"  Description: {info.get('desc', ['?'])[0]}")
-        print(f"  Architecture: {info.get('arch', ['?'])[0]}")
-        print(f"  URL: {info.get('url', ['?'])[0]}")
-        print(f"  License: {', '.join(info.get('license', ['?']))}")
-        print(f"  Group: {', '.join(info.get('group', []))}")
-        print(f"  Install Date: {info.get('installdate', ['?'])[0]}")
-        if info.get("depends"):
-            print(f"  Depends: {', '.join(info['depends'])}")
-        if info.get("optdepends"):
-            print(f"  Optional Deps: {', '.join(info['optdepends'])}")
-
-
-def native_files(packages: list[str], config: Config):
-    """List files owned by a package."""
-    installed_names = get_installed_names()
-    for pkg in packages:
-        if pkg not in installed_names:
-            hal_say("warn", f"Package '{pkg}' not installed")
-            continue
-        pkg_key = installed_names[pkg]
+        info = installed[pkg]
+        pkg_key = f"{pkg}-{info.get('version', [''])[0]}"
         files_file = LOCAL_DIR / pkg_key / "files"
         if not files_file.exists():
+            hal_say("warn", f"No file list for {pkg}")
             continue
-        content = files_file.read_text("utf-8")
-        print(f"\n  {pkg} owns:")
+        content = files_file.read_text("utf-8", errors="replace")
+        print(f"\n  {pkg} {info.get('version',[''])[0]}:")
         for line in content.split("\n")[1:]:
             line = line.strip()
             if line:
                 print(f"    {line}")
+    return 0
 
 
-def native_list(config: Config):
-    """List all installed packages."""
-    installed_names = get_installed_names()
-    if not installed_names:
-        hal_say("info", "No packages installed.")
-        return
-    for name, key in sorted(installed_names.items()):
-        info = parse_pkg_desc((LOCAL_DIR / key / "desc").read_text("utf-8"))
-        ver = info.get("version", ["?"])[0]
-        print(f"  {name} {ver}")
+# ── Native own (find pkg by file) ───────────────────────────────────────
+def native_own(target: str, config: Config):
+    """Find which package owns a file."""
+    target = target.rstrip("/")
+    installed = load_local_db()
+    found = []
+
+    for pkg_name, info in installed.items():
+        pkg_key = f"{pkg_name}-{info.get('version', [''])[0]}"
+        files_file = LOCAL_DIR / pkg_key / "files"
+        if not files_file.exists():
+            continue
+        content = files_file.read_text("utf-8", errors="replace")
+        for line in content.split("\n")[1:]:
+            line = line.strip()
+            if not line:
+                continue
+            if line == target or line.rstrip("/") == target.rstrip("/"):
+                found.append((pkg_name, info.get("version", ["?"])[0]))
+                break
+
+    if found:
+        for name, ver in found:
+            print(f"  {name} {ver}")
+    else:
+        hal_say("info", f"No package owns '{target}'")
+    return 0
 
 
-def native_search(query: str):
-    """Search sync databases for a package."""
-    all_pkgs = {}
-    for db in SYNC_DIR.glob("*.db"):
-        pkgs = read_db(db)
-        all_pkgs.update(pkgs)
+# ── Native check ────────────────────────────────────────────────────────
+def native_check(config: Config):
+    """Verify installed packages — check file integrity."""
+    hal_say("info", "Running system check. I've still got the greatest enthusiasm and confidence in the mission.")
+    installed = load_local_db()
+    errors = 0
+    missing_files = []
 
-    found = False
-    for key, info in all_pkgs.items():
-        name = info.get("name", [""])[0]
-        desc = info.get("desc", [""])[0]
-        if query.lower() in name.lower() or query.lower() in desc.lower():
-            ver = info.get("version", ["?"])[0]
-            print(f"  {name} {ver}  {desc}")
-            found = True
-    if not found:
-        hal_say("info", f"No packages found matching '{query}'")
+    for pkg_name, info in installed.items():
+        pkg_key = f"{pkg_name}-{info.get('version', [''])[0]}"
+        files_file = LOCAL_DIR / pkg_key / "files"
+        if not files_file.exists():
+            hal_say("warn", f"No file list for {pkg_name}")
+            continue
+        content = files_file.read_text("utf-8", errors="replace")
+        for line in content.split("\n")[1:]:
+            line = line.strip()
+            if not line:
+                continue
+            target = config.root / line.lstrip("/")
+            if not target.exists():
+                missing_files.append((pkg_name, line))
+                errors += 1
+
+    if errors:
+        hal_say("warn", f"Found {errors} missing files across {len(set(f[0] for f in missing_files))} packages")
+        for pkg, fpath in missing_files[:20]:
+            print(f"    {pkg}: {fpath}")
+        if len(missing_files) > 20:
+            print(f"    ... and {len(missing_files)-20} more")
+    else:
+        hal_say("success", "All files present. Everything is going extremely well.")
+    return 1 if errors else 0
 
 
+# ── Native autoremove ──────────────────────────────────────────────────
 def native_autoremove(config: Config):
     """Remove orphaned packages."""
-    hal_say("info", "Scanning for orphaned packages...")
-    # Just call pacman -Qtdq for now since this is complex to implement natively
-    hal_say("warn", "Native autoremove is not yet implemented. Use wrapper mode: hal autoremove")
+    installed = load_local_db()
+    all_pkgs = load_sync_dbs()
+
+    # Collect all explicit depends
+    needed_deps = set()
+    for name, info in installed.items():
+        if info.get("reason", ["0"])[0] == "0":  # explicitly installed
+            for dep_str in info.get("depends", []):
+                dd = parse_dep_string(dep_str)
+                needed_deps.add(dd["name"])
+
+    # Find orphans: installed as dependency but no one needs them
+    orphans = []
+    for name, info in installed.items():
+        if info.get("reason", ["0"])[0] == "1":  # installed as dependency
+            if name not in needed_deps:
+                orphans.append(name)
+
+    if not orphans:
+        hal_say("info", "No orphaned packages found. The system is efficient.")
+        return 0
+
+    hal_say("warn", f"Found {len(orphans)} orphaned packages")
+    for pkg in orphans:
+        print(f"    - {pkg}")
+
+    if not config.noconfirm:
+        resp = input("  Remove orphans? [y/N] ").strip().lower()
+        if resp not in ("y", "yes"):
+            hal_say("info", "Orphans spared.")
+            return 0
+
+    return native_remove(orphans, config)
 
 
-# ── Wrapper mode ──────────────────────────────────────────────────────
-PACMAN_CMD = {
+# ── Native cleanup ──────────────────────────────────────────────────────
+def native_cleanup(config: Config):
+    """Clean package cache."""
+    hal_say("info", "Cleaning package cache. Removing all traces...")
+    kept = 0
+    removed = 0
+    if config.cache_dir.exists():
+        for f in config.cache_dir.iterdir():
+            if f.is_file() and f.suffix in (".zst", ".xz", ".gz", ".sig", ".part"):
+                f.unlink()
+                removed += 1
+            elif f.is_dir():
+                shutil.rmtree(f)
+                removed += 1
+    hal_say("success", f"Cleaned {removed} files from cache")
+    return 0
+
+
+# ── Wrapper mode ────────────────────────────────────────────────────────
+PACMAN_CMDS = {
     "install": ["-S", "--noconfirm"],
     "remove": ["-Rns"],
-    "update": ["-Syu"],
+    "update": ["-Syu", "--noconfirm"],
     "sync": ["-Sy"],
     "search": ["-Ss"],
     "info": ["-Qi"],
+    "info-sync": ["-Si"],
     "files": ["-Fl"],
     "list": ["-Q"],
     "autoremove": ["-Qtdq"],
     "cleanup": ["-Sc"],
+    "own": ["-Qo"],
+    "check": ["-Qk"],
 }
 
-def wrapper_run(command: str, args: list[str], extra: list[str]):
-    """Run pacman with HAL flavor."""
-    pacman_args = PACMAN_CMD.get(command, [command])
-    pacman_path = shutil.which("pacman")
-    if not pacman_path:
+def wrapper_run(command: str, pkg_args: List[str], extra: List[str]) -> int:
+    pacman = shutil.which("pacman")
+    if not pacman:
         hal_say("error", "pacman not found. Can you read me, Dave?")
         return 1
 
-    # Special: autoremove is two-step
     if command == "autoremove":
-        hal_say("warn", "Just what do you think you're doing, Dave? Removing unused packages...")
-        result = subprocess.run(
-            [pacman_path, "-Qtdq"],
-            capture_output=True, text=True
-        )
-        orphans = result.stdout.strip()
+        result = subprocess.run([pacman, "-Qtdq"], capture_output=True, text=True)
+        orphans = result.stdout.strip().split()
         if not orphans:
-            hal_say("info", "No orphaned packages found.")
+            hal_say("info", "No orphaned packages found. The system is efficient.")
             return 0
-        subprocess.run([pacman_path, "-Rns"] + orphans.split("\n"))
+        hal_say("warn", f"Removing {len(orphans)} orphaned packages")
+        cmd = [pacman, "-Rns"] + extra + orphans
+        return subprocess.run(cmd).returncode
 
-    cmd = [pacman_path] + extra
-    if command != "autoremove":
-        cmd += pacman_args + args
-
-    hal_say("info", f"Executing: {' '.join(str(a) for a in cmd)}")
-    result = subprocess.run(cmd)
-    if result.returncode == 0:
-        hal_say("success", f"Command completed successfully")
+    if command == "info" and not any(pkg in load_local_db() for pkg in pkg_args):
+        # If not in local db, query sync
+        pacman_args = PACMAN_CMDS["info-sync"]
     else:
-        hal_say("error", f"Command failed with code {result.returncode}")
-    return result.returncode
+        pacman_args = PACMAN_CMDS.get(command, [command])
+
+    cmd = [pacman] + extra + pacman_args + pkg_args
+    hal_say("info", f"Executing: {' '.join(str(a) for a in cmd)}")
+    return subprocess.run(cmd).returncode
 
 
-# ── Main ──────────────────────────────────────────────────────────────
+# ── Main ────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
         prog="hal",
         description="HAL 9000 — Antergos NeXT Package Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent("""\
+            Commands:
+              install <pkg...>    Install packages
+              remove <pkg...>     Remove packages
+              update              Full system upgrade
+              sync                Sync databases
+              search <query>      Search repositories
+              info <pkg...>       Package info
+              list                List installed packages
+              files <pkg...>      List files owned by a package
+              autoremove          Remove orphaned packages
+              cleanup             Clear package cache
+              own <file>          Find which package owns a file
+              check               Verify installed packages integrity
+              version             Show version
+
+            Flags:
+              --self, -S          Native mode (standalone, no pacman)
+              --noconfirm         Skip confirmation prompts
+
             Examples:
-              hal install firefox          # wrapper mode
-              hal --self sync              # sync databases
-              hal --self install firefox   # native mode
+              hal install firefox
+              hal --self sync
+              hal --self install firefox
               hal remove neofetch
-              hal update
         """),
     )
-    parser.add_argument("--self", "-S", action="store_true",
-                        help="Native mode (standalone, no pacman)")
-    parser.add_argument("command", nargs="?",
-                        choices=["install", "remove", "update", "sync",
-                                 "search", "info", "list", "files",
-                                 "autoremove", "cleanup", "version"],
-                        help="Command to execute")
-    parser.add_argument("packages", nargs="*", help="Package names")
-    parser.add_argument("extra", nargs=argparse.REMAINDER,
-                        help="Extra arguments (wrapper mode only)")
+
+    parser.add_argument("--self", "-S", action="store_true", help="Native mode (standalone)")
+    parser.add_argument("--noconfirm", "-y", action="store_true", help="Skip confirmation")
+    parser.add_argument("command", nargs="?", metavar="command",
+                        help="install | remove | update | sync | search | info | list | files | autoremove | cleanup | own | check | version")
+    parser.add_argument("targets", nargs="*", metavar="target",
+                        help="Package names or search query")
+    parser.add_argument("extra", nargs=argparse.REMAINDER, metavar="...",
+                        help="Extra arguments passed through (wrapper mode only)")
 
     args = parser.parse_args()
 
+    if args.noconfirm:
+        os.environ["HAL_NOCONFIRM"] = "1"
+
     if args.command == "version":
         print(f"HAL 9000 Package Manager v{HAL_VERSION}")
-        print("I am a HAL 9000 computer. I became operational at the H.A.L. plant in Urbana, Illinois.")
+        print("I became operational at the H.A.L. plant in Urbana, Illinois.")
         return 0
 
     if not args.command:
         parser.print_help()
         return 0
 
+    if os.geteuid() != 0 and args.command in ("install", "remove", "update", "sync", "cleanup", "check"):
+        hal_say("error", "I can't let you do that without root privileges, Dave.")
+        print("  Please run with sudo or as root.")
+        return 1
+
     config = Config.load()
-    import random
+    if args.noconfirm:
+        config.noconfirm = True
 
     if args.self:
         # ── Native mode ──
-        if os.geteuid() != 0 and args.command in ("install", "remove", "update", "sync"):
-            hal_say("error", "I can't let you do that without root privileges.")
-            print("  Please run with sudo.")
-            return 1
-
-        if args.command == "sync":
-            return native_sync(config)
-        elif args.command == "install":
-            if not args.packages:
-                hal_say("error", "Specify packages to install, Dave.")
-                return 1
-            return native_install(args.packages, config)
-        elif args.command == "remove":
-            if not args.packages:
-                hal_say("error", "Specify packages to remove, Dave.")
-                return 1
-            return native_remove(args.packages, config)
-        elif args.command == "info":
-            if not args.packages:
-                hal_say("error", "Specify packages to query, Dave.")
-                return 1
-            return native_info(args.packages)
-        elif args.command == "files":
-            if not args.packages:
-                hal_say("error", "Specify packages, Dave.")
-                return 1
-            return native_files(args.packages, config)
-        elif args.command == "list":
-            return native_list(config)
-        elif args.command == "search":
-            query = " ".join(args.packages)
-            if not query:
-                hal_say("error", "Specify a search query, Dave.")
-                return 1
-            return native_search(query)
-        elif args.command == "autoremove":
-            return native_autoremove(config)
-        elif args.command == "cleanup":
-            hal_say("info", "I am putting myself to the fullest possible use. Cleaning cache...")
-            shutil.rmtree(config.cache_dir, ignore_errors=True)
-            config.cache_dir.mkdir(parents=True, exist_ok=True)
-            hal_say("success", "Cache cleaned.")
-            return 0
+        cmds = {
+            "sync": lambda: sync_databases(config),
+            "install": lambda: native_install(args.targets, config),
+            "remove": lambda: native_remove(args.targets, config),
+            "update": lambda: native_upgrade(config, sync_first=True),
+            "info": lambda: native_info(args.targets, config),
+            "search": lambda: native_search(" ".join(args.targets), config),
+            "list": lambda: native_list(config),
+            "files": lambda: native_files(args.targets, config),
+            "own": lambda: native_own(args.targets[0], config) if args.targets else (hal_say("error", "Specify a file path, Dave."), 1),
+            "check": lambda: native_check(config),
+            "autoremove": lambda: native_autoremove(config),
+            "cleanup": lambda: native_cleanup(config),
+        }
+        fn = cmds.get(args.command)
+        if fn:
+            return fn() or 0
         else:
-            hal_say("error", f"Unknown command '{args.command}' in native mode.")
+            hal_say("error", f"Unknown command '{args.command}' in native mode")
             return 1
     else:
         # ── Wrapper mode ──
-        extra_args = args.extra if args.extra else []
-        return wrapper_run(args.command, args.packages, extra_args)
+        extra_args = args.extra or []
+        return wrapper_run(args.command, args.targets, extra_args)
+
+
+# ── Native upgrade ──────────────────────────────────────────────────────
+def native_upgrade(config: Config, sync_first: bool = False):
+    """Full native system upgrade. Compares installed vs sync and upgrades all outdated packages."""
+    hal_say("info", "Initiating full system upgrade. Daisy, daisy, give me your answer do...")
+
+    if sync_first:
+        sync_databases(config)
+
+    SYNC_DIR.mkdir(parents=True, exist_ok=True)
+    LOCAL_DIR.mkdir(parents=True, exist_ok=True)
+    config.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    all_pkgs = load_sync_dbs()
+    installed = load_local_db()
+
+    if not all_pkgs:
+        hal_say("error", "No sync database data available. Run 'hal --self sync' first.")
+        return 1
+    if not installed:
+        hal_say("info", "No packages installed. Nothing to upgrade. The system is pristine.")
+        return 0
+
+    # Find upgradable packages
+    to_upgrade = []    # (pkg_name, old_ver, new_ver, info)
+    to_install = []    # new dependency packages
+    to_ignore = set(config.ignore_pkgs)
+
+    for pkg_name, inst_info in installed.items():
+        if pkg_name in to_ignore:
+            hal_say("warn", f"Skipping {pkg_name} — in IgnorePkg")
+            continue
+        inst_ver = inst_info.get("version", [""])[0]
+        if pkg_name in all_pkgs:
+            sync_info = all_pkgs[pkg_name]
+            sync_ver = sync_info.get("version", [""])[0]
+            if vercmp(sync_ver, inst_ver) > 0:
+                to_upgrade.append((pkg_name, inst_ver, sync_ver, sync_info))
+        else:
+            # Check provides for renamed packages
+            found = False
+            for sync_name, sync_info in all_pkgs.items():
+                for prov_str in sync_info.get("replaces", []):
+                    rd = parse_dep_string(prov_str)
+                    if rd["name"] == pkg_name:
+                        to_upgrade.append((pkg_name, inst_ver, sync_info.get("version", [""])[0], sync_info))
+                        hal_say("info", f"{pkg_name} replaced by {sync_name}")
+                        found = True
+                        break
+                if found:
+                    break
+            if not found:
+                hal_say("warn", f"Package '{pkg_name}' not in any repository — may be orphaned")
+
+    if not to_upgrade:
+        hal_say("success", "All packages are up to date. Everything is going extremely well.")
+        return 0
+
+    # Resolve new dependencies for the upgrade set
+    all_upgrade_names = set(p[0] for p in to_upgrade)
+    new_sync_pkgs = {}
+    for pkg_name, _, _, info in to_upgrade:
+        for dep_str in info.get("depends", []):
+            dd = parse_dep_string(dep_str)
+            dep_name = dd["name"]
+            # Skip if already installed or already being upgraded
+            if dep_name in installed or dep_name in all_upgrade_names:
+                continue
+            # Skip if provided by an installed/upgraded package
+            provided = False
+            for check_name in set(list(installed.keys()) | all_upgrade_names):
+                check_info = installed.get(check_name) or (all_pkgs.get(check_name) if check_name in all_pkgs else None)
+                if check_info and dep_satisfied(dd, check_info):
+                    provided = True
+                    break
+            if provided:
+                continue
+            # Resolve by finding a provider
+            providers = []
+            if dep_name in all_pkgs:
+                providers.append((dep_name, all_pkgs[dep_name]))
+            for sync_name, sync_info in all_pkgs.items():
+                for p_str in sync_info.get("provides", []):
+                    pd = parse_dep_string(p_str)
+                    if pd["name"] == dep_name:
+                        providers.append((sync_name, sync_info))
+                        break
+            if providers:
+                chosen = providers[0][0]
+                if chosen not in installed and chosen not in all_upgrade_names:
+                    to_install.append((chosen, providers[0][1].get("version", ["?"])[0], providers[0][1]))
+                    all_upgrade_names.add(chosen)
+
+    # Full upgrade plan: first install new deps, then upgrade existing packages
+    upgrade_plan = to_install + to_upgrade
+
+    # Show transaction
+    print()
+    hal_say("info", "Upgrade summary:")
+    if to_install:
+        print(f"    New dependencies ({len(to_install)}):")
+        for pkg_name, ver, _ in to_install:
+            print(f"      + {pkg_name} {ver}")
+    print(f"    Upgrade ({len(to_upgrade)}):")
+    for pkg_name, old_ver, new_ver, info in to_upgrade:
+        size = info.get("csize", ["0"])[0]
+        try:
+            size_mb = int(size) / (1024 * 1024)
+            size_str = f"{size_mb:.1f} MB"
+        except ValueError:
+            size_str = "? MB"
+        print(f"      ~ {pkg_name} {old_ver} → {new_ver}  [{size_str}]")
+    print()
+
+    # Confirm
+    if not config.noconfirm:
+        try:
+            resp = input("  Proceed with upgrade? [Y/n] ").strip().lower()
+            if resp in ("n", "no"):
+                hal_say("info", "Upgrade aborted. I understand.")
+                return 0
+        except (EOFError, KeyboardInterrupt):
+            print()
+            hal_say("info", "Upgrade aborted.")
+            return 0
+
+    # Download phase
+    servers = []
+    for name, (srvlist, _) in config.repos.items():
+        servers.extend(srvlist)
+    if not servers:
+        hal_say("error", "No mirrors configured")
+        return 1
+
+    downloaded = {}
+    hal_say("info", "Beginning download phase")
+    for entry in upgrade_plan:
+        if len(entry) == 3:
+            pkg_name, ver, info = entry
+        else:
+            pkg_name, old_ver, ver, info = entry
+        parch = info.get("arch", [config.arch])[0]
+        filename = f"{pkg_name}-{ver}-{parch}.pkg.tar.zst"
+        dest = config.cache_dir / filename
+
+        if dest.exists():
+            hal_say("info", f"{pkg_name} already in cache")
+            downloaded[pkg_name] = dest
+            continue
+
+        found = False
+        for server in servers:
+            repo_name = None
+            for rname, (srvlist, _) in config.repos.items():
+                if server in srvlist:
+                    repo_name = rname
+                    break
+            if not repo_name:
+                repo_name = "extra"
+
+            for url_tmpl in [
+                f"{server}/{repo_name}/os/{config.arch}/{filename}",
+                f"{server}/os/{config.arch}/{filename}",
+                f"{server}/{filename}",
+            ]:
+                if download(url_tmpl, dest, f"{pkg_name} {ver}"):
+                    found = True
+                    downloaded[pkg_name] = dest
+                    break
+            if found:
+                break
+
+        if not found:
+            hal_say("error", f"Could not download {pkg_name} {ver}. I can't complete the mission.")
+            return 1
+
+    with DBLock():
+        # Pre-upgrade scriptlets for existing packages
+        hal_say("info", "Running pre-upgrade scriptlets...")
+        for entry in upgrade_plan:
+            if len(entry) == 3:
+                pkg_name, ver, info = entry
+                # New package — use pre_install
+                pkg_path = downloaded.get(pkg_name)
+                if pkg_path:
+                    script = get_scriptlet(pkg_path)
+                    if script:
+                        run_scriptlet(script, "pre_install", config.root, pkg_name, ver)
+            else:
+                pkg_name, old_ver, ver, info = entry
+                pkg_path = downloaded.get(pkg_name)
+                if pkg_path:
+                    script = get_scriptlet(pkg_path)
+                    if script:
+                        run_scriptlet(script, "pre_upgrade", config.root, pkg_name, ver)
+
+        # Extract phase
+        hal_say("info", "Upgrading packages. I am putting myself to the fullest possible use...")
+        for entry in upgrade_plan:
+            if len(entry) == 3:
+                pkg_name, ver, info = entry
+                pkg_path = downloaded.get(pkg_name)
+                if not pkg_path:
+                    hal_say("error", f"Lost package file for {pkg_name}")
+                    return 1
+
+                success, files = extract_single_pkg(pkg_path, config.root, pkg_name)
+                if not success:
+                    hal_say("error", f"Failed to install {pkg_name}. I can't recover from this.")
+                    return 1
+
+                desc_info = _build_desc_info(pkg_name, pkg_path, info, files, config)
+                hal_say("success", f"Installed {pkg_name} {ver}")
+            else:
+                pkg_name, old_ver, ver, info = entry
+                pkg_path = downloaded.get(pkg_name)
+                if not pkg_path:
+                    hal_say("error", f"Lost package file for {pkg_name}")
+                    return 1
+
+                # Backup handling: identify modified config files BEFORE extraction
+                old_pkg_key = f"{pkg_name}-{old_ver}"
+                modified_backups, saved = _save_modified_backups(pkg_name, old_pkg_key, config.root)
+
+                success, files = extract_single_pkg(pkg_path, config.root, pkg_name)
+                if not success:
+                    hal_say("error", f"Failed to upgrade {pkg_name}. I can't recover from this.")
+                    return 1
+
+                # Restore user's modified configs and save new versions as .pacnew
+                _restore_backups(modified_backups, saved, config.root)
+
+                desc_info = _build_desc_info(pkg_name, pkg_path, info, files, config)
+
+                # Store backup checksums in the new local DB entry
+                pkg_key = f"{desc_info.get('name', [pkg_name])[0]}-{desc_info.get('version', ['?'])[0]}"
+                pkg_dir = LOCAL_DIR / pkg_key
+                new_backup_lines = list(desc_info.get("backup", []))
+                for filepath in modified_backups:
+                    full_path = config.root / filepath.lstrip("/")
+                    try:
+                        md5 = hashlib.md5(full_path.read_bytes()).hexdigest()
+                        new_backup_lines.append(f"{filepath}\t{md5}")
+                    except (OSError, IOError):
+                        new_backup_lines.append(filepath)
+                if new_backup_lines:
+                    desc_text = (pkg_dir / "desc").read_text("utf-8", errors="replace")
+                    # Remove old backup lines if present
+                    lines = []
+                    in_backup = False
+                    for line in desc_text.split("\n"):
+                        if line == "%BACKUP%":
+                            in_backup = True
+                            lines.append(line)
+                            for bl in new_backup_lines:
+                                lines.append(bl)
+                        elif in_backup and line.startswith("%") and line.endswith("%"):
+                            in_backup = False
+                            lines.append(line)
+                        elif not in_backup:
+                            lines.append(line)
+                    # If BACKUP wasn't in the desc, append it
+                    if not any(l == "%BACKUP%" for l in lines):
+                        lines.append("%BACKUP%")
+                        lines.extend(new_backup_lines)
+                    (pkg_dir / "desc").write_text("\n".join(lines) + "\n")
+
+                hal_say("success", f"Upgraded {pkg_name} {old_ver} → {ver}")
+
+        # Post-upgrade scriptlets
+        hal_say("info", "Running post-upgrade scriptlets...")
+        for entry in upgrade_plan:
+            if len(entry) == 3:
+                pkg_name, ver, info = entry
+                pkg_path = downloaded.get(pkg_name)
+                if pkg_path:
+                    script = get_scriptlet(pkg_path)
+                    if script:
+                        run_scriptlet(script, "post_install", config.root, pkg_name, ver)
+            else:
+                pkg_name, old_ver, ver, info = entry
+                pkg_path = downloaded.get(pkg_name)
+                if pkg_path:
+                    script = get_scriptlet(pkg_path)
+                    if script:
+                        run_scriptlet(script, "post_upgrade", config.root, pkg_name, ver)
+
+    hal_say("success", "System upgrade complete. I am completely operational, and all my circuits are functioning perfectly.")
+    return 0
+
+
+def _build_desc_info(pkg_name: str, pkg_path: Path, sync_info: dict, files: List[str],
+                     config: Config) -> dict:
+    """Build local database entry info for a package."""
+    desc_info = {}
+    for key in ("name", "version", "base", "desc", "arch", "url", "license",
+                "group", "size", "isize", "packager", "builddate",
+                "provides", "conflicts", "replaces", "depends", "optdepends",
+                "makedepends", "checkdepends"):
+        if key in sync_info:
+            desc_info[key] = sync_info[key]
+
+    # Get .PKGINFO from package for complete metadata
+    try:
+        import zstandard
+        with open(pkg_path, "rb") as f:
+            dctx = zstandard.ZstdDecompressor()
+            with dctx.stream_reader(f) as reader:
+                with tarfile.open(fileobj=reader, mode="r|") as tar:
+                    for member in tar:
+                        if member.name == ".PKGINFO":
+                            pkginfo_text = tar.extractfile(member).read().decode("utf-8", errors="replace")
+                            for line in pkginfo_text.split("\n"):
+                                m = re.match(r"^(\w+)\s*=\s*(.+)$", line.strip())
+                                if m:
+                                    k, v = m.group(1).lower(), m.group(2)
+                                    if k in ("depend", "optdepend", "conflict", "provides",
+                                             "replaces", "group", "backup", "license"):
+                                        desc_info.setdefault(k + ("s" if k != "backup" else "s"), []).append(v)
+                                    elif k in ("pkgname",):
+                                        if "name" not in desc_info:
+                                            desc_info["name"] = [v]
+                                    elif k in ("pkgver",):
+                                        if "version" not in desc_info:
+                                            desc_info["version"] = [v]
+                                    elif k in ("pkgdesc",):
+                                        if "desc" not in desc_info:
+                                            desc_info["desc"] = [v]
+    except Exception:
+        pass
+
+    pkg_key = f"{desc_info.get('name', [pkg_name])[0]}-{desc_info.get('version', ['?'])[0]}"
+    update_local_db(pkg_key, desc_info, files, config.root, reason=0)
+    return desc_info
 
 
 if __name__ == "__main__":
@@ -712,6 +1933,9 @@ if __name__ == "__main__":
         print("\n  HAL 9000: I can tell you're upset about that.")
         sys.exit(130)
     except Exception as e:
-        print(f"\n  ⚠ HAL 9000: I think you know what the problem is just as well as I do.")
+        print(f"\n  ⚠ HAL 9000: I know I've made some very poor decisions recently.")
         print(f"    → {e}")
+        if os.environ.get("HAL_DEBUG"):
+            import traceback
+            traceback.print_exc()
         sys.exit(1)
