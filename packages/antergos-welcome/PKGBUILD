@@ -25,6 +25,7 @@ package() {
 
   cp -r src "${pkgdir}/usr/share/antergos-next/antergos-welcome/"
   cp -r data "${pkgdir}/usr/share/antergos-next/antergos-welcome/"
+  cp data/preferences.json "${pkgdir}/usr/share/antergos-next/antergos-welcome/"
   cp -r ui "${pkgdir}/usr/share/antergos-next/antergos-welcome/"
   cp -r po "${pkgdir}/usr/share/antergos-next/antergos-welcome/"
   cp -r utils "${pkgdir}/usr/share/antergos-next/antergos-welcome/"

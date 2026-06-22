@@ -2,76 +2,71 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=2
-pkgdesc="Minimal Calamares branding for Antergos NeXT"
+pkgrel=5
+pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
 license=('GPL3')
 depends=('calamares')
+optdepends=('zenity: graphical mode chooser dialog')
 source=("branding.desc"
         "stylesheet.qss"
-        "show.qml")
+        "show.qml"
+        "unpackfs.conf"
+        "dracut.conf"
+        "antergos-logo.png"
+        "antergos-icon.png"
+        "netinstall.yaml"
+        "netinstall.conf"
+        "welcome.conf"
+        "settings_offline.conf"
+        "settings_online.conf"
+        "calamares-next.sh")
 sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
             'SKIP'
             'SKIP')
 
 package() {
+  # Branding data (shared between offline/online)
   local _brand="/usr/share/calamares/branding/antergos-next"
   install -dm755 "${pkgdir}${_brand}"
-
   cp "branding.desc" "${pkgdir}${_brand}/"
   cp "stylesheet.qss" "${pkgdir}${_brand}/"
   cp "show.qml" "${pkgdir}${_brand}/"
+  cp "antergos-logo.png" "${pkgdir}${_brand}/"
+  cp "antergos-icon.png" "${pkgdir}${_brand}/"
 
-  # Symlink Antergos logo from cnchi or wallpapers
-  # Use antergos-icon from system if available
+  # Shared Calamares modules
+  install -dm755 "${pkgdir}/etc/calamares/modules"
+  cp "unpackfs.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "dracut.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "netinstall.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "netinstall.yaml" "${pkgdir}/etc/calamares/modules/"
+  cp "welcome.conf" "${pkgdir}/etc/calamares/modules/"
+
+  # Offline config directory
+  install -dm755 "${pkgdir}/etc/calamares-offline"
+  cp "settings_offline.conf" "${pkgdir}/etc/calamares-offline/settings.conf"
+
+  # Online config directory
+  install -dm755 "${pkgdir}/etc/calamares-online"
+  cp "settings_online.conf" "${pkgdir}/etc/calamares-online/settings.conf"
+
+  # Default: offline mode (for direct calamares launch)
   install -dm755 "${pkgdir}/etc/calamares"
-  cat > "${pkgdir}/etc/calamares/settings.conf" << 'CONF'
----
-modules-search: [ local ]
+  ln -sf "../calamares-offline/settings.conf" "${pkgdir}/etc/calamares/settings.conf"
 
-sequence:
-- show:
-  - welcome
-  - locale
-  - keyboard
-  - partition
-  - users
-  - summary
-- exec:
-  - partition
-  - mount
-  - unpackfs
-  - machineid
-  - fstab
-  - locale
-  - keyboard
-  - localecfg
-  - luksbootkeyfile
-  - luksopenswaphookcfg
-  - initcpiocfg
-  - initcpio
-  - users
-  - displaymanager
-  - networkcfg
-  - hwclock
-  - services-systemd
-  - grubcfg
-  - bootloader
-  - packages
-  - removeuser
-  - umount
-- show:
-  - finished
-
-branding: antergos-next
-
-prompt-install: false
-dont-chroot: false
-oem-setup: false
-disable-cancel: false
-disable-cancel-during-exec: false
-hide-back-and-next-during-exec: false
-quit-at-end: false
-CONF
+  # Launcher script
+  install -dm755 "${pkgdir}/usr/bin"
+  install -m755 "calamares-next.sh" "${pkgdir}/usr/bin/calamares-next"
 }

@@ -4,19 +4,38 @@ componentName:  antergos-next
 welcomeStyleCalamares:   false
 welcomeExpandingLogo:   true
 
-productName:  Antergos NeXT
-shortProductName:  Antergos NeXT
-version:  rolling
-shortVersion:  rolling
-versionedName:  Antergos NeXT rolling
+windowExpanding:    normal
+windowSize: 860px,540px
+windowPlacement: center
 
-bootloaderEntryName:  Antergos NeXT
+sidebar: widget
+navigation: widget
 
-productUrl:  https://github.com/Antergos-NeXT
-supportUrl:  https://github.com/Antergos-NeXT
-knownIssuesUrl:  https://github.com/Antergos-NeXT/antergos-iso/issues
-releaseNotesUrl:  https://github.com/Antergos-NeXT
+strings:
+    productName:         "Antergos NeXT"
+    shortProductName:    "Antergos NeXT"
+    version:             "rolling"
+    shortVersion:        "rolling"
+    versionedName:       "Antergos NeXT rolling"
+    shortVersionedName:  "Antergos NeXT"
+    bootloaderEntryName: "Antergos NeXT"
+    productUrl:          "https://github.com/Antergos-NeXT"
+    supportUrl:          "https://github.com/Antergos-NeXT"
+    knownIssuesUrl:      "https://github.com/Antergos-NeXT/antergos-iso/issues"
+    releaseNotesUrl:     "https://github.com/Antergos-NeXT"
+    donateUrl:           ""
 
-image:  "squid.png"
-imageSize:  0
+images:
+    productIcon:         "antergos-icon.png"
+    productLogo:         "antergos-icon.png"
+    productWelcome:      "antergos-logo.png"
+
+style:
+    SidebarBackground:        "#20252B"
+    SidebarText:              "#C8D6E5"
+    SidebarTextCurrent:       "#FFFFFF"
+    SidebarBackgroundCurrent: "#4A9EFF"
+
+slideshow:               "show.qml"
+slideshowAPI: 2
 ...
