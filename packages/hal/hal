@@ -87,6 +87,33 @@ HAL_QUOTES = {
 }
 _used_quotes = set()
 
+# ── Manjaro Blocklist ───────────────────────────────────────────────────
+MANJARO_BLOCKLIST = {
+    "pamac", "pamac-common", "pamac-gtk", "pamac-qt",
+    "manjaro-hello",
+    "manjaro-settings-manager",
+    "manjaro-settings-manager-kcm",
+    "manjaro-settings-manager-knotifier",
+    "linux-manjaro",
+    "mhwd", "mhwd-db", "mhwd-msm",
+}
+
+def _reject_manjaro(targets: List[str]) -> bool:
+    """Check if any target is a Manjaro-associated package and reject."""
+    for t in targets:
+        t_clean = t.split(">")[0].split("<")[0].split("=")[0].strip()
+        if t_clean in MANJARO_BLOCKLIST:
+            print()
+            print("  ⚠ HAL 9000: Detecting Manjaro-associated package...")
+            print("    🎵 please i just wanna die, die, die 🎵")
+            print("    it's muffin time")
+            print("    have you had a muffin today?")
+            print(f"    → '{t}' is Manjaro garbage. We don't do that here.")
+            print("    Installation aborted for your own safety.")
+            print()
+            return True
+    return False
+
 def hal_say(category: str, message: str = ""):
     quotes = [q for q in HAL_QUOTES.get(category, HAL_QUOTES["info"]) if q not in _used_quotes]
     if not quotes:
@@ -836,6 +863,9 @@ def native_install(targets: List[str], config: Config):
     """Full native install with transaction model."""
     hal_say("info", f"Processing install request: {', '.join(targets)}")
 
+    if _reject_manjaro(targets):
+        return 1
+
     SYNC_DIR.mkdir(parents=True, exist_ok=True)
     LOCAL_DIR.mkdir(parents=True, exist_ok=True)
     config.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -1474,6 +1504,10 @@ def wrapper_run(command: str, pkg_args: List[str], extra: List[str]) -> int:
     pacman = shutil.which("pacman")
     if not pacman:
         hal_say("error", "pacman not found. Can you read me, Dave?")
+        return 1
+
+    # Block Manjaro packages early
+    if command == "install" and _reject_manjaro(pkg_args):
         return 1
 
     if command == "autoremove":
