@@ -132,8 +132,8 @@ html = f'''<!DOCTYPE html>
         <pre><span class="c"># /etc/pacman.conf</span>
 [antergos-pkgs]
 SigLevel = Optional TrustAll
-Server = https://Antergos-NeXT.github.io/antergos-pkgs/<span class="v">$repo</span>/os/<span class="v">$arch</span>
-Server = https://Antergos-NeXT.github.io/antergos-pkgs</pre>
+Server = https://antergos-next.github.io/antergos-packages/<span class="v">$repo</span>/os/<span class="v">$arch</span>
+Server = https://antergos-next.github.io/antergos-packages</pre>
       </details>
 
       <div class="controls">
@@ -151,8 +151,8 @@ Server = https://Antergos-NeXT.github.io/antergos-pkgs</pre>
     </div>
 
     <div class="ft">
-      <a href="https://github.com/Antergos-NeXT/antergos-packages">Antergos NeXT</a> &middot;
-      <a href="https://github.com/Antergos-NeXT">GitHub</a>
+      <a href="https://github.com/Antergos-NeXT/antergos-packages">GitHub</a> &middot;
+      <a href="https://antergos-next.github.io/antergos-packages/">antergos-next.github.io</a>
     </div>
   </div>
 
