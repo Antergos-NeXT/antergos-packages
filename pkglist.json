@@ -9,11 +9,11 @@
   },
   {
     "name": "antergos-next-memes-1.0-1-any.pkg.tar.zst",
-    "size": 3051570
+    "size": 3051567
   },
   {
     "name": "antergos-next-mirrorlist-1-1-any.pkg.tar.zst",
-    "size": 2964
+    "size": 2955
   },
   {
     "name": "antergos-wallpapers-0.7-4-any.pkg.tar.zst",
@@ -21,26 +21,26 @@
   },
   {
     "name": "antergos-welcome-0.1-1-any.pkg.tar.zst",
-    "size": 123969
+    "size": 123951
   },
   {
     "name": "calamares-3.4.2-3-x86_64.pkg.tar.zst",
-    "size": 5151298
+    "size": 5150884
   },
   {
     "name": "calamares-branding-antergos-next-1.0-6-any.pkg.tar.zst",
-    "size": 41560
+    "size": 41561
   },
   {
     "name": "downgrade-12.0.2-1-any.pkg.tar.zst",
-    "size": 30918
+    "size": 30920
   },
   {
     "name": "hal-0.2.0-2-any.pkg.tar.zst",
-    "size": 23448
+    "size": 23714
   },
   {
     "name": "yay-13.0.1-1-x86_64.pkg.tar.zst",
-    "size": 4685717
+    "size": 4685723
   }
 ]
