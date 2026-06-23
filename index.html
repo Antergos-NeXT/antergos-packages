@@ -5,34 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>antergos-pkgs</title>
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #0e0e18; color: #e4e4f0; }
-    h1 { color: #e08a3c; }
-    a { color: #7a8cff; text-decoration: none; }
-    a:hover { color: #e08a3c; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #1e1e30; }
-    th { color: #6a6a8a; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.1em; }
-    tr:hover { background: #141420; }
-    .usage { background: #141420; border: 1px solid #1e1e30; border-radius: 8px; padding: 16px; margin: 20px 0; }
-    code { background: #08080e; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-    pre { background: #08080e; border: 1px solid #1e1e30; padding: 12px; border-radius: 6px; overflow-x: auto; }
-    footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e1e30; color: #4a4a66; font-size: 0.85em; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #080810; color: #c0c0d0;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+    .bar {
+      background: linear-gradient(135deg, #0d0d20 0%, #0a0a18 100%);
+      border: 1px solid #1a1a2e; border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 2em; font-weight: 300; letter-spacing: 0.04em;
+      padding: 32px 32px 8px; color: #e0e0f0;
+    }
+    h1 span { color: #4A9EFF; font-weight: 400; }
+    .sub {
+      padding: 0 32px 24px; color: #5a5a7a; font-size: 0.9em;
+      border-bottom: 1px solid #141428;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .hal { color: #3a3a5a; font-style: italic; font-size: 0.85em; }
+
+    .setup {
+      margin: 24px 0; padding: 20px 24px; cursor: pointer;
+    }
+    .setup summary {
+      color: #4A9EFF; font-size: 0.85em; font-weight: 500; cursor: pointer;
+      outline: none;
+    }
+    .setup summary::-webkit-details-marker { color: #4A9EFF; }
+    .setup pre {
+      background: #060610; border: 1px solid #1a1a2e; border-radius: 8px;
+      padding: 16px; margin-top: 16px; overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; font-size: 0.82em;
+      color: #9090b0; line-height: 1.6;
+    }
+    .setup .c { color: #3a3a5a; }
+    .setup .v { color: #6aaf6a; }
+
+    .controls {
+      display: flex; gap: 12px; align-items: center; margin: 24px 0; flex-wrap: wrap;
+    }
+    .controls input {
+      flex: 1; min-width: 200px;
+      background: #0c0c1e; border: 1px solid #1a1a2e; border-radius: 8px;
+      padding: 10px 14px; color: #c0c0d0; font-size: 0.9em;
+      outline: none; transition: border-color 0.2s;
+    }
+    .controls input:focus { border-color: #4A9EFF; }
+    .controls input::placeholder { color: #3a3a5a; }
+    .cnt { color: #4a4a6a; font-size: 0.85em; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; padding: 10px 20px;
+      color: #3a3a5a; font-size: 0.72em; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      border-bottom: 1px solid #141428;
+    }
+    td {
+      padding: 8px 20px; font-size: 0.88em;
+      border-bottom: 1px solid #0e0e1e; vertical-align: middle;
+    }
+    tr:last-child td { border: none; }
+    tbody tr:hover td { background: #0a0a18; }
+    tbody tr:hover { border-radius: 8px; }
+
+    td a {
+      color: #4A9EFF; text-decoration: none; font-weight: 500;
+    }
+    td a:hover { color: #7aBEFF; text-decoration: underline; }
+    td.sz { color: #5a5a7a; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .hidden { display: none !important; }
+
+    .ft {
+      text-align: center; padding: 32px 0 16px;
+      color: #2a2a4a; font-size: 0.78em;
+    }
+    .ft a { color: #3a3a6a; text-decoration: none; }
+    .ft a:hover { color: #4A9EFF; }
+
+    @media (max-width: 600px) {
+      .wrap { padding: 16px 12px; }
+      h1 { padding: 24px 20px 4px; font-size: 1.5em; }
+      .sub { padding: 0 20px 16px; }
+      td, th { padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
-  <h1>antergos-pkgs</h1>
-  <p>AUR package repository for Antergos NeXT</p>
+  <div class="wrap">
+    <div class="bar">
+      <h1>⟁ antergos<span>-pkgs</span></h1>
+      <div class="sub">
+        <span>12 packages &middot; 19 MB</span>
+        <span class="hal">"I am putting myself to the fullest possible use."</span>
+      </div>
 
-  <div class="usage">
-    <strong>Add to /etc/pacman.conf</strong>
-    <pre>[antergos-pkgs]
+      <details class="setup">
+        <summary>Setup — add this repository to pacman.conf</summary>
+        <pre><span class="c"># /etc/pacman.conf</span>
+[antergos-pkgs]
 SigLevel = Optional TrustAll
-Server = https://Antergos-NeXT.github.io/antergos-pkgs/$repo/os/$arch
+Server = https://Antergos-NeXT.github.io/antergos-pkgs/<span class="v">$repo</span>/os/<span class="v">$arch</span>
 Server = https://Antergos-NeXT.github.io/antergos-pkgs</pre>
-  </div>
+      </details>
 
-  <table>
-    <tr><th>Package</th><th>Size</th></tr>
+      <div class="controls">
+        <input type="text" id="q" placeholder="Search packages..." oninput="f()" autofocus>
+        <span class="cnt" id="c">12 packages</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Package</th><th style="text-align:right">Size</th></tr>
+        </thead>
+        <tbody id="l">
           <tr>
             <td><a href="antergos-next-desktop-settings-1-1-any.pkg.tar.zst">antergos-next-desktop-settings-1-1-any.pkg.tar.zst</a></td>
             <td>0.0 MB</td>
@@ -81,8 +174,30 @@ Server = https://Antergos-NeXT.github.io/antergos-pkgs</pre>
             <td><a href="yay-13.0.1-1-x86_64.pkg.tar.zst">yay-13.0.1-1-x86_64.pkg.tar.zst</a></td>
             <td>4.5 MB</td>
           </tr>
-  </table>
+        </tbody>
+      </table>
+    </div>
 
-  <footer>Antergos NeXT &mdash; <a href="https://github.com/Antergos-NeXT">github.com/Antergos-NeXT</a></footer>
+    <div class="ft">
+      <a href="https://github.com/Antergos-NeXT/antergos-packages">Antergos NeXT</a> &middot;
+      <a href="https://github.com/Antergos-NeXT">GitHub</a>
+    </div>
+  </div>
+
+  <script>
+    function f() {
+      const q = document.getElementById('q').value.toLowerCase();
+      const r = document.querySelectorAll('#l tr');
+      let v = 0;
+      for (let i = 0; i < r.length; i++) {
+        if (r[i].textContent.toLowerCase().includes(q)) {
+          r[i].classList.remove('hidden'); v++;
+        } else {
+          r[i].classList.add('hidden');
+        }
+      }
+      document.getElementById('c').textContent = v + ' / 12 packages';
+    }
+  </script>
 </body>
 </html>
