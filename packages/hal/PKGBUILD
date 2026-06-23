@@ -2,7 +2,7 @@
 
 pkgname=hal
 pkgver=0.2.0
-pkgrel=2
+pkgrel=3
 pkgdesc="HAL 9000 — Antergos NeXT Package Manager. Dual-mode: wrapper (pacman) or native (standalone)."
 arch=('any')
 url="https://github.com/Antergos-NeXT"

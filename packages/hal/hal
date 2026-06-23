@@ -367,10 +367,19 @@ def load_sync_dbs() -> Dict[str, dict]:
     for db_path in sorted(SYNC_DIR.glob("*.db")):
         try:
             with open(db_path, "rb") as f:
-                import zstandard
-                dctx = zstandard.ZstdDecompressor()
-                with dctx.stream_reader(f) as reader:
-                    with tarfile.open(fileobj=reader, mode="r|") as tar:
+                header = f.read(4)
+                f.seek(0)
+                reader = None
+                if header[:4] == b"\x28\xb5\x2f\xfd":
+                    import zstandard
+                    dctx = zstandard.ZstdDecompressor()
+                    reader = dctx.stream_reader(f)
+                elif header[:2] == b"\x1f\x8b":
+                    import gzip
+                    reader = gzip.GzipFile(fileobj=f)
+                else:
+                    reader = f
+                with tarfile.open(fileobj=reader, mode="r|") as tar:
                         current_dir = None
                         entry_data = {}
                         for member in tar:
