@@ -2,13 +2,13 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=8
+pkgrel=9
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
 license=('GPL3')
-depends=('calamares')
-optdepends=('zenity: graphical mode chooser dialog')
+depends=('calamares' 'yad')
+optdepends=('zenity: fallback for graphical mode chooser dialog')
 source=("branding.desc"
         "stylesheet.qss"
         "show.qml"

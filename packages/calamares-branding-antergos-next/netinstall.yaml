@@ -1,76 +1,219 @@
----
-- name: "Desktop Environments"
-  description: "Select the desktop environment to install. Choose one."
+- name: "KDE Plasma"
+  description: "Full-featured, modern desktop with KDE Plasma and applications"
   selected: false
-  hidden: false
-  immutable: false
   critical: false
-  subgroups:
-    - name: "KDE Plasma"
-      description: "Full-featured, modern desktop with KDE applications"
-      packages:
-        - plasma-meta
-        - kde-applications-meta
-      selected: false
-      critical: false
-    - name: "GNOME"
-      description: "Modern and streamlined desktop environment"
-      packages:
-        - gnome
-        - gnome-tweaks
-        - gnome-shell-extensions
-      selected: true
-      critical: false
-    - name: "Xfce"
-      description: "Fast and lightweight classic desktop"
-      packages:
-        - xfce4
-        - xfce4-goodies
-      selected: false
-      critical: false
-    - name: "Budgie"
-      description: "Elegant and simple desktop environment"
-      packages:
-        - budgie-desktop
-        - budgie-desktop-view
-        - budgie-screensaver
-      selected: false
-      critical: false
-    - name: "Cinnamon"
-      description: "Traditional desktop with modern conventions"
-      packages:
-        - cinnamon
-        - cinnamon-translations
-      selected: false
-      critical: false
-    - name: "MATE"
-      description: "Intuitive and attractive classic desktop"
-      packages:
-        - mate
-        - mate-extra
-      selected: false
-      critical: false
-    - name: "LXQt"
-      description: "Lightweight Qt desktop environment"
-      packages:
-        - lxqt
-        - lxqt-connman-applet
-        - oxygen-icons
-      selected: false
-      critical: false
-    - name: "i3 / Sway"
-      description: "Tiling window managers for power users"
-      packages:
-        - i3-wm
-        - i3status
-        - i3lock
-        - dmenu
-        - sway
-        - waybar
-        - wofi
-      selected: false
-      critical: false
-
+  packages:
+    - ark
+    - bluedevil
+    - breeze-gtk
+    - dolphin
+    - dolphin-plugins
+    - ffmpegthumbs
+    - gwenview
+    - kate
+    - kcalc
+    - kde-cli-tools
+    - kde-gtk-config
+    - kdeconnect
+    - kdegraphics-thumbnailers
+    - kdenetwork-filesharing
+    - kdeplasma-addons
+    - kinfocenter
+    - kio-admin
+    - kio-extras
+    - kio-fuse
+    - konsole
+    - kscreen
+    - kwallet-pam
+    - kwayland-integration
+    - okular
+    - partitionmanager
+    - plasma-browser-integration
+    - plasma-desktop
+    - plasma-disks
+    - plasma-nm
+    - plasma-pa
+    - plasma-systemmonitor
+    - plasma-workspace
+    - powerdevil
+    - print-manager
+    - qt6-imageformats
+    - spectacle
+    - xdg-desktop-portal-kde
+    - xsettingsd
+- name: "GNOME"
+  description: "Modern and streamlined desktop environment"
+  selected: true
+  critical: false
+  packages:
+    - adwaita-icon-theme
+    - evince
+    - file-roller
+    - gdm
+    - gnome-calculator
+    - gnome-clocks
+    - gnome-console
+    - gnome-control-center
+    - gnome-disk-utility
+    - gnome-keyring
+    - gnome-shell
+    - gnome-system-monitor
+    - gnome-terminal
+    - gnome-text-editor
+    - gnome-themes-extra
+    - gnome-tweaks
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - loupe
+    - nautilus
+    - sushi
+    - xdg-desktop-portal-gnome
+    - xdg-user-dirs-gtk
+- name: "Xfce"
+  description: "Fast and lightweight classic desktop"
+  selected: false
+  critical: false
+  packages:
+    - blueman
+    - file-roller
+    - galculator
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mousepad
+    - network-manager-applet
+    - parole
+    - ristretto
+    - thunar-archive-plugin
+    - thunar-media-tags-plugin
+    - xdg-user-dirs-gtk
+    - xfce4
+    - xfce4-battery-plugin
+    - xfce4-mount-plugin
+    - xfce4-netload-plugin
+    - xfce4-notifyd
+    - xfce4-pulseaudio-plugin
+    - xfce4-screensaver
+    - xfce4-screenshooter
+    - xfce4-taskmanager
+    - xfce4-whiskermenu-plugin
+- name: "Budgie"
+  description: "Elegant and simple desktop environment"
+  selected: false
+  critical: false
+  packages:
+    - budgie-desktop
+    - budgie-desktop-view
+    - budgie-extras
+    - eog
+    - file-roller
+    - gedit
+    - gnome-keyring
+    - gnome-terminal
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mutter
+    - nemo
+    - nemo-fileroller
+    - network-manager-applet
+    - xdg-user-dirs-gtk
+- name: "Cinnamon"
+  description: "Traditional desktop with modern conventions"
+  selected: false
+  critical: false
+  packages:
+    - cinnamon
+    - cinnamon-translations
+    - file-roller
+    - galculator
+    - gnome-system-monitor
+    - gnome-terminal
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - nemo-fileroller
+    - xdg-user-dirs-gtk
+- name: "MATE"
+  description: "Intuitive and attractive classic desktop"
+  selected: false
+  critical: false
+  packages:
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mate
+    - mate-extra
+    - network-manager-applet
+    - xdg-user-dirs-gtk
+- name: "LXQt"
+  description: "Lightweight Qt desktop environment"
+  selected: false
+  critical: false
+  packages:
+    - breeze
+    - breeze-gtk
+    - featherpad
+    - gvfs
+    - gvfs-mtp
+    - libstatgrab
+    - libsysstat
+    - lm_sensors
+    - lxqt
+    - lxqt-archiver
+    - network-manager-applet
+    - oxygen-icons
+    - pavucontrol-qt
+    - print-manager
+    - xdg-utils
+    - xsettingsd
+- name: "i3 / Sway"
+  description: "Tiling window managers for power users"
+  selected: false
+  critical: false
+  packages:
+    - dmenu
+    - dunst
+    - feh
+    - galculator
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - i3-wm
+    - i3lock
+    - i3status
+    - lightdm
+    - lightdm-slick-greeter
+    - sway
+    - waybar
+    - wofi
 - name: "Base System"
   description: "Core system packages for a functional Arch Linux installation"
   selected: true
@@ -92,7 +235,6 @@
     - which
     - man-db
     - man-pages
-
 - name: "Antergos Packages"
   description: "Antergos NeXT branding and tools"
   selected: true
@@ -106,12 +248,9 @@
     - calamares
     - calamares-branding-antergos-next
     - firefox
-
 - name: "Hardware Support"
   description: "Additional hardware drivers and firmware"
   selected: false
-  hidden: false
-  immutable: false
   critical: false
   packages:
     - mesa
