@@ -3,7 +3,7 @@
 
 pkgname=antergos-welcome
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Welcome screen and support tool for new Antergos NeXT users"
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-welcome"
