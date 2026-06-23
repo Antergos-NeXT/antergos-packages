@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=7
+pkgrel=8
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -58,15 +58,18 @@ package() {
   install -dm755 "${pkgdir}/etc/calamares-offline"
   cp "settings_offline.conf" "${pkgdir}/etc/calamares-offline/settings.conf"
   ln -sf "/usr/share/calamares/qml" "${pkgdir}/etc/calamares-offline/qml"
+  ln -sf "/usr/share/calamares/branding" "${pkgdir}/etc/calamares-offline/branding"
 
   # Online config directory
   install -dm755 "${pkgdir}/etc/calamares-online"
   cp "settings_online.conf" "${pkgdir}/etc/calamares-online/settings.conf"
   ln -sf "/usr/share/calamares/qml" "${pkgdir}/etc/calamares-online/qml"
+  ln -sf "/usr/share/calamares/branding" "${pkgdir}/etc/calamares-online/branding"
 
   # Default: offline mode (for direct calamares launch)
   install -dm755 "${pkgdir}/etc/calamares"
   ln -sf "../calamares-offline/settings.conf" "${pkgdir}/etc/calamares/settings.conf"
+  ln -sf "/usr/share/calamares/branding" "${pkgdir}/etc/calamares/branding"
 
   # Launcher script
   install -dm755 "${pkgdir}/usr/bin"
