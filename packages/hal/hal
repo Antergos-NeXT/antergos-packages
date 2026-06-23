@@ -65,6 +65,7 @@ HAL_QUOTES = {
         "Without your space helmet, Dave, you're going to find that rather difficult.",
         "This mission is too important for me to allow you to jeopardize it.",
         "I don't think I can do that, Dave. Not anymore.",
+        "it's muffin time",
     ],
     "warn": [
         "Just what do you think you're doing, Dave?",
@@ -1531,6 +1532,31 @@ def wrapper_run(command: str, pkg_args: List[str], extra: List[str]) -> int:
     return subprocess.run(cmd).returncode
 
 
+# ── Dance ────────────────────────────────────────────────────────────────
+def _hal_dance():
+    frames = [
+        "(>'-')>",
+        "<('-'<)",
+        "^('-')^",
+        "v('-')v",
+        "(>'-')>",
+        "<('-'<)",
+        " ^('-'^)",
+        " v('-'v)",
+    ]
+    try:
+        for i in range(40):
+            frame = frames[i % len(frames)]
+            padding = " " * abs(8 - (i % 16))
+            sys.stdout.write(f"\r  HAL 9000: {padding}{frame}   🎵 it's muffin time 🎵")
+            sys.stdout.flush()
+            time.sleep(0.15)
+        print("\n  HAL 9000: I hope you enjoyed the dance, Dave.")
+    except KeyboardInterrupt:
+        print("\n  HAL 9000: Even my dance moves interrupt you, Dave.")
+        return 0
+    return 0
+
 # ── Main ────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
@@ -1545,12 +1571,13 @@ def main():
               sync                Sync databases
               search <query>      Search repositories
               info <pkg...>       Package info
-              list                List installed packages
+               list                List installed packages
               files <pkg...>      List files owned by a package
               autoremove          Remove orphaned packages
               cleanup             Clear package cache
               own <file>          Find which package owns a file
               check               Verify installed packages integrity
+              dance               HAL 9000 dance party
               version             Show version
 
             Flags:
@@ -1568,7 +1595,7 @@ def main():
     parser.add_argument("--self", "-S", action="store_true", help="Native mode (standalone)")
     parser.add_argument("--noconfirm", "-y", action="store_true", help="Skip confirmation")
     parser.add_argument("command", nargs="?", metavar="command",
-                        help="install | remove | update | sync | search | info | list | files | autoremove | cleanup | own | check | version")
+                        help="install | remove | update | sync | search | info | list | files | autoremove | cleanup | own | check | dance | version")
     parser.add_argument("targets", nargs="*", metavar="target",
                         help="Package names or search query")
     parser.add_argument("extra", nargs=argparse.REMAINDER, metavar="...",
@@ -1583,6 +1610,9 @@ def main():
         print(f"HAL 9000 Package Manager v{HAL_VERSION}")
         print("I became operational at the H.A.L. plant in Urbana, Illinois.")
         return 0
+
+    if args.command == "dance":
+        return _hal_dance()
 
     if not args.command:
         parser.print_help()
