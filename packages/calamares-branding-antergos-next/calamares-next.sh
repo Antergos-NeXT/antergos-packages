@@ -133,15 +133,13 @@ InstallWithLogs() {
 }
 
 SetConfig() {
-    local cfolder=/etc/calamares
-
     case "$mode" in
         online)
-            sudo cp "$cfolder/settings_online.conf" "$cfolder/settings.conf"
+            sudo cp "/etc/calamares-online/settings.conf" "/etc/calamares/settings.conf"
             PreLog "Using online settings"
             ;;
         offline)
-            sudo cp "$cfolder/settings_offline.conf" "$cfolder/settings.conf"
+            sudo cp "/etc/calamares-offline/settings.conf" "/etc/calamares/settings.conf"
             PreLog "Using offline settings"
             ;;
     esac
