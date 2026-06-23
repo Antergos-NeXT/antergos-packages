@@ -24,7 +24,7 @@ Add to `/etc/pacman.conf`:
 ```
 [antergos-pkgs]
 SigLevel = Optional TrustAll
-Server = https://Antergos-NeXT.github.io/antergos-pkgs/
+Server = https://antergos-next.github.io/antergos-packages/
 ```
 
 Then:

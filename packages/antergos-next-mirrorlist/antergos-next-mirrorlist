@@ -3,6 +3,6 @@
 ## Use pacman-mirrors or rankmirrors to select fastest mirror
 
 # Flat layout (packages at repo root)
-Server = https://antergos-next.github.io/antergos-pkgs
+Server = https://antergos-next.github.io/antergos-packages
 # Standard layout (packages in $repo/os/$arch/)
-Server = https://antergos-next.github.io/antergos-pkgs/$repo/os/$arch
+Server = https://antergos-next.github.io/antergos-packages/$repo/os/$arch
