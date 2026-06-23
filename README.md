@@ -6,14 +6,12 @@ Custom package repository for Antergos NeXT ISO builds.
 
 | Package | Description | Source |
 |---------|-------------|--------|
-| `cnchi` | Antergos NeXT graphical installer (GTK4) | `Antergos-NeXT/Cnchi` (`cnchi-dev`) |
-| `calamares` | Universal installer framework (experimental, Qt6) | [upstream](https://codeberg.org/calamares/calamares) |
+| `calamares` | Universal installer framework (Qt6) | [upstream](https://codeberg.org/calamares/calamares) |
 | `calamares-branding-antergos-next` | Blue Calamares theme + offline/online installer split + dracut | local |
 | `hal` | HAL 9000 package manager — dual-mode (pacman wrapper + native standalone) | local |
 | `antergos-next-keyring` | GPG keyring for the repo | local |
 | `antergos-next-mirrorlist` | Mirror list for `[antergos-pkgs]` | local |
 | `antergos-next-desktop-settings` | Custom GTK/Plasma theme, dconf defaults | local |
-| `antergos-next-memes` | Audio files for Cnchi easter eggs (channel 666) | local |
 | `antergos-wallpapers` | Antergos desktop wallpapers | local |
 | `yay` | AUR helper | AUR |
 | `downgrade` | Pacman package downgrade tool | AUR |
@@ -32,7 +30,7 @@ Then:
 
 ```
 pacman -Sy
-pacman -S cnchi hal antergos-next-desktop-settings
+pacman -S calamares hal antergos-next-desktop-settings
 ```
 
 ## What is HAL?
@@ -60,7 +58,7 @@ The `calamares-branding-antergos-next` package provides:
 ## Branches
 
 - `master` — package definitions, CI builds + deploys to gh-pages
-- Cnchi sources shipped from `Antergos-NeXT/Cnchi` (`cnchi-dev`)
+- Calamares packages shipped from upstream (with custom branding)
 
 ## License
 

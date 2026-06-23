@@ -3,7 +3,7 @@
 pkgname=antergos-next-memes
 pkgver=1.0
 pkgrel=1
-pkgdesc="Cnchi installer audio enhancements"
+pkgdesc="Antergos NeXT welcome audio"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
 license=('custom:fairuse')
@@ -16,8 +16,8 @@ sha256sums=('SKIP'
             'SKIP')
 
 package() {
-  install -dm755 "${pkgdir}/usr/share/cnchi-memes"
-  cp "i-feel-fantastic.opus" "${pkgdir}/usr/share/cnchi-memes/"
-  cp "still-alive.opus" "${pkgdir}/usr/share/cnchi-memes/"
-  cp "its-raining-tacos.opus" "${pkgdir}/usr/share/cnchi-memes/"
+  install -dm755 "${pkgdir}/usr/share/antergos-next-memes"
+  cp "i-feel-fantastic.opus" "${pkgdir}/usr/share/antergos-next-memes/"
+  cp "still-alive.opus" "${pkgdir}/usr/share/antergos-next-memes/"
+  cp "its-raining-tacos.opus" "${pkgdir}/usr/share/antergos-next-memes/"
 }

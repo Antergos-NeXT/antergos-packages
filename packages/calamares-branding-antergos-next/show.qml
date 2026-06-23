@@ -145,7 +145,7 @@ Presentation
 
                 Text { text: "• Welcome app — system info & quick config" ; font.pixelSize: 13 ; color: "#34495E" }
                 Text { text: "• Calamares installer — easy setup" ; font.pixelSize: 13 ; color: "#34495E" }
-                Text { text: "• Cnchi — classic Antergos installer" ; font.pixelSize: 13 ; color: "#34495E" }
+                Text { text: "• Calamares — easy setup with offline & online modes" ; font.pixelSize: 13 ; color: "#34495E" }
                 Text { text: "• Pacman + AUR helper — full package access" ; font.pixelSize: 13 ; color: "#34495E" }
                 Text { text: "• Online documentation and community" ; font.pixelSize: 13 ; color: "#34495E" }
             }
