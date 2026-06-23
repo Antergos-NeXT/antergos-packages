@@ -5,11 +5,11 @@ welcomeStyleCalamares:   false
 welcomeExpandingLogo:   true
 
 windowExpanding:    normal
-windowSize: 860px,540px
+windowSize: 920px,630px
 windowPlacement: center
 
-sidebar: widget
-navigation: widget
+sidebar: qml,bottom
+navigation: qml,right
 
 strings:
     productName:         "Antergos NeXT"
@@ -38,4 +38,3 @@ style:
 
 slideshow:               "show.qml"
 slideshowAPI: 2
-...

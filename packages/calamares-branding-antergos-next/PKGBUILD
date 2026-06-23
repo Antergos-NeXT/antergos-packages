@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=9
+pkgrel=10
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -12,6 +12,15 @@ optdepends=('zenity: fallback for graphical mode chooser dialog')
 source=("branding.desc"
         "stylesheet.qss"
         "show.qml"
+        "Dia.qml"
+        "Slider.qml"
+        "calamares-sidebar.qml"
+        "calamares-navigation.qml"
+        "background.jpg"
+        "pan-up-symbolic.svg"
+        "pan-end-symbolic.svg"
+        "pan-start-symbolic.svg"
+        "draw-rectangle.svg"
         "unpackfs.conf"
         "dracut.conf"
         "antergos-logo.png"
@@ -34,6 +43,15 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
             'SKIP')
 
 package() {
@@ -43,6 +61,15 @@ package() {
   cp "branding.desc" "${pkgdir}${_brand}/"
   cp "stylesheet.qss" "${pkgdir}${_brand}/"
   cp "show.qml" "${pkgdir}${_brand}/"
+  cp "Dia.qml" "${pkgdir}${_brand}/"
+  cp "Slider.qml" "${pkgdir}${_brand}/"
+  cp "calamares-sidebar.qml" "${pkgdir}${_brand}/"
+  cp "calamares-navigation.qml" "${pkgdir}${_brand}/"
+  cp "background.jpg" "${pkgdir}${_brand}/"
+  cp "pan-up-symbolic.svg" "${pkgdir}${_brand}/"
+  cp "pan-end-symbolic.svg" "${pkgdir}${_brand}/"
+  cp "pan-start-symbolic.svg" "${pkgdir}${_brand}/"
+  cp "draw-rectangle.svg" "${pkgdir}${_brand}/"
   cp "antergos-logo.png" "${pkgdir}${_brand}/"
   cp "antergos-icon.png" "${pkgdir}${_brand}/"
 
