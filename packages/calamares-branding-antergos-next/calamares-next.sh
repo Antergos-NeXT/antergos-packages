@@ -81,31 +81,40 @@ AskMode() {
     local ICO="/usr/share/calamares/branding/antergos-next/antergos-icon.png"
     [ -f "$ICO" ] || ICO="system-software-install"
 
-    local cmd=(
-        yad --form
-        --title="Antergos NeXT Installer"
-        --text="Choose installation mode:"
-        --image="$ICO"
-        --columns=2 --borders=10 --homogeneous
-        --height=180 --width=600 --scroll
-        --buttons-layout=spread
-    )
-
     if [ "$has_connection" = yes ] ; then
-        cmd+=(
-            --field="Online: Full desktop selection from the internet\nChoose your desktop environment, customize packages,\nget the latest updates.":LBL ""
-            --field="Offline: Quick install from the live ISO\nInstall GNOME desktop directly from the ISO.\nNo internet required.":LBL ""
+        yad --form \
+            --title="Antergos NeXT Installer" \
+            --image="$ICO" \
+            --borders=20 \
+            --height=250 --width=520 \
+            --buttons-layout=spread \
+            --field=" ":LBL "" \
+            --field="<b>Online Install</b>":LBL "" \
+            --field="Full desktop selection from the internet.":LBL "" \
+            --field="Choose your desktop environment, customize packages,":LBL "" \
+            --field="get the latest updates.":LBL "" \
+            --field=" ":LBL "" \
+            --field="<b>Offline Install</b>":LBL "" \
+            --field="Quick install from the live ISO.":LBL "" \
+            --field="Install GNOME desktop directly from the ISO.":LBL "" \
+            --field="No internet required.":LBL "" \
+            --field=" ":LBL "" \
+            --button="Offline":13 \
             --button="Online":11
-            --button="Offline":13
-        )
     else
-        cmd+=(
-            --field="Offline: Quick install from the live ISO\nInstall GNOME desktop directly from the ISO.":LBL ""
+        yad --form \
+            --title="Antergos NeXT Installer" \
+            --image="$ICO" \
+            --borders=20 \
+            --height=200 --width=520 \
+            --buttons-layout=spread \
+            --field=" ":LBL "" \
+            --field="<b>Offline Install</b>":LBL "" \
+            --field="Quick install from the live ISO.":LBL "" \
+            --field="Install GNOME desktop directly from the ISO.":LBL "" \
+            --field=" ":LBL "" \
             --button="Offline":13
-        )
     fi
-
-    "${cmd[@]}"
 }
 
 InstallWithLogs() {
