@@ -1,58 +1,62 @@
 [
   {
-    "name": "antergos-grub-live-2026.06-1-any.pkg.tar.zst",
-    "size": 21771
+    "name": "antergos-grub-live-2026.06-2-any.pkg.tar.zst",
+    "size": 21770
   },
   {
     "name": "antergos-grub-theme-2026.06-1-any.pkg.tar.zst",
-    "size": 2258312
+    "size": 2258307
   },
   {
-    "name": "antergos-live-base-2026.06-1-any.pkg.tar.zst",
-    "size": 12053
+    "name": "antergos-live-base-2026.06-2-any.pkg.tar.zst",
+    "size": 12049
   },
   {
-    "name": "antergos-live-openrc-2026.06-1-any.pkg.tar.zst",
-    "size": 7966
+    "name": "antergos-live-openrc-2026.06-2-any.pkg.tar.zst",
+    "size": 7961
   },
   {
     "name": "antergos-next-desktop-settings-1-1-any.pkg.tar.zst",
-    "size": 8307
+    "size": 8297
   },
   {
     "name": "antergos-next-keyring-1-1-any.pkg.tar.zst",
-    "size": 4590
+    "size": 4591
   },
   {
     "name": "antergos-next-memes-1.0-1-any.pkg.tar.zst",
-    "size": 3055552
+    "size": 3055547
   },
   {
     "name": "antergos-next-mirrorlist-1-1-any.pkg.tar.zst",
-    "size": 2998
+    "size": 2999
   },
   {
     "name": "antergos-wallpapers-0.7-4-any.pkg.tar.zst",
-    "size": 252141
+    "size": 252143
   },
   {
     "name": "antergos-welcome-0.1-3-any.pkg.tar.zst",
-    "size": 127319
+    "size": 127303
   },
   {
-    "name": "calamares-branding-antergos-next-1.0-13-any.pkg.tar.zst",
-    "size": 108016
+    "name": "calamares-3.4.2-5-x86_64.pkg.tar.zst",
+    "size": 5202080
+  },
+  {
+    "name": "calamares-branding-antergos-next-1.0-14-any.pkg.tar.zst",
+    "size": 107853
   },
   {
     "name": "downgrade-12.0.2-1-any.pkg.tar.zst",
-    "size": 30964
+    "size": 30967
   },
   {
     "name": "hal-0.2.0-3-any.pkg.tar.zst",
-    "size": 26797
+    "size": 26793
   },
   {
     "name": "yay-13.0.1-1-x86_64.pkg.tar.zst",
-    "size": 4684337
+    "size": 4684342
   }
 ]
