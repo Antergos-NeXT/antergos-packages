@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=14
+pkgrel=15
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -72,6 +72,23 @@ package() {
   cp "draw-rectangle.svg" "${pkgdir}${_brand}/"
   cp "antergos-logo.png" "${pkgdir}${_brand}/"
   cp "antergos-icon.png" "${pkgdir}${_brand}/"
+
+  # Also overwrite default branding so Artix calamares package can't sneak in
+  local _defbrand="/usr/share/calamares/branding/default"
+  install -dm755 "${pkgdir}${_defbrand}"
+  cp "branding.desc" "${pkgdir}${_defbrand}/"
+  cp "show.qml" "${pkgdir}${_defbrand}/"
+  cp "Dia.qml" "${pkgdir}${_defbrand}/"
+  cp "Slider.qml" "${pkgdir}${_defbrand}/"
+  cp "calamares-sidebar.qml" "${pkgdir}${_defbrand}/"
+  cp "calamares-navigation.qml" "${pkgdir}${_defbrand}/"
+  cp "background.jpg" "${pkgdir}${_defbrand}/"
+  cp "pan-up-symbolic.svg" "${pkgdir}${_defbrand}/"
+  cp "pan-end-symbolic.svg" "${pkgdir}${_defbrand}/"
+  cp "pan-start-symbolic.svg" "${pkgdir}${_defbrand}/"
+  cp "draw-rectangle.svg" "${pkgdir}${_defbrand}/"
+  cp "antergos-logo.png" "${pkgdir}${_defbrand}/"
+  cp "antergos-icon.png" "${pkgdir}${_defbrand}/"
 
   # Shared Calamares modules
   install -dm755 "${pkgdir}/etc/calamares/modules"
