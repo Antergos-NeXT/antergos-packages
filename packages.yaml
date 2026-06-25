@@ -5,8 +5,9 @@ packages:
   - antergos-next-keyring
   - antergos-next-mirrorlist
   - antergos-next-desktop-settings
-  - calamares
   - calamares-branding-antergos-next
+  - antergos-grub-theme
+  - antergos-live
   - antergos-next-memes
   - antergos-welcome
   - hal

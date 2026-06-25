@@ -167,7 +167,7 @@ Main() {
 
     local ShowInstallLog="FALSE"
     local ShowPacmanLog="FALSE"
-    local Home=/home/liveuser
+    local Home=/home/antergos
     local log=$Home/antergos-install.log
     local cfolder=/etc/calamares
     local workdir=""

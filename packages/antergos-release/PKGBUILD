@@ -1,0 +1,32 @@
+# Maintainer: Antergos NeXT <antergos-next@github>
+
+pkgname=antergos-release
+pkgver=2026.06
+pkgrel=1
+pkgdesc='Antergos NeXT release file'
+arch=('any')
+url="https://github.com/Antergos-NeXT"
+license=('GPL3')
+conflicts=('artix-release')
+provides=('os-release')
+
+package() {
+    install -dm755 $pkgdir/usr/lib
+    install -dm755 $pkgdir/etc
+    cat > $pkgdir/usr/lib/os-release << EOF
+NAME="Antergos NeXT"
+PRETTY_NAME="Antergos NeXT"
+ID=antergos
+ID_LIKE=artix
+BUILD_ID=rolling
+ANSI_COLOR="38;2;0;136;204"
+HOME_URL="https://github.com/Antergos-NeXT"
+DOCUMENTATION_URL="https://wiki.archlinux.org"
+SUPPORT_URL="https://github.com/Antergos-NeXT"
+BUG_REPORT_URL="https://github.com/Antergos-NeXT"
+LOGO=antergos-logo
+EOF
+    cp $pkgdir/usr/lib/os-release $pkgdir/etc/os-release
+}
+
+backup=('etc/os-release' 'usr/lib/os-release')

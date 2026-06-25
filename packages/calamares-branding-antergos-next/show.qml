@@ -58,7 +58,7 @@ Item {
         slides: [
             Dia {
                 title: qsTr("Welcome to Antergos NeXT")
-                body: qsTr("A modern Arch Linux experience built on EndeavourOS")
+                body: qsTr("A modern Arch Linux experience with OpenRC and elogind")
                 footer: qsTr("Choose your preferred desktop environment during setup")
             },
             Dia {

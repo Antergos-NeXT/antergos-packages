@@ -1,0 +1,58 @@
+# Maintainer: Antergos NeXT <antergos-next@github>
+
+_tag=0.14.1
+
+pkgbase=antergos-live
+pkgname=('antergos-live-base'
+        'antergos-live-openrc'
+        'antergos-grub-live')
+pkgver=2026.06
+pkgrel=1
+pkgdesc='Antergos live session'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-live"
+license=('GPL')
+makedepends=('git' 'bash' 'artools-base')
+source=("git+https://gitea.artixlinux.org/artix/artix-live.git#tag=$_tag")
+sha256sums=('SKIP')
+
+pkgver() {
+   date +%Y.%m
+}
+
+build() {
+    make -C artix-live
+    sed -i 's/artix/antergos/g; s/Artix/Antergos/g' \
+        artix-live/data/grub/cfg/kernels.cfg \
+        artix-live/data/grub/cfg/variable.cfg \
+        artix-live/data/grub/cfg/grub.cfg \
+        artix-live/data/grub/cfg/defaults.cfg \
+        artix-live/data/grub/cfg/loopback.cfg \
+        artix-live/data/live.conf 2>/dev/null || true
+}
+
+package_antergos-live-base() {
+    pkgdesc='Antergos live base scripts'
+    depends=('artools-base' 'bash')
+
+    make -C artix-live DESTDIR=${pkgdir} install_base install_xdg
+}
+
+package_antergos-live-openrc() {
+    pkgdesc='Antergos live openrc init scripts'
+    depends=('antergos-live-base')
+    provides=('init-antergos-live')
+    conflicts=('init-antergos-live' 'init-artix-live')
+
+    make -C artix-live DESTDIR=${pkgdir} install_rc
+
+    install -d "${pkgdir}"/etc/runlevels/default
+    ln -sf /etc/init.d/artix-live "${pkgdir}"/etc/runlevels/default/antergos-live
+    ln -sf /etc/init.d/pacman-init "${pkgdir}"/etc/runlevels/default/pacman-init
+}
+
+package_antergos-grub-live() {
+    pkgdesc='Antergos grub live'
+
+    make -C artix-live PREFIX=/usr DESTDIR=${pkgdir} install_grub
+}
