@@ -41,7 +41,6 @@ build() {
     initramfscfg
     interactiveterminal
     packagechooser
-    services-openrc
   )
 
   local _pkgsrc_dir="$srcdir/$_pkgname-$pkgver"

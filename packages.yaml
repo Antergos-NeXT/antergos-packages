@@ -1,4 +1,5 @@
 packages:
+  - calamares
   - antergos-wallpapers
   - yay
   - downgrade
