@@ -1,6 +1,6 @@
 - name: "KDE Plasma"
   description: "Full-featured, modern desktop with KDE Plasma and applications"
-  selected: false
+  selected: true
   critical: false
   packages:
     - ark
@@ -41,38 +41,6 @@
     - spectacle
     - xdg-desktop-portal-kde
     - xsettingsd
-- name: "GNOME"
-  description: "Modern and streamlined desktop environment"
-  selected: true
-  critical: false
-  packages:
-    - adwaita-icon-theme
-    - evince
-    - file-roller
-    - gdm
-    - gnome-calculator
-    - gnome-clocks
-    - gnome-console
-    - gnome-control-center
-    - gnome-disk-utility
-    - gnome-keyring
-    - gnome-shell
-    - gnome-system-monitor
-    - gnome-terminal
-    - gnome-text-editor
-    - gnome-themes-extra
-    - gnome-tweaks
-    - gvfs
-    - gvfs-afc
-    - gvfs-gphoto2
-    - gvfs-mtp
-    - gvfs-nfs
-    - gvfs-smb
-    - loupe
-    - nautilus
-    - sushi
-    - xdg-desktop-portal-gnome
-    - xdg-user-dirs-gtk
 - name: "Xfce"
   description: "Fast and lightweight classic desktop"
   selected: false

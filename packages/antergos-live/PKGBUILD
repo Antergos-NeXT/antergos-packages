@@ -7,7 +7,7 @@ pkgname=('antergos-live-base'
         'antergos-live-openrc'
         'antergos-grub-live')
 pkgver=2026.06
-pkgrel=1
+pkgrel=2
 pkgdesc='Antergos live session'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-live"
@@ -36,6 +36,10 @@ package_antergos-live-base() {
     depends=('artools-base' 'bash')
 
     make -C artix-live DESTDIR=${pkgdir} install_base install_xdg
+
+    # Rename binary and fix internal references
+    sed -i 's/LIVEUSER=${LIVEUSER:-artix}/LIVEUSER=${LIVEUSER:-liveuser}/g; s|LOGFILE='\''/var/log/artix-live.log'\''|LOGFILE='\''/var/log/antergos-live.log'\''|g' "${pkgdir}/usr/bin/artix-live" 2>/dev/null || true
+    mv "${pkgdir}/usr/bin/artix-live" "${pkgdir}/usr/bin/antergos-live" 2>/dev/null || true
 }
 
 package_antergos-live-openrc() {
@@ -46,8 +50,12 @@ package_antergos-live-openrc() {
 
     make -C artix-live DESTDIR=${pkgdir} install_rc
 
+    # Rename init script and fix internal references
+    sed -i 's/artix live script/antergos live script/g; s|/usr/bin/artix-live|/usr/bin/antergos-live|g' "${pkgdir}/etc/init.d/artix-live" 2>/dev/null || true
+    mv "${pkgdir}/etc/init.d/artix-live" "${pkgdir}/etc/init.d/antergos-live" 2>/dev/null || true
+
     install -d "${pkgdir}"/etc/runlevels/default
-    ln -sf /etc/init.d/artix-live "${pkgdir}"/etc/runlevels/default/antergos-live
+    ln -sf /etc/init.d/antergos-live "${pkgdir}"/etc/runlevels/default/antergos-live
     ln -sf /etc/init.d/pacman-init "${pkgdir}"/etc/runlevels/default/pacman-init
 }
 

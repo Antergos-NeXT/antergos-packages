@@ -12,12 +12,23 @@ def repo_init():
     conf_path = "/etc/pacman.conf"
     with open(conf_path) as f:
         conf = f.read()
+    # Insert before first active repo ([system] for Artix, [core] for Arch)
+    for tag in ("[system]", "[core]"):
+        if tag in conf:
+            sep = tag
+            break
+    else:
+        sep = "[options]"
     if "[antergos-local]" not in conf:
         with open(conf_path, "w") as f:
             f.write(conf.replace(
-                "[core]",
-                "[antergos-local]\nSigLevel = Never\nServer = file:///tmp/pkgout\n\n[core]"
+                sep,
+                "[antergos-local]\nSigLevel = Never\nServer = file:///tmp/pkgout\n\n" + sep
             ))
+    # Create empty repo db so pacman doesn't choke
+    db = f"{LOCAL_REPO}/antergos-local.db.tar.gz"
+    if not os.path.exists(db):
+        subprocess.run(["bsdtar", "-czf", db, "-T", "/dev/null"])
 
 def repo_add(pkg_path):
     db = f"{LOCAL_REPO}/antergos-local.db.tar.gz"

@@ -96,7 +96,7 @@ AskMode() {
             --field=" ":LBL "" \
             --field="<b>Offline Install</b>":LBL "" \
             --field="Quick install from the live ISO.":LBL "" \
-            --field="Install GNOME desktop directly from the ISO.":LBL "" \
+            --field="Install KDE Plasma desktop directly from the ISO.":LBL "" \
             --field="No internet required.":LBL "" \
             --field=" ":LBL "" \
             --button="Offline":13 \
@@ -111,7 +111,7 @@ AskMode() {
             --field=" ":LBL "" \
             --field="<b>Offline Install</b>":LBL "" \
             --field="Quick install from the live ISO.":LBL "" \
-            --field="Install GNOME desktop directly from the ISO.":LBL "" \
+            --field="Install KDE Plasma desktop directly from the ISO.":LBL "" \
             --field=" ":LBL "" \
             --button="Offline":13
     fi
