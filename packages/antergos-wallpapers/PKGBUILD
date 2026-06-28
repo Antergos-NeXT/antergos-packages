@@ -7,12 +7,17 @@ pkgdesc="Antergos NeXT wallpapers"
 arch=('any')
 url="https://github.com/Antergos/wallpapers"
 license=('GPL3')
-source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wallpapers/master/antergos-wallpaper.png")
-sha256sums=('SKIP')
+source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wallpapers/master/antergos-wallpaper.png"
+        "metadata.desktop")
+sha256sums=('SKIP'
+            'SKIP')
 
 package() {
   install -dm755 "${pkgdir}/usr/share/backgrounds/antergos"
   install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/backgrounds/antergos/"
   install -dm755 "${pkgdir}/usr/share/antergos/backgrounds"
   install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/antergos/backgrounds/"
+  install -dm755 "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images"
+  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images/"
+  install -m644 "${srcdir}/metadata.desktop" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/"
 }
