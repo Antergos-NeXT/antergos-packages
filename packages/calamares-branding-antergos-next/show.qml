@@ -63,7 +63,7 @@ Item {
             },
             Dia {
                 title: qsTr("Desktop Environments")
-                body: qsTr("Select from KDE Plasma, GNOME, Xfce, Budgie, Cinnamon, MATE, LXQt, or i3/Sway")
+                body: qsTr("Select from KDE Plasma, Xfce, Budgie, Cinnamon, MATE, LXQt, or i3/Sway")
                 footer: qsTr("Each desktop is fully configured and ready to use")
             },
             Dia {

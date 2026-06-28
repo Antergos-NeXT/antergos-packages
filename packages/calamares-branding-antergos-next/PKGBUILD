@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=16
+pkgrel=17
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -21,13 +21,15 @@ source=("branding.desc"
         "pan-end-symbolic.svg"
         "pan-start-symbolic.svg"
         "draw-rectangle.svg"
-        "unpackfs.conf"
-        "dracut.conf"
+         "unpackfs.conf"
+         "initcpiocfg.conf"
+         "initcpio.conf"
         "antergos-logo.png"
         "antergos-icon.png"
         "netinstall.yaml"
-        "netinstall.conf"
-        "welcome.conf"
+         "netinstall.conf"
+         "packagechooser.conf"
+         "welcome.conf"
         "settings_offline.conf"
         "settings_online.conf"
         "calamares-next.sh")
@@ -51,8 +53,9 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
-            'SKIP'
-            'SKIP')
+             'SKIP'
+             'SKIP'
+             'SKIP')
 
 package() {
   # Branding data (shared between offline/online)
@@ -93,9 +96,11 @@ package() {
   # Shared Calamares modules
   install -dm755 "${pkgdir}/etc/calamares/modules"
   cp "unpackfs.conf" "${pkgdir}/etc/calamares/modules/"
-  cp "dracut.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "initcpiocfg.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "initcpio.conf" "${pkgdir}/etc/calamares/modules/"
   cp "netinstall.conf" "${pkgdir}/etc/calamares/modules/"
   cp "netinstall.yaml" "${pkgdir}/etc/calamares/modules/"
+  cp "packagechooser.conf" "${pkgdir}/etc/calamares/modules/"
   cp "welcome.conf" "${pkgdir}/etc/calamares/modules/"
 
   # Offline config directory

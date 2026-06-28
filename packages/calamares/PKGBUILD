@@ -5,7 +5,7 @@
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=6
+pkgrel=7
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -37,6 +37,7 @@ build() {
     dummyprocess
     dummypython
     dummypythonqt
+    dracut
     initramfs
     initramfscfg
     interactiveterminal
