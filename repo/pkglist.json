@@ -1,0 +1,212 @@
+[
+  {
+    "name": "('antergos-live-base",
+    "version": "2026.06-2",
+    "arch": "any",
+    "size": 2341888,
+    "category": "other",
+    "description": "Antergos live session",
+    "url": "https://github.com/Antergos-NeXT/antergos-live",
+    "mtime": "2026-06-28T16:11:37.154843+00:00"
+  },
+  {
+    "name": "antergos-grub-theme",
+    "version": "2026.06-1",
+    "arch": "any",
+    "size": 4827136,
+    "category": "desktop",
+    "description": "Antergos GRUB theme",
+    "url": "https://github.com/Antergos-NeXT/antergos-branding",
+    "mtime": "2026-06-28T16:11:37.146843+00:00"
+  },
+  {
+    "name": "antergos-next-desktop-settings",
+    "version": "1-1",
+    "arch": "any",
+    "size": 505856,
+    "category": "branding",
+    "description": "Antergos NeXT desktop settings, theme, and color scheme",
+    "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
+    "mtime": "2026-06-28T16:11:37.156843+00:00"
+  },
+  {
+    "name": "antergos-next-keyring",
+    "version": "1-1",
+    "arch": "any",
+    "size": 5147648,
+    "category": "core",
+    "description": "Antergos NeXT GPG keyring",
+    "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
+    "mtime": "2026-06-28T16:11:37.173843+00:00"
+  },
+  {
+    "name": "antergos-next-memes",
+    "version": "1.0-1",
+    "arch": "any",
+    "size": 265216,
+    "category": "desktop",
+    "description": "Antergos NeXT welcome audio",
+    "url": "https://github.com/Antergos-NeXT",
+    "mtime": "2026-06-28T16:11:37.174843+00:00"
+  },
+  {
+    "name": "antergos-next-mirrorlist",
+    "version": "1-1",
+    "arch": "any",
+    "size": 4196352,
+    "category": "core",
+    "description": "Antergos NeXT mirror list",
+    "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
+    "mtime": "2026-06-28T16:11:37.187843+00:00"
+  },
+  {
+    "name": "antergos-release",
+    "version": "2026.06-1",
+    "arch": "any",
+    "size": 3473408,
+    "category": "core",
+    "description": "Antergos NeXT release file",
+    "url": "https://github.com/Antergos-NeXT",
+    "mtime": "2026-06-28T16:11:37.199843+00:00"
+  },
+  {
+    "name": "antergos-wallpapers",
+    "version": "0.7-4",
+    "arch": "any",
+    "size": 2386944,
+    "category": "branding",
+    "description": "Antergos NeXT wallpapers",
+    "url": "https://github.com/Antergos/wallpapers",
+    "mtime": "2026-06-28T16:11:37.207843+00:00"
+  },
+  {
+    "name": "antergos-welcome",
+    "version": "0.1-3",
+    "arch": "any",
+    "size": 3249152,
+    "category": "desktop",
+    "description": "Welcome screen and support tool for new Antergos NeXT users",
+    "url": "https://github.com/Antergos-NeXT/antergos-welcome",
+    "mtime": "2026-06-28T16:11:37.217843+00:00"
+  },
+  {
+    "name": "bloatware-remover",
+    "version": "0.1-1",
+    "arch": "any",
+    "size": 2554880,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.226843+00:00"
+  },
+  {
+    "name": "calamares-3.4.2",
+    "version": "3.4.2-6",
+    "arch": "x86_64",
+    "size": 234496,
+    "category": "installer",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.227843+00:00"
+  },
+  {
+    "name": "calamares-branding-antergos-next",
+    "version": "1.0-16",
+    "arch": "any",
+    "size": 4476928,
+    "category": "installer",
+    "description": "Calamares branding for Antergos NeXT with offline/online installer support",
+    "url": "https://github.com/Antergos-NeXT",
+    "mtime": "2026-06-28T16:11:37.241843+00:00"
+  },
+  {
+    "name": "configure-1.6",
+    "version": "1.6-1",
+    "arch": "x86_64",
+    "size": 1199104,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.246843+00:00"
+  },
+  {
+    "name": "gentoo-challenge-failed",
+    "version": "3.0-1",
+    "arch": "any",
+    "size": 724992,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.248843+00:00"
+  },
+  {
+    "name": "i-use-artix-btw",
+    "version": "2.0-1",
+    "arch": "any",
+    "size": 4995072,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.264843+00:00"
+  },
+  {
+    "name": "neofetch-but-rust",
+    "version": "0.5-1",
+    "arch": "any",
+    "size": 2647040,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.273843+00:00"
+  },
+  {
+    "name": "pacman-broke-my-system",
+    "version": "9.9-1",
+    "arch": "any",
+    "size": 2330624,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.281843+00:00"
+  },
+  {
+    "name": "ptsd-from-sudo",
+    "version": "1.0-1",
+    "arch": "any",
+    "size": 4167680,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.294843+00:00"
+  },
+  {
+    "name": "rms-approved",
+    "version": "4.0-1",
+    "arch": "any",
+    "size": 361472,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.296843+00:00"
+  },
+  {
+    "name": "steve-jobs-would-never",
+    "version": "1.0-1",
+    "arch": "any",
+    "size": 262144,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.297843+00:00"
+  },
+  {
+    "name": "systemd-bad",
+    "version": "1.0-1",
+    "arch": "any",
+    "size": 1938432,
+    "category": "other",
+    "description": "",
+    "url": "",
+    "mtime": "2026-06-28T16:11:37.304843+00:00"
+  }
+]

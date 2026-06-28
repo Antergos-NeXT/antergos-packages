@@ -5,7 +5,7 @@
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=5
+pkgrel=6
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -40,7 +40,6 @@ build() {
     initramfs
     initramfscfg
     interactiveterminal
-    packagechooser
   )
 
   local _pkgsrc_dir="$srcdir/$_pkgname-$pkgver"

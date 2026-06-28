@@ -68,6 +68,11 @@ InstallLog_Start() {
 }
 
 Calamares_Start() {
+    if [ "$EUID" = 0 ]; then
+        calamares -D8 >> $log &
+        return
+    fi
+
     local kdesu=/usr/lib/kf6/kdesu
     [ -x $kdesu ] || kdesu=kdesu
 
