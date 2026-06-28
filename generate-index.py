@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json, os, re, subprocess
-from datetime import datetime, timezone
+from datetime import datetime
+import zoneinfo
 
 PKG_DIR = 'packages'
 REPO_DIR = 'repo'
@@ -52,7 +53,7 @@ for f in sorted(os.listdir(REPO_DIR)):
     fpath = os.path.join(REPO_DIR, f)
     size = os.path.getsize(fpath)
     mtime = os.path.getmtime(fpath)
-    mtime_dt = datetime.fromtimestamp(mtime, tz=timezone.utc)
+    mtime_dt = datetime.fromtimestamp(mtime, tz=zoneinfo.ZoneInfo('Europe/Berlin'))
 
     # strip .pkg.tar.zst and arch to get base name
     base = re.sub(r'-[^-]+-x86_64\.pkg\.tar\.zst$', '', f)
@@ -81,7 +82,7 @@ for f in sorted(os.listdir(REPO_DIR)):
         'arch': arch,
         'size': size,
         'mtime': mtime_dt.isoformat(),
-        'mtime_display': mtime_dt.strftime('%Y-%m-%d %H:%M UTC'),
+        'mtime_display': mtime_dt.strftime('%Y-%m-%d %H:%M CET/CEST'),
         'category': cat,
         'cat_color': cat_colors.get(cat, '#7F8C8D'),
         'description': meta.get('pkgdesc', ''),
@@ -94,7 +95,7 @@ pkgs.sort(key=lambda p: p['name'])
 
 rows_json = json.dumps(pkgs)
 total_size_mb = sum(p['size'] for p in pkgs) / 1024 / 1024
-generated = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
+generated = datetime.now(tz=zoneinfo.ZoneInfo('Europe/Berlin')).strftime('%Y-%m-%d %H:%M CET/CEST')
 
 html = f'''<!DOCTYPE html>
 <html lang="en">

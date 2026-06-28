@@ -4,6 +4,7 @@ import os
 import shutil
 import glob
 import sys
+import time
 
 LOCAL_REPO = "/tmp/pkgout"
 
@@ -59,7 +60,20 @@ for pkg in pkgs:
     if os.path.exists(local_pkgbuild):
         shutil.copytree(f"packages/{pkg}", build_dir)
     else:
-        subprocess.run(["git", "clone", f"https://aur.archlinux.org/{pkg}.git", build_dir])
+        url = f"https://aur.archlinux.org/{pkg}.git"
+        for attempt in range(3):
+            r = subprocess.run(["git", "clone", url, build_dir], capture_output=True)
+            if r.returncode == 0:
+                break
+            print(f"AUR clone attempt {attempt+1}/3 failed for {pkg}, retrying...")
+            try:
+                shutil.rmtree(build_dir)
+            except FileNotFoundError:
+                pass
+            time.sleep(2)
+        else:
+            print(f"::error::FAILED to clone AUR package: {pkg}")
+            sys.exit(1)
 
     subprocess.run(["chown", "-R", "builder:builder", build_dir])
 
