@@ -7,7 +7,6 @@ Item {
         console.log("Slideshow) activated");
         timer.restart();
         slider.reset();
-        img.reset();
     }
 
     function onLeave(){
@@ -22,7 +21,7 @@ Item {
         interval: 10000
         running: true
         repeat: true
-        onTriggered: slider.currentSlideIndex++,img.currentSlideIndex++
+        onTriggered: slider.currentSlideIndex++
     }
 
     MouseArea {
@@ -30,89 +29,59 @@ Item {
         onClicked: {
             timer.restart();
             slider.currentSlideIndex++;
-            img.currentSlideIndex++;
         }
     }
 
-    Item {
+    Image {
+        id: background
         anchors.fill: parent
-        Image {
-            id: background
+        source: "background.jpg"
+        fillMode: Image.PreserveAspectCrop
+    }
+
+    Rectangle {
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+        height: 200
+        color: Qt.rgba(0, 0, 0, 0.6)
+
+        Slider {
+            id: slider
             anchors {
                 fill: parent
-                margins: -10
-                bottomMargin: 0
+                margins: 20
             }
 
-            source: "background.jpg"
-            sourceSize.width: width
-            sourceSize.height: height
-        }
-
-    }
-
-    Slider {
-        id: slider
-        height: 50
-
-        slides: [
-            Dia {
-                title: qsTr("Welcome to Antergos NeXT")
-                body: qsTr("A modern Arch Linux experience with OpenRC and elogind")
-                footer: qsTr("Choose your preferred desktop environment during setup")
-            },
-            Dia {
-                title: qsTr("Desktop Environments")
-                body: qsTr("Select from KDE Plasma, Xfce, Budgie, Cinnamon, MATE, LXQt, or i3/Sway")
-                footer: qsTr("Each desktop is fully configured and ready to use")
-            },
-            Dia {
-                title: qsTr("Antergos Tools")
-                body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and HAL package manager")
-                footer: qsTr("Full access to Arch Linux repositories and the AUR")
-            },
-            Dia {
-                title: qsTr("Open Source")
-                body: qsTr("Antergos NeXT is free and open source software built by the community")
-                footer: qsTr("Contribute on GitHub — Antergos-NeXT")
-            },
-            Dia {
-                title: qsTr("Almost Done")
-                body: qsTr("Your system is being configured with your selected options")
-                footer: qsTr("Reboot and enjoy Antergos NeXT")
-            }
-        ]
-        anchors {
-            centerIn: parent
-            horizontalCenterOffset: 50
-            verticalCenterOffset: 10
-        }
-    }
-    Slider {
-        id: img
-        height: 50
-
-        slides: [
-            Dia {
-                image: "antergos-logo.png"
-            },
-            Dia {
-                image: "antergos-logo.png"
-            },
-            Dia {
-                image: "antergos-logo.png"
-            },
-            Dia {
-                image: "antergos-logo.png"
-            },
-            Dia {
-                image: "antergos-logo.png"
-            }
-        ]
-        anchors {
-            centerIn: parent
-            horizontalCenterOffset: -400
-            verticalCenterOffset: -100
+            slides: [
+                Dia {
+                    title: qsTr("Welcome to Antergos NeXT")
+                    body: qsTr("A modern Arch Linux experience with OpenRC and elogind")
+                    footer: qsTr("Choose your preferred desktop environment during setup")
+                },
+                Dia {
+                    title: qsTr("Desktop Environments")
+                    body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland")
+                    footer: qsTr("Each desktop is fully configured and ready to use")
+                },
+                Dia {
+                    title: qsTr("Antergos Tools")
+                    body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and HAL package manager")
+                    footer: qsTr("Full access to Arch Linux repositories and the AUR")
+                },
+                Dia {
+                    title: qsTr("Open Source")
+                    body: qsTr("Antergos NeXT is free and open source software built by the community")
+                    footer: qsTr("Contribute on GitHub — Antergos-NeXT")
+                },
+                Dia {
+                    title: qsTr("Almost Done")
+                    body: qsTr("Your system is being configured with your selected options")
+                    footer: qsTr("Reboot and enjoy Antergos NeXT")
+                }
+            ]
         }
     }
 }

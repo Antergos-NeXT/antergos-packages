@@ -140,10 +140,12 @@ InstallWithLogs() {
 SetConfig() {
     case "$mode" in
         online)
+            sudo rm -f "/etc/calamares/settings.conf"
             sudo cp "/etc/calamares-online/settings.conf" "/etc/calamares/settings.conf"
             PreLog "Using online settings"
             ;;
         offline)
+            sudo rm -f "/etc/calamares/settings.conf"
             sudo cp "/etc/calamares-offline/settings.conf" "/etc/calamares/settings.conf"
             PreLog "Using offline settings"
             ;;
