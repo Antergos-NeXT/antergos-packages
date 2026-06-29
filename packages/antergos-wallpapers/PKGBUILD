@@ -1,23 +1,35 @@
 # Maintainer: Celestia Ludenberg <ash8820@proton.me>
+#
+# Wallpapers and their licenses:
+#   antergos-wallpaper.png    - GPL3 (Antergos project)
+#   adwaita-morning.webp      - CC BY-SA 3.0 (Jakub Steiner / GNOME Project)
+#                               https://gitlab.gnome.org/GNOME/gnome-backgrounds
 
 pkgname=antergos-wallpapers
 pkgver=0.7
-pkgrel=4
+pkgrel=5
 pkgdesc="Antergos NeXT wallpapers"
 arch=('any')
 url="https://github.com/Antergos/wallpapers"
 license=('GPL3')
 source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wallpapers/master/antergos-wallpaper.png"
-        "metadata.desktop")
+        "metadata.desktop"
+        "adwaita-morning.webp")
 sha256sums=('SKIP'
-            'SKIP')
+            'SKIP'
+            'eaa5c6960dd548526e189568fed449210f332f0358d666a8711ef399f9b94152')
 
 package() {
-  install -dm755 "${pkgdir}/usr/share/backgrounds/antergos"
-  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/backgrounds/antergos/"
-  install -dm755 "${pkgdir}/usr/share/antergos/backgrounds"
-  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/antergos/backgrounds/"
-  install -dm755 "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images"
-  install -m644 "${srcdir}/antergos-wallpaper.png" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images/"
+  local wallpapers=(antergos-wallpaper.png adwaita-morning.webp)
+
+  for wp in "${wallpapers[@]}"; do
+    install -dm755 "${pkgdir}/usr/share/backgrounds/antergos"
+    install -m644 "${srcdir}/${wp}" "${pkgdir}/usr/share/backgrounds/antergos/"
+    install -dm755 "${pkgdir}/usr/share/antergos/backgrounds"
+    install -m644 "${srcdir}/${wp}" "${pkgdir}/usr/share/antergos/backgrounds/"
+    install -dm755 "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images"
+    install -m644 "${srcdir}/${wp}" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/contents/images/"
+  done
+
   install -m644 "${srcdir}/metadata.desktop" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/"
 }
