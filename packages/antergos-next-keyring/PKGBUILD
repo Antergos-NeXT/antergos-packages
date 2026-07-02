@@ -2,10 +2,10 @@
 
 pkgname=antergos-next-keyring
 pkgver=1
-pkgrel=1
+pkgrel=2
 pkgdesc="Antergos NeXT GPG keyring"
 arch=('any')
-url="https://github.com/Antergos-NeXT/antergos-pkgs"
+url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL3')
 install=antergos-next-keyring.install
 source=(
