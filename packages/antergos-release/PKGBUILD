@@ -2,12 +2,13 @@
 
 pkgname=antergos-release
 pkgver=2026.06
-pkgrel=1
+pkgrel=2
 pkgdesc='Antergos NeXT release file'
 arch=('any')
 url="https://github.com/Antergos-NeXT"
 license=('GPL3')
 conflicts=('artix-release')
+replaces=('artix-release')
 provides=('os-release')
 
 package() {
