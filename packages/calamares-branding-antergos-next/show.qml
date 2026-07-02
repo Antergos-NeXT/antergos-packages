@@ -58,7 +58,7 @@ Item {
             slides: [
                 Dia {
                     title: qsTr("Welcome to Antergos NeXT")
-                    body: qsTr("A modern Arch Linux experience with OpenRC and elogind")
+                    body: qsTr("A modern Artix Linux experience with OpenRC and elogind")
                     footer: qsTr("Choose your preferred desktop environment during setup")
                 },
                 Dia {
@@ -69,7 +69,7 @@ Item {
                 Dia {
                     title: qsTr("Antergos Tools")
                     body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and HAL package manager")
-                    footer: qsTr("Full access to Arch Linux repositories and the AUR")
+                    footer: qsTr("Full access to Artix Linux repositories and the AUR")
                 },
                 Dia {
                     title: qsTr("Open Source")
