@@ -1,4 +1,5 @@
 packages:
+  - antergos-release
   - antergos-wallpapers
   - yay
   - downgrade
