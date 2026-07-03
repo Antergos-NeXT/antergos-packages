@@ -3,31 +3,31 @@
     "name": "antergos-grub-live",
     "version": "2026.07-1",
     "arch": "any",
-    "size": 21773,
+    "size": 21745,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.242936+02:00"
+    "mtime": "2026-07-03T21:52:07.995239+02:00"
   },
   {
     "name": "antergos-grub-theme",
     "version": "2026.06-1",
     "arch": "any",
-    "size": 2259140,
+    "size": 2259124,
     "category": "desktop",
     "description": "Antergos GRUB theme",
     "url": "https://github.com/Antergos-NeXT/antergos-branding",
-    "mtime": "2026-07-02T22:36:42.243049+02:00"
+    "mtime": "2026-07-03T21:52:07.995508+02:00"
   },
   {
     "name": "antergos-live-base",
     "version": "2026.07-1",
     "arch": "any",
-    "size": 12057,
+    "size": 12060,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.243766+02:00"
+    "mtime": "2026-07-03T21:52:07.996196+02:00"
   },
   {
     "name": "antergos-live-openrc",
@@ -37,7 +37,17 @@
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.243818+02:00"
+    "mtime": "2026-07-03T21:52:07.996225+02:00"
+  },
+  {
+    "name": "antergos-lsb-release",
+    "version": "2.0-1",
+    "arch": "any",
+    "size": 2888,
+    "category": "other",
+    "description": "Antergos NeXT LSB release file",
+    "url": "https://github.com/Antergos-NeXT",
+    "mtime": "2026-07-03T21:52:07.996250+02:00"
   },
   {
     "name": "antergos-next-desktop-settings",
@@ -47,106 +57,106 @@
     "category": "branding",
     "description": "Antergos NeXT desktop settings, theme, and color scheme",
     "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
-    "mtime": "2026-07-02T22:36:42.243867+02:00"
+    "mtime": "2026-07-03T21:52:07.996274+02:00"
   },
   {
     "name": "antergos-next-keyring",
     "version": "1-2",
     "arch": "any",
-    "size": 5736,
+    "size": 5751,
     "category": "core",
     "description": "Antergos NeXT GPG keyring",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-07-02T22:36:42.243916+02:00"
+    "mtime": "2026-07-03T21:52:07.996300+02:00"
   },
   {
     "name": "antergos-next-memes",
     "version": "1.0-1",
     "arch": "any",
-    "size": 1244177,
+    "size": 1244176,
     "category": "desktop",
     "description": "Antergos NeXT welcome audio",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-07-02T22:36:42.244049+02:00"
+    "mtime": "2026-07-03T21:52:07.996325+02:00"
   },
   {
     "name": "antergos-next-mirrorlist",
     "version": "1-1",
     "arch": "any",
-    "size": 2997,
+    "size": 3009,
     "category": "core",
     "description": "Antergos NeXT mirror list",
     "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
-    "mtime": "2026-07-02T22:36:42.244422+02:00"
+    "mtime": "2026-07-03T21:52:07.996789+02:00"
   },
   {
     "name": "antergos-release",
     "version": "2026.06-2",
     "arch": "any",
-    "size": 3066,
+    "size": 3069,
     "category": "core",
     "description": "Antergos NeXT release file",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-07-02T22:36:42.244467+02:00"
+    "mtime": "2026-07-03T21:52:07.996812+02:00"
   },
   {
     "name": "antergos-wallpapers",
     "version": "0.7-5",
     "arch": "any",
-    "size": 8745482,
+    "size": 8745488,
     "category": "branding",
     "description": "Antergos NeXT wallpapers",
     "url": "https://github.com/Antergos/wallpapers",
-    "mtime": "2026-07-02T22:36:42.246049+02:00"
+    "mtime": "2026-07-03T21:52:07.998508+02:00"
   },
   {
     "name": "antergos-welcome",
     "version": "0.1-3",
     "arch": "any",
-    "size": 127297,
+    "size": 127299,
     "category": "desktop",
     "description": "Welcome screen and support tool for new Antergos NeXT users",
     "url": "https://github.com/Antergos-NeXT/antergos-welcome",
-    "mtime": "2026-07-02T22:36:42.247168+02:00"
+    "mtime": "2026-07-03T21:52:07.999853+02:00"
   },
   {
     "name": "calamares-3.4.2",
     "version": "3.4.2-7",
     "arch": "x86_64",
-    "size": 5250489,
+    "size": 5250550,
     "category": "installer",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.248049+02:00"
+    "mtime": "2026-07-03T21:52:08.000508+02:00"
   },
   {
     "name": "calamares-branding-antergos-next",
     "version": "1.0-20",
     "arch": "any",
-    "size": 108206,
+    "size": 108518,
     "category": "installer",
     "description": "Calamares branding for Antergos NeXT with offline/online installer support",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-07-02T22:36:42.248871+02:00"
+    "mtime": "2026-07-03T21:52:08.001763+02:00"
   },
   {
     "name": "downgrade",
     "version": "12.0.2-1",
     "arch": "any",
-    "size": 30969,
+    "size": 30977,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.248954+02:00"
+    "mtime": "2026-07-03T21:52:08.001832+02:00"
   },
   {
     "name": "yay-13.0.1",
     "version": "13.0.1-1",
     "arch": "x86_64",
-    "size": 4684340,
+    "size": 4684330,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-07-02T22:36:42.250049+02:00"
+    "mtime": "2026-07-03T21:52:08.002508+02:00"
   }
 ]
