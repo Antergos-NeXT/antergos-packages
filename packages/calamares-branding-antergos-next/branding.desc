@@ -8,8 +8,8 @@ windowExpanding:    normal
 windowSize: 920px,630px
 windowPlacement: center
 
-sidebar: qml,bottom
-navigation: qml,right
+sidebar: qml,top
+navigation: qml,bottom
 
 strings:
     productName:         "Antergos NeXT"
