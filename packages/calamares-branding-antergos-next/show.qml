@@ -1,24 +1,22 @@
-import QtQuick 2.15;
+import QtQuick 2.15
+import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
+    width: 920
+    height: 630
 
-    function onActivate(){
-        console.log("Slideshow) activated");
-        timer.restart();
-        slider.reset();
+    function onActivate() {
+        timer.restart()
+        slider.reset()
     }
 
-    function onLeave(){
-        console.log("Slideshow) deactivated");
+    function onLeave() {
     }
-
-    width: 940
-    height: 600
 
     Timer {
         id: timer
-        interval: 10000
+        interval: 12000
         running: true
         repeat: true
         onTriggered: slider.currentSlideIndex++
@@ -26,9 +24,10 @@ Item {
 
     MouseArea {
         anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
         onClicked: {
-            timer.restart();
-            slider.currentSlideIndex++;
+            timer.restart()
+            slider.currentSlideIndex++
         }
     }
 
@@ -36,52 +35,124 @@ Item {
         id: background
         anchors.fill: parent
         source: "background.jpg"
+        sourceSize.width: parent.width
+        sourceSize.height: parent.height
         fillMode: Image.PreserveAspectCrop
     }
 
     Rectangle {
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-        }
-        height: 200
-        color: Qt.rgba(0, 0, 0, 0.6)
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, 0.55)
+    }
 
-        Slider {
-            id: slider
+    Rectangle {
+        anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 0.15) }
+            GradientStop { position: 0.5; color: "transparent" }
+            GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.3) }
+        }
+    }
+
+    Rectangle {
+        id: card
+        width: 460
+        height: 380
+        radius: 12
+        anchors.centerIn: parent
+        anchors.horizontalCenterOffset: 40
+        color: "#2B2930"
+
+        layer.enabled: true
+        layer.effect: DropShadow {
+            transparentBorder: true
+            radius: 40
+            samples: 56
+            color: Qt.rgba(0, 0, 0, 0.5)
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 12
+            color: "transparent"
+            border { color: Qt.rgba(1, 1, 1, 0.04); width: 1 }
+        }
+
+        Item {
             anchors {
                 fill: parent
-                margins: 20
+                margins: 32
             }
 
-            slides: [
-                Dia {
-                    title: qsTr("Welcome to Antergos NeXT")
-                    body: qsTr("A modern Artix Linux experience with OpenRC and elogind")
-                    footer: qsTr("Choose your preferred desktop environment during setup")
-                },
-                Dia {
-                    title: qsTr("Desktop Environments")
-                    body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland")
-                    footer: qsTr("Each desktop is fully configured and ready to use")
-                },
-                Dia {
-                    title: qsTr("Antergos Tools")
-                    body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and HAL package manager")
-                    footer: qsTr("Full access to Artix Linux repositories and the AUR")
-                },
-                Dia {
-                    title: qsTr("Open Source")
-                    body: qsTr("Antergos NeXT is free and open source software built by the community")
-                    footer: qsTr("Contribute on GitHub — Antergos-NeXT")
-                },
-                Dia {
-                    title: qsTr("Almost Done")
-                    body: qsTr("Your system is being configured with your selected options")
-                    footer: qsTr("Reboot and enjoy Antergos NeXT")
-                }
-            ]
+            Slider {
+                id: slider
+                anchors.fill: parent
+                slides: [
+                    Dia {
+                        title: qsTr("Welcome to Antergos NeXT")
+                        body: qsTr("A modern Arch Linux experience built on Artix Linux. Rolling release, OpenRC init, and the latest software.")
+                        footer: qsTr("Choose your preferred desktop environment during setup")
+                    },
+                    Dia {
+                        title: qsTr("Desktop Environments")
+                        body: qsTr("Select from KDE Plasma, GNOME, Xfce, Budgie, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland.")
+                        footer: qsTr("A curated selection of the best Linux desktops")
+                    },
+                    Dia {
+                        title: qsTr("Antergos Tools")
+                        body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and full access to Arch Linux repositories and the AUR.")
+                        footer: qsTr("Everything you need to get started")
+                    },
+                    Dia {
+                        title: qsTr("Open Source")
+                        body: qsTr("Free and open source software built by the community for the community.")
+                        footer: qsTr("github.com/Antergos-NeXT")
+                    },
+                    Dia {
+                        title: qsTr("Almost Done")
+                        body: qsTr("Your system is being configured with your selected desktop environment, drivers, and applications.")
+                        footer: qsTr("Reboot and enjoy Antergos NeXT")
+                    }
+                ]
+            }
+        }
+    }
+
+    Image {
+        id: logo
+        source: "antergos-logo.png"
+        width: 140
+        height: 40
+        fillMode: Image.PreserveAspectFit
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 20
+            left: parent.left
+            leftMargin: 24
+        }
+        opacity: 0.45
+    }
+
+    Row {
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 20
+            horizontalCenter: parent.horizontalCenter
+        }
+        spacing: 6
+
+        Repeater {
+            model: slider.slides.length
+
+            Rectangle {
+                width: index == slider.currentSlideIndex ? 22 : 7
+                height: 7
+                radius: 3.5
+                color: index == slider.currentSlideIndex ? "#4A9EFF" : "#8E9099"
+                opacity: index == slider.currentSlideIndex ? 1 : 0.35
+                Behavior on width { NumberAnimation { duration: 250 } }
+                Behavior on color { ColorAnimation { duration: 200 } }
+            }
         }
     }
 }

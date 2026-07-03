@@ -2,172 +2,84 @@ import QtQuick 2.15
 
 Item {
     property list<Dia> slides
-    property list<Dia> img
-
     property int currentSlideIndex: 0
     property int _currentSlideIndex: 0
-    property int slidesSize: slides.length
-    property bool firstIteration: true
 
     function reset() {
-        currentSlideIndex = 0;
-        firstIteration = true;
+        currentSlideIndex = 0
+        _currentSlideIndex = 0
+        wrapper.opacity = 1
     }
 
     onCurrentSlideIndexChanged: {
-        if (currentSlideIndex >= slidesSize) {
-            firstIteration = false;
-            currentSlideIndex = 0;
+        if (currentSlideIndex >= slides.length) {
+            currentSlideIndex = 0
         }
-
-        transitionAnimation.start();
+        if (_currentSlideIndex !== currentSlideIndex) {
+            slideOut.start()
+        }
     }
 
-    Column {
+    Item {
+        id: wrapper
         anchors.fill: parent
-        spacing: 10
 
-        Text {
-            id: titleText
-            font {
-                family: "Raleway"
-                capitalization: Font.AllUppercase
-                weight: Font.DemiBold
-                pointSize: 16
-            }
-            color: "white"
-            text: slides[_currentSlideIndex].title
-        }
-        Text {
-            id: bodyText
-            font {
-                family: "Raleway"
-                pointSize: 12
-                weight: Font.DemiBold
-            }
-            width: 400
-            color: "white"
-            text: slides[_currentSlideIndex].body
-            wrapMode: Text.Wrap
-        }
+        Column {
+            anchors.centerIn: parent
+            width: parent.width
+            spacing: 0
 
-        Text {
-            id: footerText
-            font {
-                family: "Raleway"
-                weight: Font.Light
-                pointSize: 12
+            Text {
+                id: titleText
+                font {
+                    family: "Roboto"
+                    weight: Font.Medium
+                    pixelSize: 26
+                }
+                color: "#FFFFFF"
+                text: slides[_currentSlideIndex].title
+                wrapMode: Text.WordWrap
+                width: parent.width
+                lineHeight: 1.25
+                bottomPadding: 20
             }
-            width: 400
-            color: "white"
-            text: slides[_currentSlideIndex].footer ?? ""
-            wrapMode: Text.Wrap
-        }
 
-        Image {
-            id: icon
-            source: slides[_currentSlideIndex].image
-            width: 250
-            height: 250
+            Text {
+                id: bodyText
+                width: parent.width
+                font {
+                    family: "Roboto"
+                    weight: Font.Normal
+                    pixelSize: 14
+                }
+                color: "#C4C6D0"
+                text: slides[_currentSlideIndex].body
+                wrapMode: Text.WordWrap
+                lineHeight: 1.55
+                bottomPadding: 20
+            }
+
+            Text {
+                id: footerText
+                font {
+                    family: "Roboto"
+                    weight: Font.Medium
+                    pixelSize: 12
+                }
+                color: "#8E9099"
+                text: slides[_currentSlideIndex].footer ?? ""
+                wrapMode: Text.WordWrap
+                width: parent.width
+                lineHeight: 1.4
+            }
         }
     }
 
     SequentialAnimation {
-        id: transitionAnimation
-        property int duration: 700
-
-        ParallelAnimation {
-            OpacityAnimator {
-                target: titleText
-                from: 1.0
-                to: 0.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: bodyText
-                from: 1.0
-                to: 0.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: footerText
-                from: 1.0
-                to: 0.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: icon
-                from: 1.0
-                to: 0.0
-                duration: 2000
-            }
-            XAnimator {
-                target: titleText
-                from: 0
-                to: -30
-                duration: transitionAnimation.duration
-            }
-            XAnimator {
-                target: bodyText
-                from: 0
-                to: -25
-                duration: transitionAnimation.duration
-            }
-            XAnimator {
-                target: footerText
-                from: 0
-                to: -25
-                duration: transitionAnimation.duration
-            }
-        }
-
-        ScriptAction {
-            script: _currentSlideIndex = currentSlideIndex
-        }
-
-        ParallelAnimation {
-            OpacityAnimator {
-                target: titleText
-                from: 0.0
-                to: 1.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: bodyText
-                from: 0.0
-                to: 1.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: footerText
-                from: 0.0
-                to: 1.0
-                duration: transitionAnimation.duration
-            }
-            OpacityAnimator {
-                target: icon
-                from: 0.0
-                to: 1.0
-                duration: 2000
-            }
-            XAnimator {
-                target: titleText
-                from: 30
-                to: 0
-                duration: transitionAnimation.duration
-            }
-            XAnimator {
-                target: bodyText
-                from: 25
-                to: 0
-                duration: transitionAnimation.duration
-            }
-            XAnimator {
-                target: footerText
-                from: 25
-                to: 0
-                duration: transitionAnimation.duration
-            }
-        }
+        id: slideOut
+        NumberAnimation { target: wrapper; property: "opacity"; to: 0; duration: 100; easing.type: Easing.OutQuad }
+        PropertyAction { target: wrapper; property: "opacity"; value: 0 }
+        ScriptAction { script: _currentSlideIndex = currentSlideIndex }
+        NumberAnimation { target: wrapper; property: "opacity"; to: 1; duration: 160; easing.type: Easing.InQuad }
     }
 }

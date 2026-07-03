@@ -1,0 +1,22 @@
+# Maintainer: Antergos NeXT <antergos-next@github>
+
+pkgname=antergos-lsb-release
+pkgver=2.0
+pkgrel=1
+pkgdesc='Antergos NeXT LSB release file'
+arch=('any')
+url="https://github.com/Antergos-NeXT"
+license=('GPL2')
+conflicts=('lsb-release')
+replaces=('lsb-release')
+provides=('lsb-release')
+
+package() {
+    install -dm755 "$pkgdir/etc"
+    cat > "$pkgdir/etc/lsb-release" << EOF
+DISTRIB_ID="Antergos"
+DISTRIB_RELEASE="rolling"
+DISTRIB_DESCRIPTION="Antergos NeXT"
+DISTRIB_CODENAME=antergos
+EOF
+}

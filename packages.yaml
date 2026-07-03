@@ -1,4 +1,5 @@
 packages:
+  - antergos-lsb-release
   - antergos-release
   - antergos-wallpapers
   - yay

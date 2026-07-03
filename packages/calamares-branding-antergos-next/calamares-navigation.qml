@@ -1,166 +1,119 @@
 import io.calamares.ui 1.0
 import io.calamares.core 1.0
 
-import QtQuick 2.3
-import QtQuick.Controls 2.10
-import QtQuick.Layouts 1.3
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
+import Qt5Compat.GraphicalEffects
 
 Rectangle {
-    id: navigationBar;
-    color: Branding.styleString( Branding.SidebarBackground );
-    height: parent.height;
-    width: 64;
+    id: bottomBar
+    color: "#20252B"
+    height: 68
+    width: parent ? parent.width : 1024
 
-    ColumnLayout {
-        id: buttonBar
-        anchors.fill: parent;
-        spacing: 1
+    layer.enabled: true
+    layer.effect: DropShadow {
+        transparentBorder: true
+        radius: 4
+        samples: 8
+        color: Qt.rgba(0, 0, 0, 0.4)
+    }
 
-        Image {
-            Layout.topMargin: 1;
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            id: logo;
-            width: 62;
-            height: width;
-            source: "file:/" + Branding.imagePath(Branding.ProductLogo);
-            sourceSize.width: width;
-            sourceSize.height: height;
+    RowLayout {
+        anchors.fill: parent
+        anchors.leftMargin: 12
+        anchors.rightMargin: 20
+        spacing: 8
+
+        Button {
+            id: backButton
+            text: qsTr("Back")
+            flat: true
+            enabled: ViewManager.backEnabled
+            implicitHeight: 42
+            font {
+                family: "Roboto"
+                weight: Font.Medium
+                pixelSize: 14
+            }
+            contentItem: Text {
+                text: "←   " + parent.text
+                font: parent.font
+                color: parent.enabled ? "#E3E2E6" : Qt.rgba(0.89, 0.89, 0.90, 0.35)
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: 16
+                rightPadding: 16
+            }
+            background: Rectangle {
+                color: parent.hovered && parent.enabled
+                    ? Qt.rgba(0.89, 0.89, 0.90, 0.06)
+                    : "transparent"
+                radius: 21
+                Behavior on color { ColorAnimation { duration: 120 } }
+            }
+            onClicked: ViewManager.back()
         }
 
-        Rectangle {
-            id: debugArea
-            Layout.fillWidth: true;
-            height: 35
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            Layout.topMargin: 40
-            color: Branding.styleString( mouseAreaDebug.containsMouse ? Branding.SidebarBackgroundCurrent : Branding.SidebarBackground);
-            visible: debug.enabled
+        Item { Layout.fillWidth: true }
 
-            MouseArea {
-                id: mouseAreaDebug
-                anchors.fill: parent;
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("Debug")
-                    color: Branding.styleString( mouseAreaDebug.containsMouse ? Branding.SidebarTextCurrent : Branding.SidebarBackground );
-                    font.pointSize : 8
-                }
-
-                onClicked: debug.toggle()
+        Button {
+            id: cancelButton
+            text: qsTr("Cancel")
+            flat: true
+            enabled: ViewManager.quitEnabled
+            implicitHeight: 42
+            font {
+                family: "Roboto"
+                weight: Font.Medium
+                pixelSize: 14
             }
+            contentItem: Text {
+                text: parent.text
+                font: parent.font
+                color: parent.enabled ? "#FFB4AB" : Qt.rgba(1.0, 0.71, 0.67, 0.35)
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: 14
+                rightPadding: 14
+            }
+            background: Rectangle {
+                color: parent.hovered && parent.enabled
+                    ? Qt.rgba(1.0, 0.71, 0.67, 0.07)
+                    : "transparent"
+                radius: 21
+                Behavior on color { ColorAnimation { duration: 120 } }
+            }
+            onClicked: ViewManager.quit()
         }
 
-        Item {
-            Layout.fillHeight: true;
-        }
-
-        Rectangle {
-            id: backArea
-            Layout.fillWidth: true;
-            Layout.preferredHeight: parent.height / 7;
-            color: mouseBack.containsMouse ? "#2C3E50" : "#1E2935";
-            enabled: ViewManager.backEnabled;
-            visible: ViewManager.backAndNextVisible;
-
-            MouseArea {
-                id: mouseBack
-                anchors.fill: parent;
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("Back")
-                    color: Branding.styleString( !backArea.enabled ? Branding.SidebarBackground : (mouseBack.containsMouse ? Branding.SidebarTextCurrent : Branding.SidebarText ));
-                    font.pointSize : 8
-                }
-                Image {
-                    source: "pan-start-symbolic.svg"
-                    anchors.centerIn: parent
-                    anchors.verticalCenterOffset : 18
-                    fillMode: Image.PreserveAspectFit
-                    height: 32
-                    opacity: backArea.enabled ? 1 : 0.2
-                }
-
-                onClicked: { ViewManager.back(); }
+        Button {
+            id: nextButton
+            text: qsTr("Next")
+            enabled: ViewManager.nextEnabled
+            implicitWidth: 120
+            implicitHeight: 42
+            font {
+                family: "Roboto"
+                weight: Font.Medium
+                pixelSize: 14
             }
-        }
-
-        Rectangle {
-            id: nextArea
-            Layout.preferredHeight: parent.height / 7;
-            Layout.fillWidth: true
-            color: mouseNext.containsMouse ? "#2C3E50" : "#1E2935";
-            enabled: ViewManager.nextEnabled;
-            visible: ViewManager.backAndNextVisible;
-
-            MouseArea {
-                id: mouseNext
-                anchors.fill: parent;
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("Next")
-                    color: Branding.styleString( !nextArea.enabled ? Branding.SidebarBackground : (mouseNext.containsMouse ? Branding.SidebarTextCurrent : Branding.SidebarText ));
-                    font.pointSize : 8
-                }
-                Image {
-                    source: "pan-end-symbolic.svg"
-                    anchors.centerIn: parent
-                    anchors.verticalCenterOffset : 18
-                    fillMode: Image.PreserveAspectFit
-                    height: 32
-                    opacity: nextArea.enabled ? 1 : 0.2
-                }
-
-                onClicked: { ViewManager.next(); }
+            contentItem: Text {
+                text: parent.text + "   →"
+                font: parent.font
+                color: "#FFFFFF"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
-        }
-
-        Rectangle {
-            id: cancelArea
-            height: parent.height / 7;
-            Layout.fillWidth: true;
-            Layout.bottomMargin: 48;
-            color: mouseCancel.containsMouse ? "#2C3E50" : "#1E2935";
-
-            enabled: ViewManager.quitEnabled;
-            visible: ViewManager.quitVisible && ( ViewManager.currentStepIndex < ViewManager.rowCount()-1);
-
-            ToolTip {
-                width: 59
-                visible: mouseCancel.containsMouse
-                timeout: 5000
-                delay: 1000
-                text: ViewManager.quitTooltip;
+            background: Rectangle {
+                color: parent.enabled
+                    ? (parent.hovered ? "#3B8BDE" : "#4A9EFF")
+                    : Qt.rgba(0.29, 0.62, 1.0, 0.35)
+                radius: 21
+                Behavior on color { ColorAnimation { duration: 120 } }
             }
-
-            MouseArea {
-                id: mouseCancel
-                anchors.fill: parent;
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("Cancel")
-                    color: Branding.styleString( !cancelArea.enabled ? Branding.SidebarBackground : (mouseCancel.containsMouse ? Branding.SidebarTextCurrent : Branding.SidebarText ));
-                    font.pointSize : 8
-                }
-                Image {
-                    source: "draw-rectangle.svg"
-                    anchors.centerIn: parent
-                    anchors.verticalCenterOffset : 18
-                    fillMode: Image.PreserveAspectFit
-                    height: 9
-                    opacity: cancelArea.enabled ? 1 : 0.2
-                }
-
-                onClicked: { ViewManager.quit(); }
-            }
+            onClicked: ViewManager.next()
         }
     }
 }
