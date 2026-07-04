@@ -133,7 +133,7 @@ ForegroundPositive=73,195,137
 ForegroundVisited=46,163,242
 
 [General]
-ColorScheme=AntergosDark
+ColorScheme=AntergosNeXT
 Name=Antergos-dark
 XftAntialias=true
 XftHintStyle=hintfull
@@ -150,7 +150,7 @@ widgetStyle=Breeze
 Theme=breeze-dark
 
 [KDE]
-ColorScheme=AntergosDark
+ColorScheme=AntergosNeXT
 LookAndFeelPackage=antergosdark.desktop
 ShowIconsInMenuItems=true
 ShowIconsOnPushButtons=true
