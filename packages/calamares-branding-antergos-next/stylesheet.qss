@@ -1,11 +1,11 @@
-/* Antergos NeXT Calamares theme */
+/* Antergos NeXT Calamares theme — dark */
 QWidget {
     font-family: "Noto Sans", "DejaVu Sans", sans-serif;
     font-size: 10pt;
-    color: #2C3E50;
+    color: #FFFFFF;
 }
 QMainWindow {
-    background-color: #FAFBFC;
+    background-color: #20252B;
 }
 QLabel#titleLabel {
     font-size: 18pt;
@@ -14,7 +14,7 @@ QLabel#titleLabel {
 }
 QLabel#subtitleLabel {
     font-size: 11pt;
-    color: #7F8C8D;
+    color: #C8D6E5;
 }
 QPushButton {
     background-color: #4A9EFF;
@@ -32,27 +32,30 @@ QPushButton:pressed {
     background-color: #2D7BD4;
 }
 QPushButton:disabled {
-    background-color: #BDC3C7;
-    color: #95A5A6;
+    background-color: #3A3F47;
+    color: #7F8C8D;
 }
 QComboBox {
     padding: 5px 10px;
-    border: 1px solid #D5D8DC;
+    border: 1px solid #3A3F47;
     border-radius: 4px;
-    background: white;
+    background: #2C3138;
+    color: #FFFFFF;
 }
 QLineEdit {
     padding: 6px 10px;
-    border: 1px solid #D5D8DC;
+    border: 1px solid #3A3F47;
     border-radius: 4px;
-    background: white;
+    background: #2C3138;
+    color: #FFFFFF;
 }
 QProgressBar {
-    border: 1px solid #D5D8DC;
+    border: 1px solid #3A3F47;
     border-radius: 4px;
-    background: #ECF0F1;
+    background: #2C3138;
     text-align: center;
     height: 20px;
+    color: #FFFFFF;
 }
 QProgressBar::chunk {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,

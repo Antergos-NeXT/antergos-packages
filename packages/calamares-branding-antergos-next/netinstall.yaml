@@ -41,6 +41,9 @@
     - spectacle
     - xdg-desktop-portal-kde
     - xsettingsd
+    - antergos-plasma-theme
+    - antergos-sddm-theme
+    - antergos-next-desktop-settings
 - name: "Xfce"
   description: "Fast and lightweight classic desktop"
   selected: false
@@ -215,6 +218,11 @@
     - yay
     - calamares
     - calamares-branding-antergos-next
+    - antergos-next-keyring
+    - antergos-next-mirrorlist
+    - antergos-release
+    - antergos-lsb-release
+    - antergos-grub-theme
     - firefox
 - name: "Hardware Support"
   description: "Additional hardware drivers and firmware"
