@@ -1,0 +1,34 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-sddm-theme
+pkgver=1
+pkgrel=1
+pkgdesc='Antergos NeXT SDDM theme'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL')
+depends=('sddm' 'qt5-declarative' 'antergos-wallpapers')
+source=(
+  "Main.qml"
+  "metadata.desktop"
+  "theme.conf"
+  "angle-up.png"
+  "background.png"
+  "components/ComboBox.qml"
+  "components/LayoutBox.qml"
+  "components/qmldir"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+  install -dm755 "${pkgdir}/usr/share/sddm/themes/antergos"
+  install -dm755 "${pkgdir}/usr/share/sddm/themes/antergos/components"
+  install -m644 "${srcdir}/Main.qml" "${pkgdir}/usr/share/sddm/themes/antergos/"
+  install -m644 "${srcdir}/metadata.desktop" "${pkgdir}/usr/share/sddm/themes/antergos/"
+  install -m644 "${srcdir}/theme.conf" "${pkgdir}/usr/share/sddm/themes/antergos/"
+  install -m644 "${srcdir}/angle-up.png" "${pkgdir}/usr/share/sddm/themes/antergos/"
+  install -m644 "${srcdir}/background.png" "${pkgdir}/usr/share/sddm/themes/antergos/"
+  install -m644 "${srcdir}/components/ComboBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+  install -m644 "${srcdir}/components/LayoutBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+  install -m644 "${srcdir}/components/qmldir" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+}

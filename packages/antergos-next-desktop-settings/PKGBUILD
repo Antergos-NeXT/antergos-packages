@@ -2,7 +2,7 @@
 
 pkgname=antergos-next-desktop-settings
 pkgver=1
-pkgrel=1
+pkgrel=2
 pkgdesc="Antergos NeXT desktop settings, theme, and color scheme"
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-pkgs"
@@ -12,18 +12,22 @@ depends=(
   'breeze-gtk'
   'ttf-opensans'
   'noto-fonts'
+  'ttf-roboto'
 )
+optdepends=('qt5ct' 'qt6ct')
 source=(
   "antergos-next-gtk3.css"
   "antergos-next-gtk4.css"
   "antergos-next-gtkrc"
   "antergos-next-index.theme"
   "AntergosNeXT.colors"
+  "Antergos-dark-qt5.conf"
+  "Antergos-dark-qt6.conf"
   "gtk-settings.ini"
   "xsettings.xml"
   "antergos-next-dconf"
 )
-sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 package() {
   # Custom GTK theme
@@ -43,11 +47,126 @@ package() {
   install -dm755 "${pkgdir}/etc/skel/.config/gtk-3.0"
   install -m644 "${srcdir}/gtk-settings.ini" "${pkgdir}/etc/skel/.config/gtk-3.0/settings.ini"
 
+  # Qt5/Qt6 color configs (for Qt apps outside KDE)
+  install -dm755 "${pkgdir}/usr/share/qt5ct/colors"
+  install -dm755 "${pkgdir}/usr/share/qt6ct/colors"
+  install -m644 "${srcdir}/Antergos-dark-qt5.conf" "${pkgdir}/usr/share/qt5ct/colors/Antergos-dark.conf"
+  install -m644 "${srcdir}/Antergos-dark-qt6.conf" "${pkgdir}/usr/share/qt6ct/colors/Antergos-dark.conf"
+
   # KDE defaults
   install -dm755 "${pkgdir}/etc/skel/.config"
   cat > "${pkgdir}/etc/skel/.config/kdeglobals" << 'EOF'
+[ColorEffects:Disabled]
+Color=112,111,110
+ColorAmount=0
+ColorEffect=0
+ContrastAmount=0.65
+ContrastEffect=1
+IntensityAmount=0.1
+IntensityEffect=1
+
+[ColorEffects:Inactive]
+ChangeSelectionColor=true
+Color=112,111,110
+ColorAmount=0.025
+ColorEffect=2
+ContrastAmount=0.1
+ContrastEffect=2
+Enable=true
+IntensityAmount=0
+IntensityEffect=0
+
+[Colors:Button]
+BackgroundAlternate=42,46,56
+BackgroundNormal=35,38,47
+DecorationFocus=46,163,242
+DecorationHover=46,163,242
+ForegroundActive=46,163,242
+ForegroundInactive=149,155,174
+ForegroundLink=46,163,242
+ForegroundNegative=218,68,83
+ForegroundNeutral=230,181,61
+ForegroundNormal=207,210,220
+ForegroundPositive=73,195,137
+ForegroundVisited=46,163,242
+
+[Colors:Selection]
+BackgroundAlternate=46,163,242
+BackgroundNormal=46,163,242
+DecorationFocus=46,163,242
+DecorationHover=46,163,242
+ForegroundActive=255,255,255
+ForegroundInactive=207,210,220
+ForegroundLink=46,163,242
+ForegroundNegative=218,68,83
+ForegroundNeutral=230,181,61
+ForegroundNormal=255,255,255
+ForegroundPositive=73,195,137
+ForegroundVisited=46,163,242
+
+[Colors:View]
+BackgroundAlternate=42,46,56
+BackgroundNormal=31,34,42
+DecorationFocus=46,163,242
+DecorationHover=46,163,242
+ForegroundActive=46,163,242
+ForegroundInactive=149,155,174
+ForegroundLink=46,163,242
+ForegroundNegative=218,68,83
+ForegroundNeutral=230,181,61
+ForegroundNormal=207,210,220
+ForegroundPositive=73,195,137
+ForegroundVisited=46,163,242
+
+[Colors:Window]
+BackgroundAlternate=42,46,56
+BackgroundNormal=35,38,47
+DecorationFocus=46,163,242
+DecorationHover=46,163,242
+ForegroundActive=46,163,242
+ForegroundInactive=149,155,174
+ForegroundLink=46,163,242
+ForegroundNegative=218,68,83
+ForegroundNeutral=230,181,61
+ForegroundNormal=207,210,220
+ForegroundPositive=73,195,137
+ForegroundVisited=46,163,242
+
 [General]
-ColorScheme=Antergos NeXT
+ColorScheme=AntergosDark
+Name=Antergos-dark
+XftAntialias=true
+XftHintStyle=hintfull
+XftSubPixel=rgb
+fixed=Roboto Mono,11,-1,5,50,0,0,0,0,0,Regular
+font=Roboto,11,-1,5,50,0,0,0,0,0,Regular
+menuFont=Roboto,11,-1,5,50,0,0,0,0,0,Regular
+shadeSortColumn=true
+smallestReadableFont=Roboto,11,-1,5,50,0,0,0,0,0,Regular
+toolBarFont=Roboto,11,-1,5,50,0,0,0,0,0,Regular
+widgetStyle=Breeze
+
+[Icons]
+Theme=breeze-dark
+
+[KDE]
+ColorScheme=AntergosDark
+LookAndFeelPackage=antergosdark.desktop
+ShowIconsInMenuItems=true
+ShowIconsOnPushButtons=true
+SingleClick=false
+contrast=0
+frameContrast=0.2
+widgetStyle=Breeze
+
+[WM]
+activeBackground=45,45,45
+activeBlend=45,45,45
+activeFont=Roboto,11,-1,5,50,0,0,0,0,0,Regular
+activeForeground=255,255,255
+inactiveBackground=53,53,53
+inactiveBlend=53,53,53
+inactiveForeground=155,155,155
 EOF
 
   # XFCE defaults

@@ -1,15 +1,16 @@
 packages:
   - antergos-lsb-release
-  - antergos-release
-  - antergos-wallpapers
-  - yay
-  - downgrade
+  - antergos-next-desktop-settings
   - antergos-next-keyring
   - antergos-next-mirrorlist
-  - antergos-next-desktop-settings
-  - calamares-branding-antergos-next
+  - antergos-plasma-theme
+  - antergos-release
+  - antergos-sddm-theme
+  - antergos-wallpapers
+  - antergos-welcome
   - antergos-grub-theme
   - antergos-live
-  - antergos-next-memes
-  - antergos-welcome
   - calamares
+  - calamares-branding-antergos-next
+  - downgrade
+  - yay

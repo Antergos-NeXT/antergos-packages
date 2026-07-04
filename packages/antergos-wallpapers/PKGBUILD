@@ -1,23 +1,29 @@
 # Maintainer: Celestia Ludenberg <ash8820@proton.me>
 #
 # Wallpapers and their licenses:
-#   antergos-wallpaper.png    - GPL3 (Antergos project)
-#   adwaita-morning.webp      - CC BY-SA 3.0 (Jakub Steiner / GNOME Project)
-#                               https://gitlab.gnome.org/GNOME/gnome-backgrounds
+#   antergos-wallpaper.png        - GPL3 (Antergos project)
+#   adwaita-morning.webp          - CC BY-SA 3.0 (Jakub Steiner / GNOME Project)
+#                                   https://gitlab.gnome.org/GNOME/gnome-backgrounds
+#   antergos-darkest-hour.jpg     - GPL-2+ (KDE Plasma / Risto Saukonpää)
+#                                   https://github.com/KDE/plasma-workspace-wallpapers
 
 pkgname=antergos-wallpapers
 pkgver=0.7
-pkgrel=5
+pkgrel=6
 pkgdesc="Antergos NeXT wallpapers"
 arch=('any')
 url="https://github.com/Antergos/wallpapers"
 license=('GPL3')
 source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wallpapers/master/antergos-wallpaper.png"
         "metadata.desktop"
-        "adwaita-morning.webp")
+        "adwaita-morning.webp"
+        "antergos-darkest-hour.jpg"
+        "metadata-darkest-hour.desktop")
 sha256sums=('SKIP'
             'SKIP'
-            'eaa5c6960dd548526e189568fed449210f332f0358d666a8711ef399f9b94152')
+            'eaa5c6960dd548526e189568fed449210f332f0358d666a8711ef399f9b94152'
+            '8e3703fae3a3c217b1fc2b399b706cd3720584268d071ba153e4809daa55f1ce'
+            '0c100d74404a07daefca49ec1ceea8faabc66b3df35bf4280bace53a5f68171c')
 
 package() {
   local wallpapers=(antergos-wallpaper.png adwaita-morning.webp)
@@ -32,4 +38,13 @@ package() {
   done
 
   install -m644 "${srcdir}/metadata.desktop" "${pkgdir}/usr/share/wallpapers/antergos-wallpaper/"
+
+  install -dm755 "${pkgdir}/usr/share/backgrounds/antergos"
+  install -m644 "${srcdir}/antergos-darkest-hour.jpg" "${pkgdir}/usr/share/backgrounds/antergos/"
+  install -dm755 "${pkgdir}/usr/share/antergos/backgrounds"
+  install -m644 "${srcdir}/antergos-darkest-hour.jpg" "${pkgdir}/usr/share/antergos/backgrounds/"
+
+  install -dm755 "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/contents/images"
+  install -m644 "${srcdir}/antergos-darkest-hour.jpg" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/contents/images/"
+  install -m644 "${srcdir}/metadata-darkest-hour.desktop" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/metadata.desktop"
 }

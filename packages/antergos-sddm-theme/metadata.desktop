@@ -1,0 +1,12 @@
+[SddmGreeterTheme]
+Name=Antergos
+Description=Antergos NeXT SDDM Theme
+Author=Celestia Ludenberg
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/Antergos-NeXT
+Email=ash8820@proton.me
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=antergos
+Theme-API=2.0

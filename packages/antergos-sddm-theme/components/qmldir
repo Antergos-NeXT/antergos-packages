@@ -1,0 +1,4 @@
+module SddmComponents
+
+LayoutBox 2.0 LayoutBox.qml
+ComboBox 2.0 ComboBox.qml

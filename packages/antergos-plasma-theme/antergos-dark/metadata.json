@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "ash8820@proton.me",
+                "Name": "Antergos NeXT"
+            }
+        ],
+        "Category": "",
+        "Description": "Antergos NeXT dark Plasma theme",
+        "EnabledByDefault": true,
+        "Id": "antergos-dark",
+        "License": "LGPL",
+        "Name": "Antergos Dark",
+        "Version": "1.0.0",
+        "Website": "https://github.com/Antergos-NeXT"
+    },
+    "X-Plasma-API": "5.0"
+}

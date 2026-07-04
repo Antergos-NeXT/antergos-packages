@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "ash8820@proton.me",
+                "Name": "Antergos NeXT"
+            }
+        ],
+        "Category": "",
+        "Description": "Antergos Dark look-and-feel by Antergos NeXT",
+        "Id": "antergosdark.desktop",
+        "License": "GPLv2+",
+        "Name": "Antergos Dark",
+        "Website": "https://github.com/Antergos-NeXT"
+    },
+    "X-Plasma-API": "5.0"
+}

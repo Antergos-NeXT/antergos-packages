@@ -1,0 +1,40 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-plasma-theme
+pkgver=1
+pkgrel=1
+pkgdesc='Antergos NeXT Plasma desktop theme, look-and-feel, and splash screen'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL')
+depends=('plasma-desktop' 'antergos-wallpapers')
+groups=('antergos-branding' 'antergos-style')
+optdepends=('qt5ct' 'qt6ct')
+source=(
+  "antergos-dark/colors"
+  "antergos-dark/metadata.json"
+  "antergos-dark/plasmarc"
+  "antergosdark.desktop/metadata.json"
+  "antergosdark.desktop/contents/defaults"
+  "antergosdark.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
+  "antergosdark.desktop/contents/splash/Splash.qml"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+  # Plasma Desktop Theme
+  install -dm755 "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark"
+  install -m644 "${srcdir}/antergos-dark/colors" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/"
+  install -m644 "${srcdir}/antergos-dark/metadata.json" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/"
+  install -m644 "${srcdir}/antergos-dark/plasmarc" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/"
+
+  # Look-and-Feel
+  install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop"
+  install -m644 "${srcdir}/antergosdark.desktop/metadata.json" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/"
+  install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents"
+  install -m644 "${srcdir}/antergosdark.desktop/contents/defaults" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/"
+  install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/layouts"
+  install -m644 "${srcdir}/antergosdark.desktop/contents/layouts/org.kde.plasma.desktop-layout.js" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/layouts/"
+  install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/splash"
+  install -m644 "${srcdir}/antergosdark.desktop/contents/splash/Splash.qml" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/splash/"
+}
