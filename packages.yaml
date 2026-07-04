@@ -3,10 +3,10 @@ packages:
   - antergos-next-desktop-settings
   - antergos-next-keyring
   - antergos-next-mirrorlist
-  - antergos-plasma-theme
   - antergos-release
   - antergos-sddm-theme
   - antergos-wallpapers
+  - antergos-plasma-theme
   - antergos-welcome
   - antergos-grub-theme
   - antergos-live
