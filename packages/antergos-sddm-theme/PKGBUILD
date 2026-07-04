@@ -14,9 +14,9 @@ source=(
   "theme.conf"
   "angle-up.png"
   "background.png"
-  "components/ComboBox.qml"
-  "components/LayoutBox.qml"
-  "components/qmldir"
+  "ComboBox.qml"
+  "LayoutBox.qml"
+  "qmldir"
 )
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
@@ -28,7 +28,7 @@ package() {
   install -m644 "${srcdir}/theme.conf" "${pkgdir}/usr/share/sddm/themes/antergos/"
   install -m644 "${srcdir}/angle-up.png" "${pkgdir}/usr/share/sddm/themes/antergos/"
   install -m644 "${srcdir}/background.png" "${pkgdir}/usr/share/sddm/themes/antergos/"
-  install -m644 "${srcdir}/components/ComboBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
-  install -m644 "${srcdir}/components/LayoutBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
-  install -m644 "${srcdir}/components/qmldir" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+  install -m644 "${srcdir}/ComboBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+  install -m644 "${srcdir}/LayoutBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+  install -m644 "${srcdir}/qmldir" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
 }
