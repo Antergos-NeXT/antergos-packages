@@ -2,7 +2,7 @@
 
 pkgname=antergos-plasma-theme
 pkgver=1
-pkgrel=2
+pkgrel=3
 pkgdesc='Antergos NeXT Plasma desktop theme, look-and-feel, and splash screen'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
@@ -21,8 +21,9 @@ source=(
   "antergosdark-desktop-splash.qml"
   "antergosdark-desktop-plasmoidsetupscript-kickoff.js"
   "start-here-kde-antergos.svg"
+  "preview.png"
 )
-sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 package() {
   # Plasma Desktop Theme
@@ -44,6 +45,8 @@ package() {
   install -m644 "${srcdir}/antergosdark-desktop-splash.qml" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/splash/Splash.qml"
   install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/plasmoidsetupscripts"
   install -m644 "${srcdir}/antergosdark-desktop-plasmoidsetupscript-kickoff.js" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js"
+  install -dm755 "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/previews"
+  install -m644 "${srcdir}/preview.png" "${pkgdir}/usr/share/plasma/look-and-feel/antergosdark.desktop/contents/previews/preview.png"
 
   # Start menu icon for icon theme
   install -dm755 "${pkgdir}/usr/share/icons/hicolor/scalable/places"
