@@ -27,7 +27,7 @@ package() {
   install -dm755 "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark"
   install -m644 "${srcdir}/antergos-dark-colors" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/colors"
   install -m644 "${srcdir}/antergos-dark-metadata.json" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/metadata.json"
-  install -m644 "${srcdir}/antergos-dark-plasmarc" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/"
+  install -m644 "${srcdir}/antergos-dark-plasmarc" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/plasmarc"
   install -dm755 "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/icons"
   install -m644 "${srcdir}/antergos-dark-start.svgz" "${pkgdir}/usr/share/plasma/desktoptheme/antergos-dark/icons/start.svgz"
 
