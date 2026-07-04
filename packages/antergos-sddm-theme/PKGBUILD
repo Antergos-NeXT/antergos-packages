@@ -7,7 +7,7 @@ pkgdesc='Antergos NeXT SDDM theme'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
-depends=('sddm' 'qt5-declarative' 'antergos-wallpapers')
+depends=('sddm' 'qt5-declarative')
 source=(
   "Main.qml"
   "metadata.desktop"
