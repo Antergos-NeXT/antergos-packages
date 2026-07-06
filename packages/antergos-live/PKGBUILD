@@ -8,7 +8,7 @@ pkgname=('antergos-live-base'
         'antergos-live-openrc'
         'antergos-grub-live')
 pkgver=2026.06
-pkgrel=3
+pkgrel=4
 pkgdesc='Antergos live session'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-live"
@@ -69,7 +69,7 @@ package_antergos-live-dinit() {
     make -C artix-live DESTDIR=${pkgdir} install_dinit
 
     # Rename and fix internal references in dinit service files
-    sed -i 's/artix live/antergos live/g' "${pkgdir}/etc/dinit.d/artix-live" 2>/dev/null || true
+    sed -i 's|/usr/bin/artix-live|/usr/bin/antergos-live|g; s/artix live/antergos live/g' "${pkgdir}/etc/dinit.d/artix-live" 2>/dev/null || true
     mv "${pkgdir}/etc/dinit.d/artix-live" "${pkgdir}/etc/dinit.d/antergos-live" 2>/dev/null || true
 
     # Fix boot.d symlinks
