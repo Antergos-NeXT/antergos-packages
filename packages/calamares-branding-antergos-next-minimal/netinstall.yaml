@@ -1,0 +1,241 @@
+- name: "KDE Plasma"
+  description: "Full-featured, modern desktop with KDE Plasma and applications"
+  selected: true
+  critical: false
+  packages:
+    - ark
+    - bluedevil
+    - breeze-gtk
+    - dolphin
+    - dolphin-plugins
+    - ffmpegthumbs
+    - gwenview
+    - kate
+    - kcalc
+    - kde-cli-tools
+    - kde-gtk-config
+    - kdeconnect
+    - kdegraphics-thumbnailers
+    - kdenetwork-filesharing
+    - kdeplasma-addons
+    - kinfocenter
+    - kio-admin
+    - kio-extras
+    - kio-fuse
+    - konsole
+    - kscreen
+    - kwallet-pam
+    - kwayland-integration
+    - okular
+    - partitionmanager
+    - plasma-browser-integration
+    - plasma-desktop
+    - plasma-disks
+    - plasma-nm
+    - plasma-pa
+    - plasma-systemmonitor
+    - plasma-workspace
+    - powerdevil
+    - print-manager
+    - qt6-imageformats
+    - spectacle
+    - xdg-desktop-portal-kde
+    - xsettingsd
+    - antergos-plasma-theme
+    - antergos-sddm-theme
+    - antergos-next-desktop-settings
+- name: "Xfce"
+  description: "Fast and lightweight classic desktop"
+  selected: false
+  critical: false
+  packages:
+    - blueman
+    - file-roller
+    - galculator
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mousepad
+    - network-manager-applet
+    - parole
+    - ristretto
+    - thunar-archive-plugin
+    - thunar-media-tags-plugin
+    - xdg-user-dirs-gtk
+    - xfce4
+    - xfce4-battery-plugin
+    - xfce4-mount-plugin
+    - xfce4-netload-plugin
+    - xfce4-notifyd
+    - xfce4-pulseaudio-plugin
+    - xfce4-screensaver
+    - xfce4-screenshooter
+    - xfce4-taskmanager
+    - xfce4-whiskermenu-plugin
+- name: "Budgie"
+  description: "Elegant and simple desktop environment"
+  selected: false
+  critical: false
+  packages:
+    - budgie-desktop
+    - budgie-desktop-view
+    - budgie-extras
+    - eog
+    - file-roller
+    - gedit
+    - gnome-keyring
+    - gnome-terminal
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mutter
+    - nemo
+    - nemo-fileroller
+    - network-manager-applet
+    - xdg-user-dirs-gtk
+- name: "Cinnamon"
+  description: "Traditional desktop with modern conventions"
+  selected: false
+  critical: false
+  packages:
+    - cinnamon
+    - cinnamon-translations
+    - file-roller
+    - galculator
+    - gnome-system-monitor
+    - gnome-terminal
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - nemo-fileroller
+    - xdg-user-dirs-gtk
+- name: "MATE"
+  description: "Intuitive and attractive classic desktop"
+  selected: false
+  critical: false
+  packages:
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - lightdm
+    - lightdm-slick-greeter
+    - mate
+    - mate-extra
+    - network-manager-applet
+    - xdg-user-dirs-gtk
+- name: "LXQt"
+  description: "Lightweight Qt desktop environment"
+  selected: false
+  critical: false
+  packages:
+    - breeze
+    - breeze-gtk
+    - featherpad
+    - gvfs
+    - gvfs-mtp
+    - libstatgrab
+    - libsysstat
+    - lm_sensors
+    - lxqt
+    - lxqt-archiver
+    - network-manager-applet
+    - oxygen-icons
+    - pavucontrol-qt
+    - print-manager
+    - xdg-utils
+    - xsettingsd
+- name: "i3 / Sway"
+  description: "Tiling window managers for power users"
+  selected: false
+  critical: false
+  packages:
+    - dmenu
+    - dunst
+    - feh
+    - galculator
+    - gvfs
+    - gvfs-afc
+    - gvfs-gphoto2
+    - gvfs-mtp
+    - gvfs-nfs
+    - gvfs-smb
+    - i3-wm
+    - i3lock
+    - i3status
+    - lightdm
+    - lightdm-slick-greeter
+    - sway
+    - waybar
+    - wofi
+- name: "Base System"
+  description: "Core system packages for a functional Arch Linux installation"
+  selected: true
+  hidden: true
+  immutable: true
+  critical: true
+  packages:
+    - base
+    - base-devel
+    - linux
+    - linux-firmware
+    - linux-headers
+    - amd-ucode
+    - intel-ucode
+    - networkmanager
+    - network-manager-applet
+    - sudo
+    - nano
+    - which
+    - man-db
+    - man-pages
+- name: "Antergos Packages"
+  description: "Antergos NeXT branding and tools"
+  selected: true
+  hidden: true
+  immutable: true
+  critical: false
+  packages:
+    - antergos-wallpapers
+    - antergos-welcome
+    - yay
+    - calamares
+    - calamares-branding-antergos-next
+    - antergos-next-keyring
+    - antergos-next-mirrorlist
+    - antergos-release
+    - antergos-lsb-release
+    - antergos-grub-theme
+    - firefox
+- name: "Hardware Support"
+  description: "Additional hardware drivers and firmware"
+  selected: false
+  critical: false
+  packages:
+    - mesa
+    - mesa-utils
+    - vulkan-intel
+    - vulkan-radeon
+    - nvidia-open
+    - nvidia-utils
+    - pipewire
+    - pipewire-pulse
+    - pipewire-alsa
+    - wireplumber

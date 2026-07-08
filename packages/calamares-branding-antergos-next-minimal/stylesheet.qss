@@ -1,0 +1,64 @@
+/* Antergos NeXT Calamares theme — dark */
+QWidget {
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 10pt;
+    color: #FFFFFF;
+}
+QMainWindow {
+    background-color: #20252B;
+}
+QLabel#titleLabel {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #4A9EFF;
+}
+QLabel#subtitleLabel {
+    font-size: 11pt;
+    color: #C8D6E5;
+}
+QPushButton {
+    background-color: #4A9EFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 18px;
+    min-height: 24px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #3B8AE5;
+}
+QPushButton:pressed {
+    background-color: #2D7BD4;
+}
+QPushButton:disabled {
+    background-color: #3A3F47;
+    color: #7F8C8D;
+}
+QComboBox {
+    padding: 5px 10px;
+    border: 1px solid #3A3F47;
+    border-radius: 4px;
+    background: #2C3138;
+    color: #FFFFFF;
+}
+QLineEdit {
+    padding: 6px 10px;
+    border: 1px solid #3A3F47;
+    border-radius: 4px;
+    background: #2C3138;
+    color: #FFFFFF;
+}
+QProgressBar {
+    border: 1px solid #3A3F47;
+    border-radius: 4px;
+    background: #2C3138;
+    text-align: center;
+    height: 20px;
+    color: #FFFFFF;
+}
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4A9EFF, stop:1 #8BC4FF);
+    border-radius: 3px;
+}

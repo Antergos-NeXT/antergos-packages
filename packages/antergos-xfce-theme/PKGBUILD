@@ -1,0 +1,17 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-xfce-theme
+pkgver=1
+pkgrel=1
+pkgdesc="Antergos NeXT Xfwm4/GTK theme (based on Numix)"
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL')
+groups=('antergos-branding')
+depends=('gtk-engine-murrine')
+source=("Antergos-NeXT.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  tar -xzf "${srcdir}/Antergos-NeXT.tar.gz" -C "${pkgdir}/usr/share/themes/"
+}

@@ -1,0 +1,40 @@
+---
+componentName:  antergos-next-minimal
+
+welcomeStyleCalamares:   false
+welcomeExpandingLogo:   true
+
+windowExpanding:    normal
+windowSize: 920px,630px
+windowPlacement: center
+
+sidebar: qml,top
+navigation: qml,bottom
+
+strings:
+    productName:         "Antergos NeXT Minimal"
+    shortProductName:    "Antergos NeXT"
+    version:             "rolling"
+    shortVersion:        "rolling"
+    versionedName:       "Antergos NeXT Minimal rolling"
+    shortVersionedName:  "Antergos NeXT Minimal"
+    bootloaderEntryName: "Antergos NeXT"
+    productUrl:          "https://github.com/Antergos-NeXT"
+    supportUrl:          "https://github.com/Antergos-NeXT"
+    knownIssuesUrl:      "https://github.com/Antergos-NeXT/antergos-iso/issues"
+    releaseNotesUrl:     "https://github.com/Antergos-NeXT"
+    donateUrl:           ""
+
+images:
+    productIcon:         "antergos-icon.png"
+    productLogo:         "antergos-icon.png"
+    productWelcome:      "antergos-logo.png"
+
+style:
+    SidebarBackground:        "#20252B"
+    SidebarText:              "#C8D6E5"
+    SidebarTextCurrent:       "#FFFFFF"
+    SidebarBackgroundCurrent: "#4A9EFF"
+
+slideshow:               "show.qml"
+slideshowAPI: 2
