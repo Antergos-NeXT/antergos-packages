@@ -32,8 +32,10 @@ source=("branding.desc"
          "welcome.conf"
         "settings_offline.conf"
         "settings_online.conf"
-        "calamares-next.sh")
+         "minimal-info.qml"
+         "calamares-next.sh")
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
@@ -75,6 +77,7 @@ package() {
   cp "draw-rectangle.svg" "${pkgdir}${_brand}/"
   cp "antergos-logo.png" "${pkgdir}${_brand}/"
   cp "antergos-icon.png" "${pkgdir}${_brand}/"
+  cp "minimal-info.qml" "${pkgdir}${_brand}/"
 
   # Also overwrite default branding so Artix calamares package can't sneak in
   local _defbrand="/usr/share/calamares/branding/default"
