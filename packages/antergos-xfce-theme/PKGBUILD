@@ -13,5 +13,6 @@ source=("Antergos-NeXT.tar.gz")
 sha256sums=('SKIP')
 
 package() {
+  mkdir -p "${pkgdir}/usr/share/themes"
   tar -xzf "${srcdir}/Antergos-NeXT.tar.gz" -C "${pkgdir}/usr/share/themes/"
 }
