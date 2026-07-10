@@ -89,18 +89,18 @@ Item {
                 anchors.fill: parent
                 slides: [
                     Dia {
-                        title: qsTr("Welcome to Antergos NeXT")
-                        body: qsTr("A modern Arch Linux experience built on Artix Linux. Rolling release, OpenRC init, and the latest software.")
+                        title: qsTr("Welcome to Antergos NeXT Minimal")
+                        body: qsTr("Arch Linux powered by Artix. Rolling release, dinit init, Xfce desktop, and the latest software.")
                         footer: qsTr("Choose your preferred desktop environment during setup")
                     },
                     Dia {
                         title: qsTr("Desktop Environments")
-                        body: qsTr("Select from KDE Plasma, GNOME, Xfce, Budgie, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland.")
+                        body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland.")
                         footer: qsTr("A curated selection of the best Linux desktops")
                     },
                     Dia {
                         title: qsTr("Antergos Tools")
-                        body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and full access to Arch Linux repositories and the AUR.")
+                        body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and full access to the AUR.")
                         footer: qsTr("Everything you need to get started")
                     },
                     Dia {

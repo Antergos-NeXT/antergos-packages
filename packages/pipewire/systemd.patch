@@ -1,0 +1,28 @@
+diff --git a/meson_options.txt b/meson_options.txt
+index 206d68659..14994734e 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -33,7 +33,7 @@ option('gstreamer-device-provider',
+ option('libsystemd',
+        description: 'Enable code that depends on libsystemd',
+        type: 'feature',
+-       value: 'auto')
++       value: 'disabled')
+ option('logind',
+        description: 'Enable logind integration',
+        type: 'feature',
+@@ -50,7 +50,7 @@ option('systemd-system-service',
+ option('systemd-user-service',
+        description: 'Install systemd user service file',
+        type: 'feature',
+-       value: 'auto')
++       value: 'disabled')
+ option('selinux',
+        description: 'Enable SELinux integration',
+        type: 'feature',
+@@ -394,4 +394,4 @@ option('fftw',
+ option('onnxruntime',
+        description: 'Enable code that depends on onnxruntime',
+        type: 'feature',
+-       value: 'auto')
++       value: 'disabled')
