@@ -17,6 +17,7 @@ source=(
   "ComboBox.qml"
   "LayoutBox.qml"
   "qmldir"
+  "antergos-sddm-theme.conf"
 )
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
@@ -31,4 +32,8 @@ package() {
   install -m644 "${srcdir}/ComboBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
   install -m644 "${srcdir}/LayoutBox.qml" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
   install -m644 "${srcdir}/qmldir" "${pkgdir}/usr/share/sddm/themes/antergos/components/"
+
+  # Override KDE's default SDDM config to select our theme
+  install -dm755 "${pkgdir}/etc/sddm.conf.d"
+  install -m644 "${srcdir}/antergos-sddm-theme.conf" "${pkgdir}/etc/sddm.conf.d/theme.conf"
 }

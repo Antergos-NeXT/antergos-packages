@@ -83,8 +83,10 @@ source=(
   "git+https://gitlab.freedesktop.org/pipewire/pipewire.git#tag=$pkgver"
   systemd.patch
   artix-pipewire-launcher
+  pipewire.desktop
 )
 b2sums=('SKIP'
+        'SKIP'
         'SKIP'
         'SKIP')
 
@@ -274,6 +276,7 @@ package_pipewire() {
 
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 pipewire/COPYING
   install -Dm755 $srcdir/artix-pipewire-launcher $pkgdir/usr/bin
+  install -Dm644 $srcdir/pipewire.desktop $pkgdir/etc/xdg/autostart/pipewire.desktop
 }
 
 package_libpipewire() {
