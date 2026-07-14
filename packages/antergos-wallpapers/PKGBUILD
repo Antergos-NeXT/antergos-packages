@@ -9,7 +9,7 @@
 
 pkgname=antergos-wallpapers
 pkgver=0.7
-pkgrel=6
+pkgrel=7
 pkgdesc="Antergos NeXT wallpapers"
 arch=('any')
 url="https://github.com/Antergos/wallpapers"
@@ -18,12 +18,18 @@ source=("antergos-wallpaper.png::https://raw.githubusercontent.com/Antergos/wall
         "metadata.desktop"
         "adwaita-morning.webp"
         "antergos-darkest-hour.jpg"
-        "metadata-darkest-hour.desktop")
+        "metadata-darkest-hour.desktop"
+        "antergos-logo-128.png"
+        "antergos-logo-256.png"
+        "antergos-logo-pixmaps.png")
 sha256sums=('SKIP'
             'SKIP'
             'eaa5c6960dd548526e189568fed449210f332f0358d666a8711ef399f9b94152'
             '8e3703fae3a3c217b1fc2b399b706cd3720584268d071ba153e4809daa55f1ce'
-            '0c100d74404a07daefca49ec1ceea8faabc66b3df35bf4280bace53a5f68171c')
+            '0c100d74404a07daefca49ec1ceea8faabc66b3df35bf4280bace53a5f68171c'
+            'SKIP'
+            'SKIP'
+            'SKIP')
 
 package() {
   local wallpapers=(antergos-wallpaper.png adwaita-morning.webp)
@@ -47,4 +53,12 @@ package() {
   install -dm755 "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/contents/images"
   install -m644 "${srcdir}/antergos-darkest-hour.jpg" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/contents/images/"
   install -m644 "${srcdir}/metadata-darkest-hour.desktop" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/metadata.desktop"
+
+  # Icon theme logos (for os-release LOGO=antergos-lookup)
+  install -dm755 "${pkgdir}/usr/share/icons/hicolor/128x128/apps"
+  install -m644 "${srcdir}/antergos-logo-128.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/antergos-logo.png"
+  install -dm755 "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
+  install -m644 "${srcdir}/antergos-logo-256.png" "${pkgdir}/usr/share/icons/hicolor/256x256/apps/antergos-logo.png"
+  install -dm755 "${pkgdir}/usr/share/pixmaps"
+  install -m644 "${srcdir}/antergos-logo-pixmaps.png" "${pkgdir}/usr/share/pixmaps/antergos-logo.png"
 }
