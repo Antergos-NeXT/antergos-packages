@@ -1,0 +1,44 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-layan-theme
+pkgver=1.0
+pkgrel=1
+pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL')
+depends=('plasma-meta' 'sddm' 'kvantum' 'yakuake' 'antergos-wallpapers')
+optdepends=('mpv: video wallpaper support'
+            'fzf: plasmusic-toolbar management integration'
+            'flatpak: plasmusic-toolbar flatpak support'
+            'yay: AUR helper integration for plasmusic-toolbar')
+source=()
+sha256sums=()
+
+prepare() {
+  cp -a "${srcdir}/../Configs" "${srcdir}/"
+}
+
+package() {
+  # ── Home directory skel ──
+  mkdir -p "${pkgdir}/etc/skel"
+  cp -a "${srcdir}/Configs/Home/." "${pkgdir}/etc/skel/"
+
+  # ── Kvantum theme ──
+  mkdir -p "${pkgdir}/usr/share/Kvantum"
+  cp -a "${srcdir}/Configs/System/usr/share/Kvantum/." "${pkgdir}/usr/share/Kvantum/"
+
+  # ── SDDM theme ──
+  mkdir -p "${pkgdir}/usr/share/sddm/themes/AntergosDark-Layan"
+  cp -a "${srcdir}/Configs/System/usr/share/sddm/themes/AntergosDark-Layan/." "${pkgdir}/usr/share/sddm/themes/AntergosDark-Layan/"
+
+  # ── Vendor KDE SDDM config with dinit commands ──
+  mkdir -p "${pkgdir}/etc/sddm.conf.d"
+  cp "${srcdir}/Configs/System/etc/sddm.conf.d/kde_settings.conf" "${pkgdir}/etc/sddm.conf.d/"
+
+  # ── Logos ──
+  mkdir -p "${pkgdir}/usr/share/logos"
+  cp -a "${srcdir}/Configs/System/usr/share/logos/." "${pkgdir}/usr/share/logos/"
+  mkdir -p "${pkgdir}/usr/share/pixmaps"
+  cp "${srcdir}/Configs/System/usr/share/pixmaps/antergos.png" "${pkgdir}/usr/share/pixmaps/"
+}

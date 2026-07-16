@@ -90,8 +90,7 @@ Rectangle {
 
         Button {
             id: nextButton
-            text: qsTr("Next")
-            enabled: ViewManager.nextEnabled
+            enabled: true
             implicitWidth: 120
             implicitHeight: 42
             font {
@@ -99,6 +98,7 @@ Rectangle {
                 weight: Font.Medium
                 pixelSize: 14
             }
+            text: qsTr(ViewManager.nextEnabled ? "Next" : "Done")
             contentItem: Text {
                 text: parent.text + "   →"
                 font: parent.font
@@ -107,13 +107,17 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
             }
             background: Rectangle {
-                color: parent.enabled
-                    ? (parent.hovered ? "#3B8BDE" : "#4A9EFF")
-                    : Qt.rgba(0.29, 0.62, 1.0, 0.35)
+                color: parent.hovered ? "#3B8BDE" : "#4A9EFF"
                 radius: 21
                 Behavior on color { ColorAnimation { duration: 120 } }
             }
-            onClicked: ViewManager.next()
+            onClicked: {
+                if (ViewManager.nextEnabled) {
+                    ViewManager.next()
+                } else {
+                    ViewManager.quit()
+                }
+            }
         }
     }
 }

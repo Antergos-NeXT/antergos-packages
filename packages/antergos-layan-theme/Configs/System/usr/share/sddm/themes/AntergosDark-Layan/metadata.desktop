@@ -1,0 +1,17 @@
+[SddmGreeterTheme]
+Name=AntergosDark-Layan
+Description=Antergos Dark Layan SDDM Theme
+Author=Antergos NeXT (forked from XeroLinux Design Group)
+Copyright=(c) 2024, DarkXero
+License=CC-BY-SA
+Type=sddm-theme
+Version=2.0
+Website=https://github.com/sddm/sddm
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=ash8820@proton.me
+Theme-Id=AntergosDark-Layan
+Theme-API=2.0
+QtVersion=6

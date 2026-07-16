@@ -1,72 +1,20 @@
 # Maintainer: Antergos-NeXT Team <ash8820@proton.me>
 
 pkgname=antergos-grub-theme
-pkgver=2026.06
+pkgver=2026.07
 pkgrel=1
-pkgdesc='Antergos GRUB theme'
+pkgdesc='Antergos GRUB theme (Layan)'
 arch=('any')
-url="https://github.com/Antergos-NeXT/antergos-branding"
+url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
 depends=('grub')
-makedepends=('git')
-source=("git+https://gitea.artixlinux.org/artix/artix-branding.git"
-        "git+https://github.com/antergos/grub2-theme-antergos.git")
-sha256sums=('SKIP'
-            'SKIP')
+source=()
+sha256sums=()
+
+prepare() {
+  cp -a "${srcdir}/../Layan" "${srcdir}/"
+}
 
 package() {
-    mkdir -p $pkgdir/usr/share/grub/themes/antergos/icons
-
-    # Use original Antergos background and logo
-    cp grub2-theme-antergos/Antergos-Default/background.png $pkgdir/usr/share/grub/themes/antergos/
-    cp grub2-theme-antergos/Antergos-Default/antergoslogo.png $pkgdir/usr/share/grub/themes/antergos/logo.png
-
-    # Copy Artix GRUB theme infrastructure (UI elements)
-    cp artix-branding/artix-grub-theme/artix/highlight_c.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/highlight_e.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/highlight_w.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/menu_c.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/menu_e.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/slider_c.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/slider_n.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/slider_s.png $pkgdir/usr/share/grub/themes/antergos/
-    cp artix-branding/artix-grub-theme/artix/unifont.pf2 $pkgdir/usr/share/grub/themes/antergos/
-
-    # Copy Antergos OS icon and GRUB UI icons
-    cp grub2-theme-antergos/Antergos-Default/icons/antergos.png $pkgdir/usr/share/grub/themes/antergos/icons/
-    cp artix-branding/artix-grub-theme/artix/icons/* $pkgdir/usr/share/grub/themes/antergos/icons/
-
-    # Rename icon files for GRUB class matching
-    mv $pkgdir/usr/share/grub/themes/antergos/icons/artix.i686.png $pkgdir/usr/share/grub/themes/antergos/icons/antergos.i686.png 2>/dev/null || true
-    mv $pkgdir/usr/share/grub/themes/antergos/icons/artix.x86_64.png $pkgdir/usr/share/grub/themes/antergos/icons/antergos.x86_64.png 2>/dev/null || true
-
-    # Write theme.txt
-    cat > $pkgdir/usr/share/grub/themes/antergos/theme.txt << 'THEME'
-# Antergos GRUB theme
-desktop-image: "background.png"
-title-text: ""
-terminal-font: "Unifont Regular 16"
-
-+ boot_menu {
-    left = 15%
-    top = 30%
-    width = 75%
-    height = 45%
-    item_font = "Unifont Regular 16"
-    item_color = "#f4f4f4"
-    selected_item_font = "Unifont Regular 16"
-    selected_item_color = "#62c0f8"
-    selected_item_pixmap_style = "highlight_*.png"
-    icon_height = 28
-    icon_width = 28
-    item_height = 32
-    item_padding = 0
-    item_icon_space = 32
-    item_spacing = 0
-    scrollbar = true
-    scrollbar_width = 32
-    scrollbar_thumb = "slider_*.png"
-    menu_pixmap_style = "menu_*.png"
-}
-THEME
+  cp -a "${srcdir}/Layan" "${pkgdir}/usr/share/grub/themes/antergos"
 }
