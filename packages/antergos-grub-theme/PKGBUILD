@@ -16,5 +16,6 @@ prepare() {
 }
 
 package() {
+  mkdir -p "${pkgdir}/usr/share/grub/themes"
   cp -a "${srcdir}/Layan" "${pkgdir}/usr/share/grub/themes/antergos"
 }
