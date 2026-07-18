@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, os, re, subprocess
+import json, os, re, subprocess, urllib.request
 from datetime import datetime
 import zoneinfo
 
@@ -23,7 +23,18 @@ def parse_pkgbuild(path):
         data['depends'] = [d.strip("'\" ") for d in raw.strip().split('\n') if d.strip()]
     return data
 
-def category_for(pkgname):
+def fetch_aur_info(pkgname):
+    url = f"https://aur.archlinux.org/rpc/?v=5&type=info&arg[]={pkgname}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.load(resp)
+            if data['resultcount'] > 0:
+                return data['results'][0]
+    except Exception:
+        pass
+    return None
+
+def category_for(pkgname, keywords=None, description=None):
     if pkgname.startswith('calamares'):
         return 'installer'
     if pkgname.startswith('antergos-wallpaper') or pkgname.startswith('antergos-next-desktop'):
@@ -32,8 +43,32 @@ def category_for(pkgname):
         return 'core'
     if pkgname in ('antergos-welcome', 'antergos-next-memes', 'antergos-grub-theme'):
         return 'desktop'
-    if pkgname == 'hal':
+    if pkgname in ('hal', 'downgrade'):
         return 'tool'
+    if keywords:
+        kw_lower = {k.lower() for k in keywords if isinstance(k, str)}
+        if kw_lower & {'icon-theme', 'wallpaper', 'branding', 'sddm', 'grub'}:
+            return 'branding'
+        if kw_lower & {'installer', 'calamares', 'live'}:
+            return 'installer'
+        if kw_lower & {'keyring', 'mirrorlist'}:
+            return 'core'
+        if kw_lower & {'kwin', 'plasma', 'plasmoid', 'widget', 'wayland'}:
+            return 'desktop'
+        if kw_lower & {'cli', 'terminal', 'aur', 'helper', 'wrapper', 'alpm', 'search'}:
+            return 'tool'
+    if description:
+        d = description.lower()
+        if any(w in d for w in ['icon theme', 'icon-theme', 'wallpaper', 'branding', 'sddm']):
+            return 'branding'
+        if any(w in d for w in ['installer', 'calamares']):
+            return 'installer'
+        if any(w in d for w in ['kwin', 'plasma', 'plasmoid', 'wayland compositor']):
+            return 'desktop'
+        if any(w in d for w in ['terminal', 'cli', 'aur helper', 'pacman wrapper',
+                                 'package manager', 'prompt theme', 'shell prompt',
+                                 'shell tool', 'utility', 'search tool']):
+            return 'tool'
     return 'other'
 
 cat_colors = {
@@ -64,7 +99,8 @@ for f in sorted(os.listdir(REPO_DIR)):
         dirname = 'calamares-branding-antergos-next'
 
     pkgbuild_path = os.path.join(PKG_DIR, dirname, 'PKGBUILD')
-    meta = parse_pkgbuild(pkgbuild_path) if os.path.exists(pkgbuild_path) else {}
+    has_local = os.path.exists(pkgbuild_path)
+    meta = parse_pkgbuild(pkgbuild_path) if has_local else {}
 
     # extract version from filename: name-ver-rel-arch.pkg.tar.zst
     ver_match = re.match(r'.+-(\d+[\d.]*)-(\d+)-(any|x86_64)\.pkg\.tar\.zst', f)
@@ -73,7 +109,10 @@ for f in sorted(os.listdir(REPO_DIR)):
     arch = ver_match.group(3) if ver_match else (meta.get('arch', '?'))
 
     pkgname = meta.get('pkgname', dirname)
-    cat = category_for(pkgname)
+    aur_info = fetch_aur_info(pkgname) if not has_local else None
+    keywords = aur_info.get('Keywords', []) if aur_info else []
+    description = meta.get('pkgdesc', aur_info.get('Description', '') if aur_info else '')
+    cat = category_for(pkgname, keywords, description)
 
     pkgs.append({
         'file': f,
@@ -85,10 +124,10 @@ for f in sorted(os.listdir(REPO_DIR)):
         'mtime_display': mtime_dt.strftime('%Y-%m-%d %H:%M CET/CEST'),
         'category': cat,
         'cat_color': cat_colors.get(cat, '#7F8C8D'),
-        'description': meta.get('pkgdesc', ''),
-        'url': meta.get('url', ''),
-        'license': meta.get('license', ''),
-        'depends': meta.get('depends', []),
+        'description': description,
+        'url': meta.get('url', aur_info.get('URL', '') if aur_info else ''),
+        'license': meta.get('license', ', '.join(aur_info.get('License', [])) if aur_info else ''),
+        'depends': meta.get('depends', aur_info.get('Depends', []) if aur_info else []),
     })
 
 pkgs.sort(key=lambda p: p['name'])
