@@ -7,7 +7,7 @@ pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, a
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
-depends=('plasma-meta' 'sddm' 'kvantum' 'yakuake' 'antergos-wallpapers')
+depends=('sddm' 'kvantum' 'yakuake' 'antergos-wallpapers')
 optdepends=('mpv: video wallpaper support'
             'fzf: plasmusic-toolbar management integration'
             'flatpak: plasmusic-toolbar flatpak support'
