@@ -8,7 +8,10 @@ arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
 depends=('sddm' 'kvantum' 'yakuake' 'antergos-wallpapers')
-optdepends=('mpv: video wallpaper support'
+optdepends=('cava: audio visualizer data source for Kurve'
+            'python-websockets: Kurve audio visualizer WebSocket fallback'
+            'qt6-websockets: Kurve audio visualizer QML WebSocket module'
+            'mpv: video wallpaper support'
             'fzf: plasmusic-toolbar management integration'
             'flatpak: plasmusic-toolbar flatpak support'
             'yay: AUR helper integration for plasmusic-toolbar')
