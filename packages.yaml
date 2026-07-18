@@ -19,3 +19,6 @@ packages:
   - yay
   - antergos-layan-theme
   - tela-circle-icon-theme-git
+  - kwin-zones
+  - oh-my-posh-bin
+  - pacseek
