@@ -2,7 +2,7 @@
 
 pkgname=antergos-layan-theme
 pkgver=1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
@@ -48,4 +48,14 @@ package() {
   # ── Start menu icon for icon theme ──
   mkdir -p "${pkgdir}/usr/share/icons/hicolor/scalable/places"
   cp "${srcdir}/Configs/System/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg" "${pkgdir}/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg"
+
+  # Override breeze(-dark) start-here-kde icons so kickoff resolves to Antergos logo
+  for size in 16 22 24 32 64 96; do
+    mkdir -p "${pkgdir}/usr/share/icons/breeze-dark/places/${size}"
+    cp "${srcdir}/Configs/System/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg" \
+      "${pkgdir}/usr/share/icons/breeze-dark/places/${size}/start-here-kde.svg"
+    mkdir -p "${pkgdir}/usr/share/icons/breeze/places/${size}"
+    cp "${srcdir}/Configs/System/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg" \
+      "${pkgdir}/usr/share/icons/breeze/places/${size}/start-here-kde.svg"
+  done
 }

@@ -345,7 +345,7 @@ DialogWidth=720
 
 [Containments][126][Applets][158][Configuration][General]
 alphaSort=true
-customButtonImage=start-here-kde-antergos
+customButtonImage=distributor-logo-antergos
 favoritesPortedToKAstats=true
 showIconsRootLevel=true
 showRecentDocs=false

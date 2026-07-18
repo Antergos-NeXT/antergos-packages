@@ -3,8 +3,8 @@
     "logo": {
         "source": "~/.config/fastfetch/AntergosP.png",
         "type": "kitty",
-        "height": 16,
-        "width": 30,
+        "height": 18,
+        "width": 25,
         "padding": {
             "top": 8,
             "left": 3
