@@ -345,7 +345,7 @@ DialogWidth=720
 
 [Containments][126][Applets][158][Configuration][General]
 alphaSort=true
-customButtonImage=distributor-logo-archlinux
+customButtonImage=start-here-kde-antergos
 favoritesPortedToKAstats=true
 showIconsRootLevel=true
 showRecentDocs=false

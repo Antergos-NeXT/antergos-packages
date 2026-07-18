@@ -2,7 +2,7 @@
 
 pkgname=antergos-layan-theme
 pkgver=1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
@@ -41,4 +41,8 @@ package() {
   cp -a "${srcdir}/Configs/System/usr/share/logos/." "${pkgdir}/usr/share/logos/"
   mkdir -p "${pkgdir}/usr/share/pixmaps"
   cp "${srcdir}/Configs/System/usr/share/pixmaps/antergos.png" "${pkgdir}/usr/share/pixmaps/"
+
+  # ── Start menu icon for icon theme ──
+  mkdir -p "${pkgdir}/usr/share/icons/hicolor/scalable/places"
+  cp "${srcdir}/Configs/System/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg" "${pkgdir}/usr/share/icons/hicolor/scalable/places/start-here-kde-antergos.svg"
 }
