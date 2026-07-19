@@ -4,7 +4,7 @@ packages:
   - antergos-next-keyring
   - antergos-next-mirrorlist
   - antergos-release
-  - antergos-sddm-theme
+  - pixie-sddm-git
   - antergos-wallpapers
   - antergos-plasma-theme
   - antergos-welcome
