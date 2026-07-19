@@ -95,12 +95,12 @@ Item {
                     },
                     Dia {
                         title: qsTr("Desktop Environments")
-                        body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, or Hyprland.")
-                        footer: qsTr("A curated selection of the best Linux desktops")
+                        body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, Hyprland, or COSMIC.")
+                        footer: qsTr("A curated selection of Linux desktops")
                     },
                     Dia {
                         title: qsTr("Antergos Tools")
-                        body: qsTr("Welcome app for system configuration, Calamares installer with offline and online modes, and full access to the AUR.")
+                        body: qsTr("Welcome app for system configuration, Calamares online installer, and full access to the AUR.")
                         footer: qsTr("Everything you need to get started")
                     },
                     Dia {
