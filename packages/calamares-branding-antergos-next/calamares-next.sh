@@ -32,15 +32,13 @@ FollowFile() {
 
 CatchChrootedPacmanLog() {
     local pacmanlog=""
-    local lockfile="$HOME/.$progname.lck"
+    local pacmanlog_copy="$HOME/pacman-install.log"
 
     while true ; do
         sleep 2
         pacmanlog="$(/usr/bin/ls -1 /tmp/calamares-root-*/var/log/pacman.log 2>/dev/null | /usr/bin/tail -n 1)"
         if [ -n "$pacmanlog" ] ; then
-            [ -r "$lockfile" ] && return
-            /usr/bin/touch "$lockfile"
-            FollowFile "$pacmanlog" "Pacman log" 400 50
+            /usr/bin/cp "$pacmanlog" "$pacmanlog_copy"
             break
         fi
     done
