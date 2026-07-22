@@ -9,7 +9,7 @@
 
 pkgname=antergos-layan-theme
 pkgver=1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
@@ -52,6 +52,7 @@ package() {
   cp "${srcdir}/Configs/System/usr/share/pixmaps/antergos.png" "${pkgdir}/usr/share/pixmaps/"
 
   # ── Default video wallpaper ──
+  mkdir -p "${pkgdir}/usr/share/backgrounds/antergos"
   cp "${srcdir}/Configs/System/usr/share/backgrounds/antergos/Retro Sun WPE.mp4" \
      "${pkgdir}/usr/share/backgrounds/antergos/"
 
