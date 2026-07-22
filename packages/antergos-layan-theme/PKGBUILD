@@ -1,17 +1,23 @@
 # Maintainer: Celestia Ludenberg <ash8820@proton.me>
+#
+# Video wallpaper credits:
+#   "Synthwave - New Retro Wave"
+#   Design by James White (https://society6.com/jameswhite)
+#   Animation by E-Cube
+#   Retrieved from Steam Workshop under fair use as a bundled
+#   live wallpaper for Antergos NeXT ISO.
 
 pkgname=antergos-layan-theme
 pkgver=1.0
-pkgrel=3
+pkgrel=4
 pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
-depends=('sddm' 'kvantum' 'yakuake' 'antergos-wallpapers')
+depends=('sddm' 'kvantum' 'yakuake' 'antergos-wallpapers' 'mpv')
 optdepends=('cava: audio visualizer data source for Kurve'
             'python-websockets: Kurve audio visualizer WebSocket fallback'
             'qt6-websockets: Kurve audio visualizer QML WebSocket module'
-            'mpv: video wallpaper support'
             'fzf: plasmusic-toolbar management integration'
             'flatpak: plasmusic-toolbar flatpak support'
             'yay: AUR helper integration for plasmusic-toolbar')
@@ -44,6 +50,10 @@ package() {
   cp -a "${srcdir}/Configs/System/usr/share/logos/." "${pkgdir}/usr/share/logos/"
   mkdir -p "${pkgdir}/usr/share/pixmaps"
   cp "${srcdir}/Configs/System/usr/share/pixmaps/antergos.png" "${pkgdir}/usr/share/pixmaps/"
+
+  # ── Default video wallpaper ──
+  cp "${srcdir}/Configs/System/usr/share/backgrounds/antergos/Retro Sun WPE.mp4" \
+     "${pkgdir}/usr/share/backgrounds/antergos/"
 
   # ── Start menu icon for icon theme ──
   mkdir -p "${pkgdir}/usr/share/icons/hicolor/scalable/places"

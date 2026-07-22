@@ -633,7 +633,7 @@ immutability=1
 lastScreen=0
 location=0
 plugin=org.kde.plasma.folder
-wallpaperplugin=org.kde.image
+wallpaperplugin=luisbocanegra.smart.video.wallpaper.reborn
 
 [Containments][87][ConfigDialog]
 DialogHeight=540
@@ -646,10 +646,11 @@ ToolBoxButtonY=56
 positions={"1920x1080":["1","17"],"2560x1440":[]}
 sortMode=-1
 
-[Containments][87][Wallpaper][org.kde.image][General]
-Image=/usr/share/logos/Plasma64.png
-PreviewImage=/usr/share/logos/Plasma64.png
-SlidePaths=/usr/share/logos/
+[Containments][87][Wallpaper][luisbocanegra.smart.video.wallpaper.reborn][General]
+VideoUrls=["file:///usr/share/backgrounds/antergos/Retro%20Sun%20WPE.mp4"]
+Volume=0
+MuteMode=5
+FillMode=2
 
 [Containments][9][Applets][24][Configuration]
 PreloadWeight=42
