@@ -90,27 +90,37 @@ Item {
                 slides: [
                     Dia {
                         title: qsTr("Welcome to Antergos NeXT")
-                        body: qsTr("Arch Linux powered by Artix. Rolling release, dinit init, and the latest software.")
-                        footer: qsTr("Choose your preferred desktop environment during setup")
+                        body: qsTr("Artix Linux, dinit init, rolling release.")
+                        footer: qsTr("Choose your desktop environment during setup")
                     },
                     Dia {
                         title: qsTr("Desktop Environments")
-                        body: qsTr("Select from KDE Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, Hyprland, or COSMIC.")
-                        footer: qsTr("A curated selection of Linux desktops")
+                        body: qsTr("Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, Hyprland, COSMIC.")
+                        footer: qsTr("A curated selection — pick your favorite")
                     },
                     Dia {
-                        title: qsTr("Antergos Tools")
-                        body: qsTr("Welcome app for system configuration, Calamares online installer, and full access to the AUR.")
-                        footer: qsTr("Everything you need to get started")
+                        title: qsTr("Init System")
+                        body: qsTr("dinit — fast, parallel service boot. Optional runit and s6 available.")
+                        footer: qsTr("Modern init, modern system")
+                    },
+                    Dia {
+                        title: qsTr("Two Installer Modes")
+                        body: qsTr("Online: full DE, DM, and package selection. Offline: Plasma pre-configured, ready to go.")
+                        footer: qsTr("You choose how you install")
+                    },
+                    Dia {
+                        title: qsTr("Features")
+                        body: qsTr("Full AUR access. KDE Plasma live session. Calamares installer. Latest packages from Artix repos.")
+                        footer: qsTr("Everything you need, nothing you don't")
                     },
                     Dia {
                         title: qsTr("Open Source")
-                        body: qsTr("Free and open source software built by the community for the community.")
+                        body: qsTr("Built by the community. Transparent, free, and always will be.")
                         footer: qsTr("github.com/Antergos-NeXT")
                     },
                     Dia {
                         title: qsTr("Almost Done")
-                        body: qsTr("Your system is being configured with your selected desktop environment, drivers, and applications.")
+                        body: qsTr("Your system is being configured with your selected desktop and packages.")
                         footer: qsTr("Reboot and enjoy Antergos NeXT")
                     }
                 ]

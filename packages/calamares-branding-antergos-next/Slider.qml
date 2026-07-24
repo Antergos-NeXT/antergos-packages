@@ -29,19 +29,27 @@ Item {
             width: parent.width
             spacing: 0
 
+            Rectangle {
+                width: 48
+                height: 3
+                radius: 1.5
+                color: "#4A9EFF"
+                bottomPadding: 24
+            }
+
             Text {
                 id: titleText
                 font {
                     family: "Roboto"
-                    weight: Font.Medium
-                    pixelSize: 26
+                    weight: Font.Bold
+                    pixelSize: 28
                 }
                 color: "#FFFFFF"
                 text: slides[_currentSlideIndex].title
                 wrapMode: Text.WordWrap
                 width: parent.width
-                lineHeight: 1.25
-                bottomPadding: 20
+                lineHeight: 1.2
+                bottomPadding: 16
             }
 
             Text {
@@ -52,10 +60,17 @@ Item {
                     weight: Font.Normal
                     pixelSize: 14
                 }
-                color: "#C4C6D0"
+                color: "#C8D6E5"
                 text: slides[_currentSlideIndex].body
                 wrapMode: Text.WordWrap
-                lineHeight: 1.55
+                lineHeight: 1.6
+                bottomPadding: 24
+            }
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: Qt.rgba(1, 1, 1, 0.06)
                 bottomPadding: 20
             }
 
@@ -63,7 +78,7 @@ Item {
                 id: footerText
                 font {
                     family: "Roboto"
-                    weight: Font.Medium
+                    weight: Font.Normal
                     pixelSize: 12
                 }
                 color: "#8E9099"
