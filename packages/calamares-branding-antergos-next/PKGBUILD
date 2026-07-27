@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=1.0
-pkgrel=23
+pkgrel=24
 pkgdesc="Calamares branding for Antergos NeXT with offline/online installer support"
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -13,19 +13,33 @@ source=("branding.desc"
         "stylesheet.qss"
         "show.qml"
         "Dia.qml"
+        "Slide.qml"
         "Slider.qml"
+        "Artwork.qml"
+        "Rocket.qml"
         "calamares-sidebar.qml"
         "calamares-navigation.qml"
         "background.jpg"
-        "pan-up-symbolic.svg"
+        "background.svg"
+        "background_dark.svg"
+        "comet.svg"
+        "draw-rectangle.svg"
+        "moon.svg"
         "pan-end-symbolic.svg"
         "pan-start-symbolic.svg"
-        "draw-rectangle.svg"
+        "pan-up-symbolic.svg"
+        "rocket_a.svg"
+        "rocket_b.svg"
+        "rocket_smoke.svg"
+        "smoke.svg"
+        "space.svg"
+        "starsClose.svg"
+        "starsFar.svg"
+        "antergos-logo.png"
+        "antergos-icon.png"
          "unpackfs.conf"
          "initcpiocfg.conf"
          "initcpio.conf"
-        "antergos-logo.png"
-        "antergos-icon.png"
          "netinstall.yaml"
          "netinstall.conf"
          "packagechooser_de.conf"
@@ -35,6 +49,19 @@ source=("branding.desc"
         "settings_online.conf"
         "calamares-next.sh")
 sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
@@ -68,14 +95,28 @@ package() {
   cp "stylesheet.qss" "${pkgdir}${_brand}/"
   cp "show.qml" "${pkgdir}${_brand}/"
   cp "Dia.qml" "${pkgdir}${_brand}/"
+  cp "Slide.qml" "${pkgdir}${_brand}/"
   cp "Slider.qml" "${pkgdir}${_brand}/"
+  cp "Artwork.qml" "${pkgdir}${_brand}/"
+  cp "Rocket.qml" "${pkgdir}${_brand}/"
   cp "calamares-sidebar.qml" "${pkgdir}${_brand}/"
   cp "calamares-navigation.qml" "${pkgdir}${_brand}/"
   cp "background.jpg" "${pkgdir}${_brand}/"
-  cp "pan-up-symbolic.svg" "${pkgdir}${_brand}/"
+  cp "background.svg" "${pkgdir}${_brand}/"
+  cp "background_dark.svg" "${pkgdir}${_brand}/"
+  cp "comet.svg" "${pkgdir}${_brand}/"
+  cp "draw-rectangle.svg" "${pkgdir}${_brand}/"
+  cp "moon.svg" "${pkgdir}${_brand}/"
   cp "pan-end-symbolic.svg" "${pkgdir}${_brand}/"
   cp "pan-start-symbolic.svg" "${pkgdir}${_brand}/"
-  cp "draw-rectangle.svg" "${pkgdir}${_brand}/"
+  cp "pan-up-symbolic.svg" "${pkgdir}${_brand}/"
+  cp "rocket_a.svg" "${pkgdir}${_brand}/"
+  cp "rocket_b.svg" "${pkgdir}${_brand}/"
+  cp "rocket_smoke.svg" "${pkgdir}${_brand}/"
+  cp "smoke.svg" "${pkgdir}${_brand}/"
+  cp "space.svg" "${pkgdir}${_brand}/"
+  cp "starsClose.svg" "${pkgdir}${_brand}/"
+  cp "starsFar.svg" "${pkgdir}${_brand}/"
   cp "antergos-logo.png" "${pkgdir}${_brand}/"
   cp "antergos-icon.png" "${pkgdir}${_brand}/"
 
@@ -85,14 +126,28 @@ package() {
   cp "branding.desc" "${pkgdir}${_defbrand}/"
   cp "show.qml" "${pkgdir}${_defbrand}/"
   cp "Dia.qml" "${pkgdir}${_defbrand}/"
+  cp "Slide.qml" "${pkgdir}${_defbrand}/"
   cp "Slider.qml" "${pkgdir}${_defbrand}/"
+  cp "Artwork.qml" "${pkgdir}${_defbrand}/"
+  cp "Rocket.qml" "${pkgdir}${_defbrand}/"
   cp "calamares-sidebar.qml" "${pkgdir}${_defbrand}/"
   cp "calamares-navigation.qml" "${pkgdir}${_defbrand}/"
   cp "background.jpg" "${pkgdir}${_defbrand}/"
-  cp "pan-up-symbolic.svg" "${pkgdir}${_defbrand}/"
+  cp "background.svg" "${pkgdir}${_defbrand}/"
+  cp "background_dark.svg" "${pkgdir}${_defbrand}/"
+  cp "comet.svg" "${pkgdir}${_defbrand}/"
+  cp "draw-rectangle.svg" "${pkgdir}${_defbrand}/"
+  cp "moon.svg" "${pkgdir}${_defbrand}/"
   cp "pan-end-symbolic.svg" "${pkgdir}${_defbrand}/"
   cp "pan-start-symbolic.svg" "${pkgdir}${_defbrand}/"
-  cp "draw-rectangle.svg" "${pkgdir}${_defbrand}/"
+  cp "pan-up-symbolic.svg" "${pkgdir}${_defbrand}/"
+  cp "rocket_a.svg" "${pkgdir}${_defbrand}/"
+  cp "rocket_b.svg" "${pkgdir}${_defbrand}/"
+  cp "rocket_smoke.svg" "${pkgdir}${_defbrand}/"
+  cp "smoke.svg" "${pkgdir}${_defbrand}/"
+  cp "space.svg" "${pkgdir}${_defbrand}/"
+  cp "starsClose.svg" "${pkgdir}${_defbrand}/"
+  cp "starsFar.svg" "${pkgdir}${_defbrand}/"
   cp "antergos-logo.png" "${pkgdir}${_defbrand}/"
   cp "antergos-icon.png" "${pkgdir}${_defbrand}/"
 
