@@ -1,0 +1,55 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-hyprland-config
+pkgver=1.0
+pkgrel=1
+pkgdesc='Antergos NeXT Hyprland configuration — dark theme with waybar, rofi, dunst'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL3')
+depends=(
+  'hyprland'
+  'waybar'
+  'rofi'
+  'dunst'
+  'swww'
+  'kitty'
+  'ttf-jetbrains-mono-nerd'
+  'papirus-icon-theme'
+)
+optdepends=(
+  'hyprlock: screen locker'
+  'hypridle: idle management'
+  'hyprpaper: wallpaper daemon'
+  'grim: screenshot tool'
+  'slurp: region selection'
+  'pavucontrol: audio settings'
+  'brightnessctl: brightness control'
+)
+source=(
+  "hypr/hyprland.lua"
+  "hypr/hyprpaper.conf"
+  "waybar/config.jsonc"
+  "waybar/style.css"
+  "rofi/config.rasi"
+  "rofi/theme.rasi"
+  "dunst/dunstrc"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+  local _skel="$pkgdir/etc/skel/.config"
+
+  install -dm755 "$_skel/hypr"
+  install -dm755 "$_skel/waybar"
+  install -dm755 "$_skel/rofi"
+  install -dm755 "$_skel/dunst"
+
+  cp -a "hypr/hyprland.lua" "$_skel/hypr/"
+  cp -a "hypr/hyprpaper.conf" "$_skel/hypr/"
+  cp -a "waybar/config.jsonc" "$_skel/waybar/"
+  cp -a "waybar/style.css" "$_skel/waybar/"
+  cp -a "rofi/config.rasi" "$_skel/rofi/"
+  cp -a "rofi/theme.rasi" "$_skel/rofi/"
+  cp -a "dunst/dunstrc" "$_skel/dunst/"
+}

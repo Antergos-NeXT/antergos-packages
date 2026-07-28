@@ -22,3 +22,6 @@ packages:
   - kwin-zones
   - oh-my-posh-bin
   - pacseek
+  - antergos-i3-config
+  - antergos-sway-config
+  - antergos-hyprland-config

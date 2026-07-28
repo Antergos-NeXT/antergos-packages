@@ -1,0 +1,57 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-i3-config
+pkgver=1.0
+pkgrel=1
+pkgdesc='Antergos NeXT i3 WM configuration — Dracula dark theme with polybar, rofi, picom'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL3')
+depends=(
+  'i3-wm'
+  'polybar'
+  'rofi'
+  'picom'
+  'dunst'
+  'feh'
+  'sxhkd'
+  'ttf-firacode-nerd'
+  'papirus-icon-theme'
+)
+optdepends=(
+  'kitty: default terminal emulator'
+  'flameshot: screenshot tool'
+  'brightnessctl: brightness control'
+  'pavucontrol: audio settings GUI'
+)
+source=(
+  "i3/config"
+  "polybar/config.ini"
+  "polybar/launch.sh"
+  "rofi/config.rasi"
+  "rofi/theme.rasi"
+  "picom/picom.conf"
+  "dunst/dunstrc"
+  "sxhkd/sxhkdrc"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+  local _skel="$pkgdir/etc/skel/.config"
+
+  install -dm755 "$_skel/i3"
+  install -dm755 "$_skel/polybar"
+  install -dm755 "$_skel/rofi"
+  install -dm755 "$_skel/picom"
+  install -dm755 "$_skel/dunst"
+  install -dm755 "$_skel/sxhkd"
+
+  cp -a "i3/config" "$_skel/i3/"
+  cp -a "polybar/config.ini" "$_skel/polybar/"
+  install -m755 "polybar/launch.sh" "$_skel/polybar/"
+  cp -a "rofi/config.rasi" "$_skel/rofi/"
+  cp -a "rofi/theme.rasi" "$_skel/rofi/"
+  cp -a "picom/picom.conf" "$_skel/picom/"
+  cp -a "dunst/dunstrc" "$_skel/dunst/"
+  cp -a "sxhkd/sxhkdrc" "$_skel/sxhkd/"
+}

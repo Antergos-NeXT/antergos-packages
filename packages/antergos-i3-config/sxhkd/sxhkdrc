@@ -1,0 +1,22 @@
+# Reload sxhkd
+super + Escape
+    pkill -USR1 -x sxhkd
+
+# Volume
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    amixer set Master {5%+,5%-,toggle}
+
+# Brightness
+XF86MonBrightness{Up,Down}
+    brightnessctl set {+10%,10%-}
+
+# Screenshot
+Print
+    flameshot gui
+
+super + Print
+    flameshot full -p ~/Pictures
+
+# File manager
+ctrl + alt + h
+    thunar

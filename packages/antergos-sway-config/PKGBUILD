@@ -1,0 +1,54 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-sway-config
+pkgver=1.0
+pkgrel=1
+pkgdesc='Antergos NeXT Sway WM configuration — dark theme with waybar, wofi, mako'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL3')
+depends=(
+  'sway'
+  'waybar'
+  'wofi'
+  'mako'
+  'swaybg'
+  'grim'
+  'slurp'
+  'ttf-jetbrains-mono-nerd'
+  'papirus-icon-theme'
+)
+optdepends=(
+  'foot: default terminal emulator'
+  'pavucontrol: audio settings GUI'
+  'brightnessctl: brightness control'
+  'swaylock: screen locker'
+  'playerctl: media player controls'
+)
+source=(
+  "sway/config"
+  "sway/config.d/99-autostart"
+  "waybar/config.jsonc"
+  "waybar/style.css"
+  "wofi/config"
+  "wofi/style.css"
+  "mako/config"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+  local _skel="$pkgdir/etc/skel/.config"
+
+  install -dm755 "$_skel/sway/config.d"
+  install -dm755 "$_skel/waybar"
+  install -dm755 "$_skel/wofi"
+  install -dm755 "$_skel/mako"
+
+  cp -a "sway/config" "$_skel/sway/"
+  cp -a "sway/config.d/99-autostart" "$_skel/sway/config.d/"
+  cp -a "waybar/config.jsonc" "$_skel/waybar/"
+  cp -a "waybar/style.css" "$_skel/waybar/"
+  cp -a "wofi/config" "$_skel/wofi/"
+  cp -a "wofi/style.css" "$_skel/wofi/"
+  cp -a "mako/config" "$_skel/mako/"
+}
