@@ -25,15 +25,7 @@ optdepends=(
   'swaylock: screen locker'
   'playerctl: media player controls'
 )
-source=(
-  "sway/config"
-  "sway/config.d/99-autostart"
-  "waybar/config.jsonc"
-  "waybar/style.css"
-  "wofi/config"
-  "wofi/style.css"
-  "mako/config"
-)
+source=("sway-config" "99-autostart" "config.jsonc" "style.css" "wofi-config" "wofi-style.css" "mako-config")
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 package() {
@@ -44,11 +36,11 @@ package() {
   install -dm755 "$_skel/wofi"
   install -dm755 "$_skel/mako"
 
-  cp -a "sway/config" "$_skel/sway/"
-  cp -a "sway/config.d/99-autostart" "$_skel/sway/config.d/"
-  cp -a "waybar/config.jsonc" "$_skel/waybar/"
-  cp -a "waybar/style.css" "$_skel/waybar/"
-  cp -a "wofi/config" "$_skel/wofi/"
-  cp -a "wofi/style.css" "$_skel/wofi/"
-  cp -a "mako/config" "$_skel/mako/"
+  cp -a "sway-config" "$_skel/sway/config"
+  cp -a "99-autostart" "$_skel/sway/config.d/99-autostart"
+  cp -a "config.jsonc" "$_skel/waybar/config.jsonc"
+  cp -a "style.css" "$_skel/waybar/style.css"
+  cp -a "wofi-config" "$_skel/wofi/config"
+  cp -a "wofi-style.css" "$_skel/wofi/style.css"
+  cp -a "mako-config" "$_skel/mako/config"
 }

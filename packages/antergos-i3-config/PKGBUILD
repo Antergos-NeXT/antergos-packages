@@ -24,16 +24,7 @@ optdepends=(
   'brightnessctl: brightness control'
   'pavucontrol: audio settings GUI'
 )
-source=(
-  "i3/config"
-  "polybar/config.ini"
-  "polybar/launch.sh"
-  "rofi/config.rasi"
-  "rofi/theme.rasi"
-  "picom/picom.conf"
-  "dunst/dunstrc"
-  "sxhkd/sxhkdrc"
-)
+source=("config" "config.ini" "launch.sh" "config.rasi" "theme.rasi" "picom.conf" "dunstrc" "sxhkdrc")
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 package() {
@@ -46,12 +37,12 @@ package() {
   install -dm755 "$_skel/dunst"
   install -dm755 "$_skel/sxhkd"
 
-  cp -a "i3/config" "$_skel/i3/"
-  cp -a "polybar/config.ini" "$_skel/polybar/"
-  install -m755 "polybar/launch.sh" "$_skel/polybar/"
-  cp -a "rofi/config.rasi" "$_skel/rofi/"
-  cp -a "rofi/theme.rasi" "$_skel/rofi/"
-  cp -a "picom/picom.conf" "$_skel/picom/"
-  cp -a "dunst/dunstrc" "$_skel/dunst/"
-  cp -a "sxhkd/sxhkdrc" "$_skel/sxhkd/"
+  cp -a "config" "$_skel/i3/config"
+  cp -a "config.ini" "$_skel/polybar/config.ini"
+  install -m755 "launch.sh" "$_skel/polybar/launch.sh"
+  cp -a "config.rasi" "$_skel/rofi/config.rasi"
+  cp -a "theme.rasi" "$_skel/rofi/theme.rasi"
+  cp -a "picom.conf" "$_skel/picom/picom.conf"
+  cp -a "dunstrc" "$_skel/dunst/dunstrc"
+  cp -a "sxhkdrc" "$_skel/sxhkd/sxhkdrc"
 }

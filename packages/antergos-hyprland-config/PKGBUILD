@@ -26,15 +26,7 @@ optdepends=(
   'pavucontrol: audio settings'
   'brightnessctl: brightness control'
 )
-source=(
-  "hypr/hyprland.lua"
-  "hypr/hyprpaper.conf"
-  "waybar/config.jsonc"
-  "waybar/style.css"
-  "rofi/config.rasi"
-  "rofi/theme.rasi"
-  "dunst/dunstrc"
-)
+source=("hyprland.lua" "hyprpaper.conf" "config.jsonc" "style.css" "config.rasi" "theme.rasi" "dunstrc")
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 package() {
@@ -45,11 +37,11 @@ package() {
   install -dm755 "$_skel/rofi"
   install -dm755 "$_skel/dunst"
 
-  cp -a "hypr/hyprland.lua" "$_skel/hypr/"
-  cp -a "hypr/hyprpaper.conf" "$_skel/hypr/"
-  cp -a "waybar/config.jsonc" "$_skel/waybar/"
-  cp -a "waybar/style.css" "$_skel/waybar/"
-  cp -a "rofi/config.rasi" "$_skel/rofi/"
-  cp -a "rofi/theme.rasi" "$_skel/rofi/"
-  cp -a "dunst/dunstrc" "$_skel/dunst/"
+  cp -a "hyprland.lua" "$_skel/hypr/hyprland.lua"
+  cp -a "hyprpaper.conf" "$_skel/hypr/hyprpaper.conf"
+  cp -a "config.jsonc" "$_skel/waybar/config.jsonc"
+  cp -a "style.css" "$_skel/waybar/style.css"
+  cp -a "config.rasi" "$_skel/rofi/config.rasi"
+  cp -a "theme.rasi" "$_skel/rofi/theme.rasi"
+  cp -a "dunstrc" "$_skel/dunst/dunstrc"
 }
