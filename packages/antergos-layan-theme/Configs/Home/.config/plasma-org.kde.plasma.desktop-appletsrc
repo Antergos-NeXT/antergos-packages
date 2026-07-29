@@ -647,7 +647,7 @@ positions={"1920x1080":["1","17"],"2560x1440":[]}
 sortMode=-1
 
 [Containments][87][Wallpaper][luisbocanegra.smart.video.wallpaper.reborn][General]
-VideoUrls=["file:///usr/share/backgrounds/antergos/antergos-wallpaper.mp4"]
+VideoUrls=[{"filename": "file:///usr/share/backgrounds/antergos/antergos-wallpaper.mp4", "enabled": true}]
 Volume=0
 MuteMode=5
 FillMode=2
