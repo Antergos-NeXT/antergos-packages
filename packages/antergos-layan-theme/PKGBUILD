@@ -10,12 +10,12 @@
 pkgname=antergos-layan-theme
 pkgver=1.0
 pkgrel=6
-pkgdesc='Antergos NeXT Layan theme suite — KDE configs, Kvantum, SDDM theme, and plasmoids'
+pkgdesc='Antergos NeXT Layan theme suite - KDE configs, Kvantum, SDDM theme, and plasmoids'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL')
 depends=('kvantum' 'yakuake' 'antergos-wallpapers' 'mpv')
-optdepends=('sddm: AntergosDark-Layan SDDM theme — without this, the pixie theme files ship but will not activate'
+optdepends=('sddm: AntergosDark-Layan SDDM theme - without this, the pixie theme files ship but will not activate'
             'cava: audio visualizer data source for Kurve'
             'python-websockets: Kurve audio visualizer WebSocket fallback'
             'qt6-websockets: Kurve audio visualizer QML WebSocket module'
