@@ -5,7 +5,7 @@ pkgver=1
 pkgrel=3
 pkgdesc="Antergos NeXT desktop settings, theme, and color scheme"
 arch=('any')
-url="https://github.com/Antergos-NeXT/antergos-pkgs"
+url="https://github.com/Antergos-NeXT/antergos-packages"
 license=('GPL3')
 depends=(
   'breeze-icons'
