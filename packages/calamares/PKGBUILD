@@ -5,7 +5,7 @@
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=7
+pkgrel=8
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -45,6 +45,11 @@ build() {
   )
 
   local _pkgsrc_dir="$srcdir/$_pkgname-$pkgver"
+
+  sed -i '/"ddlm --target " + de_command/a\
+        elif os.path.exists(self.os_path("usr/bin/cosmic-greeter-start")):\
+            self.config_data["default_session"]["command"] = "cosmic-greeter-start"' \
+    "$_pkgsrc_dir/src/modules/displaymanager/main.py"
 
   local _cmake_options=(
     -B build
