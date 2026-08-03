@@ -54,7 +54,7 @@ package() {
   install -m644 "${srcdir}/antergos-darkest-hour.jpg" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/contents/images/"
   install -m644 "${srcdir}/metadata-darkest-hour.desktop" "${pkgdir}/usr/share/wallpapers/antergos-darkest-hour/metadata.desktop"
 
-  # Icon theme logos (for os-release LOGO=antergos-lookup)
+  # Icon theme logos (for os-release LOGO=antergos-logo)
   install -dm755 "${pkgdir}/usr/share/icons/hicolor/128x128/apps"
   install -m644 "${srcdir}/antergos-logo-128.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/antergos-logo.png"
   install -dm755 "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
