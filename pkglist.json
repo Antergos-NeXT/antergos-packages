@@ -3,41 +3,41 @@
     "name": "alsa-card-profiles-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 37552,
+    "size": 37539,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.188985+02:00"
+    "mtime": "2026-08-03T12:32:37.272887+02:00"
   },
   {
     "name": "antergos-grub-live",
     "version": "2026.08-1",
     "arch": "any",
-    "size": 21512,
+    "size": 21502,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.189061+02:00"
+    "mtime": "2026-08-03T12:32:37.272925+02:00"
   },
   {
     "name": "antergos-grub-theme",
     "version": "2026.07-1",
     "arch": "any",
-    "size": 407803,
+    "size": 407796,
     "category": "desktop",
     "description": "Antergos GRUB theme (Layan)",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.189118+02:00"
+    "mtime": "2026-08-03T12:32:37.272952+02:00"
   },
   {
     "name": "antergos-hyprland-config",
     "version": "1.0-1",
     "arch": "any",
-    "size": 8889,
+    "size": 8878,
     "category": "other",
     "description": "Antergos NeXT Hyprland configuration \u2014 dark theme with waybar, rofi, dunst",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.189288+02:00"
+    "mtime": "2026-08-03T12:32:37.273118+02:00"
   },
   {
     "name": "antergos-i3-config",
@@ -47,107 +47,107 @@
     "category": "other",
     "description": "Antergos NeXT i3 WM configuration \u2014 Dracula dark theme with polybar, rofi, picom",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.189340+02:00"
+    "mtime": "2026-08-03T12:32:37.273138+02:00"
   },
   {
     "name": "antergos-layan-theme",
     "version": "1.0-6",
     "arch": "any",
-    "size": 32658627,
+    "size": 32658572,
     "category": "branding",
     "description": "Antergos NeXT Layan theme suite - KDE configs, Kvantum, SDDM theme, and plasmoids",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.198127+02:00"
+    "mtime": "2026-08-03T12:32:37.280800+02:00"
   },
   {
     "name": "antergos-live-base",
     "version": "2026.08-1",
     "arch": "any",
-    "size": 11798,
+    "size": 11800,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.198993+02:00"
+    "mtime": "2026-08-03T12:32:37.281939+02:00"
   },
   {
     "name": "antergos-live-dinit",
     "version": "2026.08-1",
     "arch": "any",
-    "size": 7408,
+    "size": 7406,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.199058+02:00"
+    "mtime": "2026-08-03T12:32:37.281964+02:00"
   },
   {
     "name": "antergos-live-openrc",
     "version": "2026.08-1",
     "arch": "any",
-    "size": 7736,
+    "size": 7722,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.199107+02:00"
+    "mtime": "2026-08-03T12:32:37.281982+02:00"
   },
   {
     "name": "antergos-lsb-release",
     "version": "2.0-1",
     "arch": "any",
-    "size": 2886,
+    "size": 2889,
     "category": "other",
     "description": "Antergos NeXT LSB release file",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-08-03T06:02:51.199155+02:00"
+    "mtime": "2026-08-03T12:32:37.282000+02:00"
   },
   {
     "name": "antergos-next-desktop-settings",
     "version": "1-3",
     "arch": "any",
-    "size": 9063,
+    "size": 9055,
     "category": "branding",
     "description": "Antergos NeXT desktop settings, theme, and color scheme",
-    "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
-    "mtime": "2026-08-03T06:02:51.199200+02:00"
+    "url": "https://github.com/Antergos-NeXT/antergos-packages",
+    "mtime": "2026-08-03T12:32:37.282031+02:00"
   },
   {
     "name": "antergos-next-keyring",
     "version": "1-2",
     "arch": "any",
-    "size": 6381,
+    "size": 6380,
     "category": "core",
     "description": "Antergos NeXT GPG keyring",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.199249+02:00"
+    "mtime": "2026-08-03T12:32:37.282050+02:00"
   },
   {
     "name": "antergos-next-mirrorlist",
     "version": "1-1",
     "arch": "any",
-    "size": 3621,
+    "size": 3618,
     "category": "core",
     "description": "Antergos NeXT mirror list",
-    "url": "https://github.com/Antergos-NeXT/antergos-pkgs",
-    "mtime": "2026-08-03T06:02:51.199296+02:00"
+    "url": "https://github.com/Antergos-NeXT/antergos-packages",
+    "mtime": "2026-08-03T12:32:37.282067+02:00"
   },
   {
     "name": "antergos-plasma-theme",
     "version": "1-3",
     "arch": "any",
-    "size": 1143482,
+    "size": 1143481,
     "category": "desktop",
     "description": "Antergos NeXT Plasma desktop theme, look-and-feel, and splash screen",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.199341+02:00"
+    "mtime": "2026-08-03T12:32:37.282083+02:00"
   },
   {
     "name": "antergos-release",
     "version": "2026.06-2",
     "arch": "any",
-    "size": 3698,
+    "size": 3705,
     "category": "core",
     "description": "Antergos NeXT release file",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-08-03T06:02:51.199753+02:00"
+    "mtime": "2026-08-03T12:32:37.282406+02:00"
   },
   {
     "name": "antergos-sway-config",
@@ -157,7 +157,7 @@
     "category": "other",
     "description": "Antergos NeXT Sway WM configuration \u2014 dark theme with waybar, wofi, mako",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.199799+02:00"
+    "mtime": "2026-08-03T12:32:37.282423+02:00"
   },
   {
     "name": "antergos-wallpapers",
@@ -167,67 +167,67 @@
     "category": "branding",
     "description": "Antergos NeXT wallpapers",
     "url": "https://github.com/Antergos/wallpapers",
-    "mtime": "2026-08-03T06:02:51.202127+02:00"
+    "mtime": "2026-08-03T12:32:37.283800+02:00"
   },
   {
     "name": "antergos-welcome",
     "version": "0.1-3",
     "arch": "any",
-    "size": 126723,
+    "size": 126747,
     "category": "desktop",
     "description": "Welcome screen and support tool for new Antergos NeXT users",
     "url": "https://github.com/Antergos-NeXT/antergos-welcome",
-    "mtime": "2026-08-03T06:02:51.202655+02:00"
+    "mtime": "2026-08-03T12:32:37.284954+02:00"
   },
   {
     "name": "antergos-xfce-theme",
     "version": "1-1",
     "arch": "any",
-    "size": 267709,
+    "size": 267721,
     "category": "other",
     "description": "Antergos NeXT Xfwm4/GTK theme (based on Numix)",
     "url": "https://github.com/Antergos-NeXT/antergos-packages",
-    "mtime": "2026-08-03T06:02:51.202744+02:00"
+    "mtime": "2026-08-03T12:32:37.285026+02:00"
   },
   {
     "name": "calamares-3.4.2",
     "version": "3.4.2-7",
     "arch": "x86_64",
-    "size": 5243315,
+    "size": 5243359,
     "category": "installer",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.204127+02:00"
+    "mtime": "2026-08-03T12:32:37.285800+02:00"
   },
   {
     "name": "calamares-branding-antergos-next",
     "version": "1.0-24",
     "arch": "any",
-    "size": 145273,
+    "size": 145290,
     "category": "installer",
     "description": "Calamares branding for Antergos NeXT with offline/online installer support",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-08-03T06:02:51.204468+02:00"
+    "mtime": "2026-08-03T12:32:37.286536+02:00"
   },
   {
     "name": "calamares-branding-antergos-next-minimal",
     "version": "1.0-1",
     "arch": "any",
-    "size": 110632,
+    "size": 110635,
     "category": "installer",
     "description": "Calamares branding for Antergos NeXT Minimal (Xfce) with offline/online installer support",
     "url": "https://github.com/Antergos-NeXT",
-    "mtime": "2026-08-03T06:02:51.204563+02:00"
+    "mtime": "2026-08-03T12:32:37.286596+02:00"
   },
   {
     "name": "downgrade",
     "version": "12.0.2-1",
     "arch": "any",
-    "size": 35899,
+    "size": 35898,
     "category": "tool",
-    "description": "Bash script for downgrading one or more packages to a version in your cache or the A.L.A.",
-    "url": "https://github.com/archlinux-downgrade/downgrade",
-    "mtime": "2026-08-03T06:02:51.204648+02:00"
+    "description": "",
+    "url": "",
+    "mtime": "2026-08-03T12:32:37.286645+02:00"
   },
   {
     "name": "gst-plugin-pipewire-1:1.6.7",
@@ -237,37 +237,37 @@
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.204704+02:00"
+    "mtime": "2026-08-03T12:32:37.286672+02:00"
   },
   {
     "name": "kwin-zones-1.0.12",
     "version": "1.0.12-1",
     "arch": "x86_64",
-    "size": 68041,
+    "size": 68031,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.204782+02:00"
+    "mtime": "2026-08-03T12:32:37.286713+02:00"
   },
   {
     "name": "libpipewire-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 634027,
+    "size": 633953,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.204848+02:00"
+    "mtime": "2026-08-03T12:32:37.286747+02:00"
   },
   {
-    "name": "oh-my-posh-bin-30.3.0",
-    "version": "30.3.0-1",
+    "name": "oh-my-posh-bin-30.4.0",
+    "version": "30.4.0-1",
     "arch": "x86_64",
-    "size": 6895668,
+    "size": 6895691,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.206127+02:00"
+    "mtime": "2026-08-03T12:32:37.287800+02:00"
   },
   {
     "name": "pacseek",
@@ -277,186 +277,186 @@
     "category": "tool",
     "description": "A terminal user interface for searching and installing Arch Linux packages",
     "url": "https://github.com/moson-mo/pacseek",
-    "mtime": "2026-08-03T06:02:51.208127+02:00"
+    "mtime": "2026-08-03T12:32:37.289800+02:00"
   },
   {
     "name": "pipewire-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 858777,
+    "size": 858788,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.208893+02:00"
+    "mtime": "2026-08-03T12:32:37.290380+02:00"
   },
   {
     "name": "pipewire-alsa-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 8942,
+    "size": 8953,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.209192+02:00"
+    "mtime": "2026-08-03T12:32:37.290637+02:00"
   },
   {
     "name": "pipewire-audio-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 2898541,
+    "size": 2898502,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.209254+02:00"
+    "mtime": "2026-08-03T12:32:37.290800+02:00"
   },
   {
     "name": "pipewire-docs-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 3156362,
+    "size": 3156465,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.210151+02:00"
+    "mtime": "2026-08-03T12:32:37.291800+02:00"
   },
   {
     "name": "pipewire-ffado-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 45940,
+    "size": 45935,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211114+02:00"
+    "mtime": "2026-08-03T12:32:37.292338+02:00"
   },
   {
     "name": "pipewire-jack-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 206192,
+    "size": 206189,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211182+02:00"
+    "mtime": "2026-08-03T12:32:37.292369+02:00"
   },
   {
     "name": "pipewire-jack-client-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 96718,
+    "size": 96720,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211293+02:00"
+    "mtime": "2026-08-03T12:32:37.292441+02:00"
   },
   {
     "name": "pipewire-libcamera-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 77226,
+    "size": 77222,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211397+02:00"
+    "mtime": "2026-08-03T12:32:37.292484+02:00"
   },
   {
     "name": "pipewire-pulse-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 258220,
+    "size": 258200,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211470+02:00"
+    "mtime": "2026-08-03T12:32:37.292521+02:00"
   },
   {
     "name": "pipewire-roc-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 41864,
+    "size": 41862,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211601+02:00"
+    "mtime": "2026-08-03T12:32:37.292608+02:00"
   },
   {
     "name": "pipewire-session-manager-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 7381,
+    "size": 7379,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211669+02:00"
+    "mtime": "2026-08-03T12:32:37.292637+02:00"
   },
   {
     "name": "pipewire-v4l2-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 54365,
+    "size": 54366,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211720+02:00"
+    "mtime": "2026-08-03T12:32:37.292658+02:00"
   },
   {
     "name": "pipewire-x11-bell-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 15356,
+    "size": 15359,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211788+02:00"
+    "mtime": "2026-08-03T12:32:37.292690+02:00"
   },
   {
     "name": "pipewire-zeroconf-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 160083,
+    "size": 160070,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211842+02:00"
+    "mtime": "2026-08-03T12:32:37.292711+02:00"
   },
   {
     "name": "pixie-sddm-git-r45.505b32c-1",
     "version": "?-?",
     "arch": "?",
-    "size": 960124,
+    "size": 960123,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.211944+02:00"
+    "mtime": "2026-08-03T12:32:37.292800+02:00"
   },
   {
     "name": "pulse-native-provider-1:1.6.7",
     "version": "?-?",
     "arch": "?",
-    "size": 7378,
+    "size": 7380,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.212272+02:00"
+    "mtime": "2026-08-03T12:32:37.293070+02:00"
   },
   {
     "name": "tela-circle-icon-theme-git-2026.07.07.r0.gc0adf1a-1",
     "version": "?-?",
     "arch": "?",
-    "size": 94327947,
+    "size": 94325557,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.239127+02:00"
+    "mtime": "2026-08-03T12:32:37.317801+02:00"
   },
   {
     "name": "yay-13.0.1",
     "version": "13.0.1-1",
     "arch": "x86_64",
-    "size": 4690057,
+    "size": 4690022,
     "category": "other",
     "description": "",
     "url": "",
-    "mtime": "2026-08-03T06:02:51.240127+02:00"
+    "mtime": "2026-08-03T12:32:37.318801+02:00"
   }
 ]
