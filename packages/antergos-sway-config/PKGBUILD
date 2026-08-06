@@ -2,7 +2,7 @@
 
 pkgname=antergos-sway-config
 pkgver=1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Antergos NeXT Sway WM configuration — dark theme with waybar, wofi, mako'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"

@@ -2,7 +2,7 @@
 
 pkgname=antergos-i3-config
 pkgver=1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Antergos NeXT i3 WM configuration — Dracula dark theme with polybar, rofi, picom'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"

@@ -8,7 +8,6 @@ Custom package repository for Antergos NeXT ISO builds.
 |---------|-------------|
 | `calamares` | Universal installer framework (Qt6) — [upstream](https://codeberg.org/calamares/calamares) |
 | `calamares-branding-antergos-next` | Antergos Calamares branding + netinstall-based installer + launcher |
-| `calamares-branding-antergos-next-minimal` | Themed CMake module for first-run branding (no slideshow) |
 | `antergos-next-keyring` | GPG keyring for the `[antergos-pkgs]` repo |
 | `antergos-next-mirrorlist` | Mirror list for `[antergos-pkgs]` |
 | `antergos-release` | Antergos NeXT `/etc/os-release` |
@@ -56,8 +55,6 @@ pacman -S calamares calamares-branding-antergos-next antergos-wallpapers
 - **Packagechooser + netinstall** — DE selector (KDE, GNOME, XFCE, i3, Sway, Hyprland, Budgie, Cinnamon, MATE) and DM selector (SDDM, LightDM, GDM, Ly, greetd), with basestrap-based package groups
 - **Launcher** (`calamares-next`) — launches Calamares with online settings
 - **Animated space slideshow** — rocket, stars, comet, moon with smooth 700ms transitions
-
-A `calamares-branding-antergos-next-minimal` variant is also provided for the first-run welcome screen (no slideshow, CMake-themable).
 
 ## How it works
 

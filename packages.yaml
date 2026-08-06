@@ -13,7 +13,6 @@ packages:
   - pipewire
   - calamares
   - calamares-branding-antergos-next
-  - calamares-branding-antergos-next-minimal
   - antergos-xfce-theme
   - downgrade
   - yay
