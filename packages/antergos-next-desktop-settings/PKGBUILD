@@ -2,7 +2,7 @@
 
 pkgname=antergos-next-desktop-settings
 pkgver=1
-pkgrel=3
+pkgrel=4
 pkgdesc="Antergos NeXT desktop settings, theme, and color scheme"
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
@@ -14,7 +14,7 @@ depends=(
   'noto-fonts'
   'ttf-roboto'
 )
-optdepends=('qt5ct' 'qt6ct')
+optdepends=('qt5ct: Qt5 configuration tool' 'qt6ct: Qt6 configuration tool')
 source=(
   "antergos-next-gtk3.css"
   "antergos-next-gtk4.css"

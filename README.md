@@ -13,7 +13,6 @@ Custom package repository for Antergos NeXT ISO builds.
 | `antergos-release` | Antergos NeXT `/etc/os-release` |
 | `antergos-lsb-release` | LSB release info |
 | `antergos-next-desktop-settings` | Plasma/GTK theme, dconf/plasma-settings defaults |
-| `antergos-plasma-theme` | Plasma desktop theme |
 | `antergos-xfce-theme` | XFCE desktop theme |
 | `antergos-layan-theme` | Layan theme variant |
 | `antergos-wallpapers` | Desktop wallpapers |

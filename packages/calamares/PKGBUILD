@@ -5,7 +5,7 @@
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=9
+pkgrel=10
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -82,7 +82,6 @@ build() {
     -DKDE_INSTALL_MANDIR=/usr/share/man
     -DKDE_INSTALL_INFODIR=/usr/share/info
     -DKDE_INSTALL_SYSCONFDIR=/etc
-    -DCMAKE_DISTRIBUTION_NAME="Antergos NeXT"
     -Wno-dev
   )
 
