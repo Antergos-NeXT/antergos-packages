@@ -1,0 +1,76 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d393726..6f6a5f4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -51,7 +51,7 @@
+ 
+ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+ 
+-set(CALAMARES_VERSION 3.4.2)
++set(CALAMARES_VERSION 3.4.2-w0k3)
+ set(CALAMARES_RELEASE_MODE ON) # Set to ON during a release
+ 
+ if(CMAKE_SCRIPT_MODE_FILE)
+diff --git a/src/modules/packagechooser/Config.cpp b/src/modules/packagechooser/Config.cpp
+index 642311b..d0d6b11 100644
+--- a/src/modules/packagechooser/Config.cpp
++++ b/src/modules/packagechooser/Config.cpp
+@@ -147,7 +147,12 @@ Config::updateGlobalStorage( const QStringList& selected ) const
+     }
+     else if ( m_method == PackageChooserMethod::NetAdd )
+     {
+-        QVariantList netinstallDataList = m_model->getNetinstallDataForNames( selected );
++        // Tag the data with our own instance id (e.g. "packagechooser@de")
++        // so that when multiple packagechooser instances use netinstall-add,
++        // each instance only prunes (and replaces) its own stale data and
++        // leaves the other instances' groups intact in global storage.
++        const QString source = m_defaultId.toString();
++        QVariantList netinstallDataList = m_model->getNetinstallDataForNames( selected, source );
+         if ( netinstallDataList.isEmpty() )
+         {
+             cWarning() << "No netinstall information found for " << selected;
+@@ -158,8 +163,7 @@ Config::updateGlobalStorage( const QStringList& selected ) const
+             auto* gs = Calamares::JobQueue::instance()->globalStorage();
+             if ( gs->contains( "netinstallAdd" ) )
+             {
+-                netinstallDataList
+-                    += pruneNetinstallAdd( QStringLiteral( "packageChooser" ), gs->value( "netinstallAdd" ) );
++                netinstallDataList += pruneNetinstallAdd( source, gs->value( "netinstallAdd" ) );
+             }
+             gs->insert( "netinstallAdd", netinstallDataList );
+         }
+diff --git a/src/modules/packagechooser/PackageModel.cpp b/src/modules/packagechooser/PackageModel.cpp
+index f2a0b43..b7e2996 100644
+--- a/src/modules/packagechooser/PackageModel.cpp
++++ b/src/modules/packagechooser/PackageModel.cpp
+@@ -137,7 +137,7 @@ PackageListModel::getInstallPackagesForNames( const QStringList& ids ) const
+ }
+ 
+ QVariantList
+-PackageListModel::getNetinstallDataForNames( const QStringList& ids ) const
++PackageListModel::getNetinstallDataForNames( const QStringList& ids, const QString& sourceId ) const
+ {
+     QVariantList l;
+     for ( auto& p : m_packages )
+@@ -147,7 +147,7 @@ PackageListModel::getNetinstallDataForNames( const QStringList& ids ) const
+             if ( !p.netinstallData.isEmpty() )
+             {
+                 QVariantMap newData = p.netinstallData;
+-                newData[ "source" ] = QStringLiteral( "packageChooser" );
++                newData[ "source" ] = sourceId;
+                 l.append( newData );
+             }
+         }
+diff --git a/src/modules/packagechooser/PackageModel.h b/src/modules/packagechooser/PackageModel.h
+index ed7ffcf..7c63647 100644
+--- a/src/modules/packagechooser/PackageModel.h
++++ b/src/modules/packagechooser/PackageModel.h
+@@ -118,7 +118,7 @@ public:
+      *
+      * returns a list of netinstall data or an emply list if none is found
+      */
+-    QVariantList getNetinstallDataForNames( const QStringList& ids ) const;
++    QVariantList getNetinstallDataForNames( const QStringList& ids, const QString& sourceId ) const;
+ 
+     enum Roles : int
+     {

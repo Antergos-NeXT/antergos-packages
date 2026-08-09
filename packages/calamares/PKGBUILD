@@ -5,7 +5,7 @@
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=8
+pkgrel=9
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -29,8 +29,15 @@ makedepends=(
 
 _pkgext="tar.gz"
 DLAGENTS=('https::/usr/bin/curl -gqb "" -fLC - --http1.1 --retry 5 --retry-delay 5 -o %o %u')
-source=("$_pkgname-$pkgver.$_pkgext"::"$url/releases/download/v$pkgver/$_pkgname-$pkgver.$_pkgext")
-sha256sums=('733bbbb00dc9f84874bd5c22960952f317ea2537565431179fa2152b2fbfdccc')
+source=("$_pkgname-$pkgver.$_pkgext"::"$url/releases/download/v$pkgver/$_pkgname-$pkgver.$_pkgext"
+        'multi-netinstall-add.patch')
+sha256sums=('733bbbb00dc9f84874bd5c22960952f317ea2537565431179fa2152b2fbfdccc'
+            '18a0e1592b0f893256996f6071d539cbd692b920b4d3788e043442f3e707d795')
+
+prepare() {
+  cd "$srcdir/$_pkgname-$pkgver"
+  patch -Np1 -i "$srcdir/multi-netinstall-add.patch"
+}
 
 build() {
   local _skip_modules=(
