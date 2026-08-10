@@ -7,8 +7,8 @@ pkgname=('antergos-live-base'
         'antergos-live-dinit'
         'antergos-live-openrc'
         'antergos-grub-live')
-pkgver=2026.06
-pkgrel=5
+pkgver=2026.08
+pkgrel=6
 pkgdesc='Antergos live session'
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-live"
@@ -25,7 +25,7 @@ build() {
     make -C artix-live
 
     # Don't remove calamares.desktop — we ship a branded one
-    sed -i 's/^remove_calamares_launcher/# remove_calamares_launcher/' artix-live/bin/artix-live
+    sed -i 's/^remove_calamares_launcher$/# remove_calamares_launcher/' artix-live/bin/artix-live
 
     # Uncomment calamares section so desktop-items copies it to localized Desktop
     sed -i '/# if .*calamares/,/# fi/ s/^# //' artix-live/bin/desktop-items
