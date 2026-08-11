@@ -1,0 +1,21 @@
+# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+
+pkgname=antergos-lightdm-config
+pkgver=1
+pkgrel=1
+pkgdesc="Antergos NeXT LightDM configuration (slick-greeter)"
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL3')
+depends=('lightdm' 'lightdm-slick-greeter' 'antergos-wallpapers')
+source=(
+  "lightdm.conf"
+  "slick-greeter.conf"
+)
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+  install -dm755 "${pkgdir}/etc/lightdm"
+  install -m644 "${srcdir}/lightdm.conf" "${pkgdir}/etc/lightdm/lightdm.conf"
+  install -m644 "${srcdir}/slick-greeter.conf" "${pkgdir}/etc/lightdm/slick-greeter.conf"
+}

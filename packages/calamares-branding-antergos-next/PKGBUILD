@@ -47,7 +47,12 @@ source=("branding.desc"
          "welcome.conf"
         "settings_offline.conf"
         "settings_online.conf"
-        "calamares-next.sh")
+        "calamares-next.sh"
+        "sddm-screenshot.png"
+        "lightdm-screenshot.png"
+        "lxdm-screenshot.png"
+        "greetd-screenshot.png"
+        "ly-screenshot.png")
 sha256sums=('SKIP'
             'SKIP'
             'SKIP'
@@ -85,8 +90,14 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
             'SKIP')
-
+ 
 package() {
   # Branding data (shared between offline/online)
   local _brand="/usr/share/calamares/branding/antergos-next"
@@ -119,6 +130,11 @@ package() {
   cp "starsFar.svg" "${pkgdir}${_brand}/"
   cp "antergos-logo.png" "${pkgdir}${_brand}/"
   cp "antergos-icon.png" "${pkgdir}${_brand}/"
+  cp "sddm-screenshot.png" "${pkgdir}${_brand}/"
+  cp "lightdm-screenshot.png" "${pkgdir}${_brand}/"
+  cp "lxdm-screenshot.png" "${pkgdir}${_brand}/"
+  cp "greetd-screenshot.png" "${pkgdir}${_brand}/"
+  cp "ly-screenshot.png" "${pkgdir}${_brand}/"
 
   # Also overwrite default branding so Artix calamares package can't sneak in
   local _defbrand="/usr/share/calamares/branding/default"
@@ -150,6 +166,11 @@ package() {
   cp "starsFar.svg" "${pkgdir}${_defbrand}/"
   cp "antergos-logo.png" "${pkgdir}${_defbrand}/"
   cp "antergos-icon.png" "${pkgdir}${_defbrand}/"
+  cp "sddm-screenshot.png" "${pkgdir}${_defbrand}/"
+  cp "lightdm-screenshot.png" "${pkgdir}${_defbrand}/"
+  cp "lxdm-screenshot.png" "${pkgdir}${_defbrand}/"
+  cp "greetd-screenshot.png" "${pkgdir}${_defbrand}/"
+  cp "ly-screenshot.png" "${pkgdir}${_defbrand}/"
 
   # Shared Calamares modules
   install -dm755 "${pkgdir}/etc/calamares/modules"
