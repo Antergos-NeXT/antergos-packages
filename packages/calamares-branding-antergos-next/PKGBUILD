@@ -2,7 +2,7 @@
 
 pkgname=calamares-branding-antergos-next
 pkgver=2.0
-pkgrel=4
+pkgrel=5
 pkgdesc="Calamares branding for Antergos NeXT online installer"
 arch=('any')
 url="https://github.com/Antergos-NeXT"

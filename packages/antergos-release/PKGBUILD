@@ -2,7 +2,7 @@
 
 pkgname=antergos-release
 pkgver=2026.08
-pkgrel=4
+pkgrel=5
 pkgdesc='Antergos NeXT release file'
 arch=('any')
 url="https://github.com/Antergos-NeXT"
@@ -16,10 +16,10 @@ package() {
     install -dm755 $pkgdir/etc
     cat > $pkgdir/usr/lib/os-release << EOF
 NAME="Antergos NeXT"
-PRETTY_NAME="Antergos NeXT 2026.08.16 Arranxo"
+PRETTY_NAME="Antergos NeXT 2026.08.17 Arranxo"
 ID=antergos
 ID_LIKE=artix
-VERSION_ID=2026.08.16
+VERSION_ID=2026.08.17
 VERSION_CODENAME=arranxo
 BUILD_ID=rolling
 ANSI_COLOR="38;2;0;136;204"
