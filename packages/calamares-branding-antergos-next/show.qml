@@ -51,8 +51,8 @@ Item {
             },
             Slide {
                 title: qsTr("Desktop Environments")
-                secondaryTitle: qsTr("Nine options to choose from")
-                body: qsTr("Plasma, Xfce, Cinnamon, MATE, LXQt, i3, Sway, Hyprland, or COSMIC — pick the environment that fits your workflow during installation.")
+                secondaryTitle: qsTr("Ten options to choose from")
+                body: qsTr("Plasma, Plasma (Minimal), Xfce, Cinnamon, MATE, LXQt, i3, Sway, Hyprland, or COSMIC — pick the environment that fits your workflow during installation.")
             },
             Slide {
                 title: qsTr("Init System")
@@ -60,9 +60,9 @@ Item {
                 body: qsTr("Fast, parallel service boot with dinit. runit and s6 are also available for selection during online installation.")
             },
             Slide {
-                title: qsTr("Two Modes of Installation")
-                secondaryTitle: qsTr("Online or Offline")
-                body: qsTr("Online mode gives you full control over DE, DM, and packages. Offline mode installs Plasma with a pre-configured setup — ready to go in minutes.")
+                title: qsTr("Installation Modes")
+                secondaryTitle: qsTr("Online by default")
+                body: qsTr("All packages are installed online from the Artix and Antergos NeXT repositories, so you always get the latest versions. Choose your DE, DM, and additional packages during installation.")
             },
             Slide {
                 title: qsTr("Built on Artix Linux")

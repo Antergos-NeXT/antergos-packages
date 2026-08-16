@@ -17,6 +17,7 @@ packages:
   - downgrade
   - yay
   - antergos-layan-theme
+  - antergos-lightdm-config
   - tela-circle-icon-theme-git
   - kwin-zones
   - oh-my-posh-bin
