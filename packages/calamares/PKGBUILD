@@ -1,11 +1,11 @@
-# Maintainer: Celestia Ludenberg <ash8820@proton.me>
+# Maintainer: Michał <ash8820@proton.me>
 # Contributor: Antergos NeXT Team
 # Upstream: Calamares team
 
 _pkgname="calamares"
 pkgname="$_pkgname"
 pkgver=3.4.2
-pkgrel=12
+pkgrel=13
 pkgdesc="Distribution-independent installer framework"
 url="https://codeberg.org/Calamares/calamares"
 license=("GPL-3.0-or-later")
@@ -56,7 +56,10 @@ build() {
   sed -i "/DesktopEnvironment('\/usr\/bin\/Hyprland', 'hyprland'),/a\    DesktopEnvironment('/usr/bin/start-cosmic', 'cosmic')," \
     "$_pkgsrc_dir/src/modules/displaymanager/main.py"
 
-  sed -i 's|        if os.path.exists(self.os_path("usr/bin/gtkgreet")) and os.path.exists(self.os_path("usr/bin/cage")):|        if os.path.exists(self.os_path("usr/bin/cosmic-greeter-start")) and de_command == "/usr/bin/start-cosmic":\n            self.config_data["default_session"]["command"] = "cosmic-greeter-start"\n            self.config_data["default_session"]["user"] = "cosmic-greeter"\n            self.config_data["general"] = dict(service = "cosmic-greeter")\n        elif os.path.exists(self.os_path("usr/bin/gtkgreet")) and os.path.exists(self.os_path("usr/bin/cage")):|' \
+  sed -i 's|        return self.os_path("etc/greetd/config.toml")|        if os.path.exists(self.os_path("usr/bin/cosmic-greeter-start")):\n            return self.os_path("etc/greetd/cosmic-greeter.toml")\n        return self.os_path("etc/greetd/config.toml")|' \
+    "$_pkgsrc_dir/src/modules/displaymanager/main.py"
+
+  sed -i 's|        if os.path.exists(self.os_path("usr/bin/gtkgreet")) and os.path.exists(self.os_path("usr/bin/cage")):|        if os.path.exists(self.os_path("usr/bin/cosmic-greeter-start")) and de_command == "/usr/bin/start-cosmic":\n            self.config_data["default_session"]["command"] = "cosmic-greeter-start"\n            self.config_data["default_session"]["user"] = "cosmic-greeter"\n            self.config_data["general"] = dict(service = "cosmic-greeter")\n            libcalamares.utils.target_env_call(['\''artix-service'\'', '\''disable'\'', '\''greetd'\''])\n            libcalamares.utils.target_env_call(['\''artix-service'\'', '\''enable'\'', '\''cosmic-greeter'\''])\n        elif os.path.exists(self.os_path("usr/bin/gtkgreet")) and os.path.exists(self.os_path("usr/bin/cage")):|' \
     "$_pkgsrc_dir/src/modules/displaymanager/main.py"
 
   local _cmake_options=(

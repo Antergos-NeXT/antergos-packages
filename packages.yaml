@@ -12,6 +12,7 @@ packages:
   - pipewire
   - calamares
   - calamares-branding-antergos-next
+  - cosmic-greeter-dinit
   - antergos-xfce-theme
   - downgrade
   - yay

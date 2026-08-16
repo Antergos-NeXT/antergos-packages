@@ -1,0 +1,25 @@
+# Maintainer: Michał <ash8820@proton.me>
+# Contributor: Antergos NeXT Team
+# Upstream: (none — dinit services are maintained here; Artix's cosmic-greeter ships none)
+
+pkgname=cosmic-greeter-dinit
+pkgver=1.0
+pkgrel=1
+pkgdesc='dinit service files for cosmic-greeter (runs greetd with the cosmic config)'
+arch=('any')
+url="https://github.com/Antergos-NeXT/antergos-packages"
+license=('GPL-3.0-or-later')
+depends=('dinit' 'greetd' 'cosmic-greeter' 'elogind-dinit' 'dbus-dinit')
+
+source=('cosmic-greeter-pre'
+        'cosmic-greeter-daemon'
+        'cosmic-greeter'
+        'cosmic-greeter-dinit.conf')
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+    install -Dm644 "$srcdir/cosmic-greeter-pre" "$pkgdir/etc/dinit.d/cosmic-greeter-pre"
+    install -Dm644 "$srcdir/cosmic-greeter-daemon" "$pkgdir/etc/dinit.d/cosmic-greeter-daemon"
+    install -Dm644 "$srcdir/cosmic-greeter" "$pkgdir/etc/dinit.d/cosmic-greeter"
+    install -Dm644 "$srcdir/cosmic-greeter-dinit.conf" "$pkgdir/usr/lib/tmpfiles.d/cosmic-greeter-dinit.conf"
+}

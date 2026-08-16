@@ -1,0 +1,5 @@
+type = process
+command = /usr/bin/cosmic-greeter-daemon
+smooth-recovery = true
+depends-on = dbus
+depends-on = cosmic-greeter-pre

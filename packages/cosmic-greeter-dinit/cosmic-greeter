@@ -1,0 +1,7 @@
+type = process
+command = /usr/bin/greetd --config /etc/greetd/cosmic-greeter.toml
+smooth-recovery = true
+depends-on = logind
+depends-on = cosmic-greeter-daemon
+depends-on = login.target
+logfile = /var/log/dinit/greetd.log
