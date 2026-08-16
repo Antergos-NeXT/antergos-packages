@@ -2,7 +2,7 @@
 
 ## Git Config
 ```bash
-git config user.name "Celestia Ludenberg"
+git config user.name "Michał"
 git config user.email "ash8820@proton.me"
 ```
 
