@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: artixlinux/artixlinux:base-openrc
+      image: artixlinux/artixlinux:base-dinit
 
     steps:
     - uses: actions/checkout@v4
