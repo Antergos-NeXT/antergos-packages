@@ -44,6 +44,7 @@ source=("branding.desc"
          "netinstall.conf"
          "packagechooser_de.conf"
          "packagechooser_dm.conf"
+         "services-artix.conf"
          "welcome.conf"
         "settings_offline.conf"
         "settings_online.conf"
@@ -96,8 +97,9 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
+            'SKIP'
             'SKIP')
- 
+
 package() {
   # Branding data (shared between offline/online)
   local _brand="/usr/share/calamares/branding/antergos-next"
@@ -181,6 +183,7 @@ package() {
   cp "netinstall.yaml" "${pkgdir}/etc/calamares/modules/"
   cp "packagechooser_de.conf" "${pkgdir}/etc/calamares/modules/"
   cp "packagechooser_dm.conf" "${pkgdir}/etc/calamares/modules/"
+  cp "services-artix.conf" "${pkgdir}/etc/calamares/modules/"
   cp "welcome.conf" "${pkgdir}/etc/calamares/modules/"
 
   # Offline config directory
