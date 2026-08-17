@@ -59,6 +59,8 @@ jobs:
           cd repo/antergos-pkgs/os/x86_64
           gpg --batch --yes --pinentry-mode loopback --passphrase "$SIGNING_PASSPHRASE" \
             --detach-sign --output antergos-pkgs.db.tar.gz.sig antergos-pkgs.db.tar.gz
+          cp antergos-pkgs.db.tar.gz.sig antergos-pkgs.db.sig
+
           rm -rf "$GNUPGHOME" /tmp/signing-key.gpg
         else
           echo "Signing secrets not set — skipping signature"
