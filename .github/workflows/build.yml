@@ -46,6 +46,24 @@ jobs:
         cd repo/antergos-pkgs/os/x86_64
         repo-add antergos-pkgs.db.tar.gz *.pkg.tar.zst
 
+    - name: Sign repo database
+      env:
+        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+      run: |
+        if [[ -n "$SIGNING_KEY" && -n "$SIGNING_PASSPHRASE" ]]; then
+          export GNUPGHOME=/tmp/gpg-sign
+          mkdir -p "$GNUPGHOME" && chmod 700 "$GNUPGHOME"
+          echo "$SIGNING_KEY" | base64 -d > /tmp/signing-key.gpg
+          gpg --batch --import /tmp/signing-key.gpg
+          cd repo/antergos-pkgs/os/x86_64
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$SIGNING_PASSPHRASE" \
+            --detach-sign --output antergos-pkgs.db.tar.gz.sig antergos-pkgs.db.tar.gz
+          rm -rf "$GNUPGHOME" /tmp/signing-key.gpg
+        else
+          echo "Signing secrets not set — skipping signature"
+        fi
+
     - name: Copy to root for flat-URL compat
       run: |
         cp repo/antergos-pkgs/os/x86_64/*.pkg.tar.zst repo/

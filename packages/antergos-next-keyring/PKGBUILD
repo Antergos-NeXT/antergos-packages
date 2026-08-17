@@ -2,7 +2,7 @@
 
 pkgname=antergos-next-keyring
 pkgver=1
-pkgrel=2
+pkgrel=3
 pkgdesc="Antergos NeXT GPG keyring"
 arch=('any')
 url="https://github.com/Antergos-NeXT/antergos-packages"
