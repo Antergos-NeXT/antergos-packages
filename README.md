@@ -1,4 +1,14 @@
-# antergos-packages
+# Antergos‑NeXT Packages Repository — Migration Notice
+
+This repository will be archived after the project completes its migration to our self‑hosted Gitea forge.  
+Package build scripts, metadata, and updates now continue on Gitea, aligned with upstream Artix workflows.
+
+Active development is located at:
+
+https://antergos-nas.taild4360b.ts.net/Antergos-NeXT/antergos-packages
+
+After migration, GitHub will remain available only as a fallback issue tracker for users who prefer GitHub.  
+All package development and updates now occur exclusively on the Gitea platform. 
 
 Custom package repository for Antergos NeXT ISO builds.
 
